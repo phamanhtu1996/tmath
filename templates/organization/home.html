@@ -43,6 +43,12 @@
                 <a href="{{ url('organization_requests_pending', organization.id, organization.slug) }}">{{ _('View requests') }}</a>
             </div>
         {% endif %}
+
+        {% if perms.judge.add_contest %}
+            <div>
+                <a href="{{ url('admin:judge_contest_add') }}">{{ _('Create contest') }}</a>
+            </div>
+        {% endif %}
     {% endif %}
 
     {% if perms.judge.change_organization %}
