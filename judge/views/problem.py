@@ -4,7 +4,6 @@ import shutil
 from datetime import timedelta
 from operator import itemgetter
 from random import randrange
-from django import urls
 
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -13,7 +12,7 @@ from django.db import transaction
 from django.db.models import Count, F, Prefetch, Q
 from django.db.utils import ProgrammingError
 from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils import translation
@@ -21,17 +20,13 @@ from django.utils.functional import cached_property
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy
-from django.views.generic import ListView, View
+from django.views.generic import ListView, View, CreateView, UpdateView
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import CreateView, FormView
-from judge.models.problem import LanguageLimit
-from martor.widgets import AdminMartorWidget
 from reversion import revisions
-from reversion.admin import VersionAdmin
 
 from judge.comments import CommentedDetailView
-from judge.forms import LanguageLimitForm, ProblemCloneForm, ProblemCreateForm, ProblemSolutionForm, ProblemSolutionInlineForm, ProblemSubmitForm
+from judge.forms import ProblemCloneForm, ProblemCreateForm, ProblemSubmitForm, ProblemUpdateForm
 from judge.models import ContestSubmission, Judge, Language, Problem, ProblemGroup, \
     ProblemTranslation, ProblemType, RuntimeVersion, Solution, Submission, SubmissionSource, \
     TranslatedProblemForeignKeyQuerySet
@@ -44,9 +39,6 @@ from judge.utils.strings import safe_float_or_none, safe_int_or_none
 from judge.utils.tickets import own_ticket_filter
 from judge.utils.views import QueryStringSortMixin, SingleObjectFormView, TitleMixin, add_file_response, generic_message
 
-
-from judge.admin.problem import ProblemForm
-from judge.widgets.select2 import AdminHeavySelect2MultipleWidget, AdminSelect2MultipleWidget, AdminSelect2Widget
 
 def get_contest_problem(problem, profile):
     try:
@@ -727,41 +719,21 @@ class ProblemClone(ProblemMixin, PermissionRequiredMixin, TitleMixin, SingleObje
             revisions.set_user(self.request.user)
             revisions.set_comment(_('Cloned problem from %s') % old_code)
 
-        return HttpResponseRedirect(reverse('admin:judge_problem_change', args=(problem.id,)))
+        return HttpResponseRedirect(reverse('problem_edit', args=(problem.code,)))
 
 
-class ProblemCreate(ProblemMixin, PermissionRequiredMixin, TitleMixin, CreateView):
+class ProblemNew(ProblemMixin, PermissionRequiredMixin, TitleMixin, CreateView):
     title = _('Create Problem')
     template_name = 'problem/create.html'
-    permission_required = 'judge.add_problem'
     form_class = ProblemCreateForm
-    model = Problem
-    success_url = 'problems/'
-
-    def get(self, request, *args, **kwargs):
-        self.object = None
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        solution_form = ProblemSolutionInlineForm
-        language_form = LanguageLimitForm
-
-        return self.render_to_response(
-            self.get_context_data(form=form, solution_form=solution_form, language_form=language_form)
-        )
+    permission_required = 'judge.add_problem'
     
-    def form_valid(self, form):
-        return super().form_valid(form)
+    # def get(self, request, *args, **kwargs):
+    #     return ProblemCreateForm()
 
-    def get_context_data(self, **kwargs):
-        data = super(ProblemCreate, self).get_context_data(**kwargs)
 
-        if self.request.POST:
-            data['form'] = ProblemCreateForm(self.request.POST)
-            data['solution_form'] = ProblemSolutionInlineForm(self.request.POST)
-            data['language_form'] = LanguageLimitForm(self.request.POST)
-        else:
-            data['form'] = ProblemCreateForm()
-            data['solution_form'] = ProblemSolutionInlineForm()
-            data['language_form'] = LanguageLimitForm()
-        
-        return data
+class ProblemEdit(ProblemMixin, PermissionRequiredMixin, TitleMixin, UpdateView):
+    title = _('Update Problem')
+    template_name = 'problem/create.html'
+    form_class = ProblemUpdateForm
+    permission_required = 'judge.edit_problem'

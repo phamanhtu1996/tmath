@@ -16,7 +16,7 @@ from judge.sitemap import BlogPostSitemap, ContestSitemap, HomePageSitemap, Orga
     SolutionSitemap, UrlSitemap, UserSitemap
 from judge.views import TitledTemplateView, api, blog, comment, contests, language, license, mailgun, organization, \
     preview, problem, problem_manage, ranked_submission, register, stats, status, submission, tasks, ticket, \
-    two_factor, user, widgets
+    two_factor, user, widgets, about
 from judge.views.problem_data import ProblemDataView, ProblemSubmissionDiff, \
     problem_data_file, problem_init_view
 from judge.views.register import ActivationView, RegistrationView
@@ -110,9 +110,10 @@ urlpatterns = [
 
     url(r'^problems/$', problem.ProblemList.as_view(), name='problem_list'),
     url(r'^problems/random/$', problem.RandomProblem.as_view(), name='problem_random'),
-    url(r'^problems/new/$', problem.ProblemCreate.as_view(), name='problem_create'),
+	url(r'^problems/new/$', problem.ProblemNew.as_view(), name='problem_new'),
 
     url(r'^problem/(?P<problem>[^/]+)', include([
+        url(r'^/update$', problem.ProblemEdit.as_view(), name='problem_edit'),
         url(r'^$', problem.ProblemDetail.as_view(), name='problem_detail'),
         url(r'^/editorial$', problem.ProblemSolution.as_view(), name='problem_editorial'),
         url(r'^/raw$', problem.ProblemRaw.as_view(), name='problem_raw'),
@@ -380,6 +381,8 @@ urlpatterns = [
         url(r'^contest/$', ContestSelect2View.as_view(), name='contest_select2'),
         url(r'^comment/$', CommentSelect2View.as_view(), name='comment_select2'),
     ])),
+
+    url(r'^custom_checker_sample/', about.custom_checker_sample, name='custom_checker_sample'),
 
     url(r'^tasks/', include([
         url(r'^status/(?P<task_id>[A-Za-z0-9-]*)$', tasks.task_status, name='task_status'),

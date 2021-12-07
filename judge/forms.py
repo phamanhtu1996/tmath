@@ -1,6 +1,5 @@
 import json
-from operator import attrgetter, itemgetter, lshift
-from django.forms.utils import flatatt
+from operator import attrgetter, itemgetter
 
 import pyotp
 import webauthn
@@ -12,21 +11,14 @@ from django.core.validators import RegexValidator
 from django.db.models import Q
 from django.forms import BooleanField, CharField, ChoiceField, Form, ModelForm, MultipleChoiceField
 from django.urls import reverse_lazy
-from django.utils.translation import gettext, gettext_lazy as _
-from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
-from django_ace import AceWidget, widgets
+from django_ace import AceWidget
 from judge.models import Contest, Language, Organization, Problem, Profile, Submission, WebAuthnCredential
 from judge.utils.subscription import newsletter_id
-from judge.widgets import HeavyPreviewPageDownWidget, Select2MultipleWidget, Select2Widget
-
-
-from judge.models import LanguageLimit, Problem, ProblemClarification, ProblemTranslation, Profile, Solution
-from judge.utils.views import NoBatchDeleteMixin
-from judge.widgets import HeavySelect2MultipleWidget, MartorWidget, \
-    CheckboxSelectMultipleWithSelectAll
-
-from copy import deepcopy
+from judge.widgets import HeavyPreviewPageDownWidget, Select2MultipleWidget, Select2Widget, CheckboxSelectMultipleWithSelectAll
+from judge.widgets.martor import MartorWidget
+from judge.widgets.select2 import HeavySelect2MultipleWidget
 
 TOTP_CODE_LENGTH = 6
 
@@ -49,145 +41,6 @@ two_factor_validators_by_length = {
 
 def fix_unicode(string, unsafe=tuple('\u202a\u202b\u202d\u202e')):
     return string + (sum(k in unsafe for k in string) - string.count('\u202c')) * '\u202c'
-
-
-class Fieldset(object):
-    def __init__(self, form, name, boundfields, legend=None, description=''):
-        self.form = form
-        self.boundfields = boundfields
-        if legend is None: legend = name
-        self.legend = mark_safe(legend)
-        self.description = mark_safe(description)
-        self.name = name
-
-    def __iter__(self):
-        for bf in self.boundfields:
-            yield _mark_row_attrs(bf, self.form)
-    
-    def __repr__(self):
-        return "%s('%s', %s, legend='%s', description='%s')" % (
-            self.__class__.__name__, self.name,
-            [f.name for f in self.boundfields], self.legend, self.description)
-    
-
-class FieldsetCollection(object):
-    def __init__(self, form, fieldsets):
-        self.form = form
-        self.fieldsets = fieldsets
-    
-    def __len__(self):
-        return len(self.fieldsets) or 1
-    
-    def __iter__(self):
-        if not self.fieldsets:
-            self.fieldsets = (('main', {'fields': self.form.fields.keys(),
-                                         'legend': ''}),)
-        for name, options in self.fieldsets:
-            try:
-                field_names = [n for n in options['fields']
-                               if n in self.form.fields]
-            except KeyError:
-                raise ValueError("Fieldset definition must include 'fields' option." )
-            boundfields = [forms.forms.BoundField(self.form, self.form.fields[n], n)
-                           for n in field_names]
-            yield Fieldset(self.form, name, boundfields,
-                           options.get('legend', None),
-                           options.get('description', ''))
-
-
-def _get_meta_attr(attrs, attr, default):
-    try:
-        ret = getattr(attrs['Meta'], attr)
-    except (KeyError, AttributeError):
-        ret = default
-    return ret
-
-
-def get_fieldsets(bases, attrs):
-    """
-    Get the fieldsets definition from the inner Meta class, mapping it
-    on top of the fieldsets from any base classes.
-
-    """
-    fieldsets = _get_meta_attr(attrs, 'fieldsets', ())
-        
-    new_fieldsets = {}
-    order = []
-    
-    for base in bases:
-        for fs in getattr(base, 'base_fieldsets', ()):
-            new_fieldsets[fs[0]] = fs
-            order.append(fs[0])
-
-    for fs in fieldsets:
-        new_fieldsets[fs[0]] = fs
-        if fs[0] not in order:
-            order.append(fs[0])
-    
-    return [new_fieldsets[name] for name in order]
-    
-
-def get_row_attrs(bases, attrs):
-    """
-    Get the row_attrs definition from the inner Meta class.
-
-    """
-    return _get_meta_attr(attrs, 'row_attrs', {})
-
-def _mark_row_attrs(bf, form):
-    row_attrs = deepcopy(form._row_attrs.get(bf.name, {}))
-    if bf.field.required:
-        req_class = 'required'
-    else:
-        req_class = 'optional'
-    if 'class' in row_attrs:
-        row_attrs['class'] = row_attrs['class'] + ' ' + req_class
-    else:
-        row_attrs['class'] = req_class
-    bf.row_attrs = mark_safe(flatatt(row_attrs))
-    return bf
-
-
-class BetterFormBaseMetaclass(type):
-    def __new__(cls, name, bases, attrs):
-        attrs['base_fieldsets'] = get_fieldsets(bases, attrs)
-        attrs['base_row_attrs'] = get_row_attrs(bases, attrs)
-        new_class = super(BetterFormBaseMetaclass,
-                          cls).__new__(cls, name, bases, attrs)
-        return new_class
-
-
-class BetterFormMetaclass(BetterFormBaseMetaclass, forms.forms.DeclarativeFieldsMetaclass):
-    pass
-
-
-class BetterModelFormMetaclass(BetterFormBaseMetaclass, forms.models.ModelFormMetaclass):
-    pass
-
-
-class BetterBaseForm(object):
-    def __init__(self, *args, **kwargs):
-        self._fieldsets = deepcopy(self.base_fieldsets)
-        self._row_attrs = deepcopy(self.base_row_attrs)
-        super(BetterBaseForm, self).__init__(*args, **kwargs)
-
-    @property
-    def fieldsets(self):
-        return FieldsetCollection(self, self._fieldsets)
-
-    def __iter__(self):
-        for bf in super(BetterBaseForm, self).__iter__():
-            yield _mark_row_attrs(bf, self)
-
-
-class BetterForm(BetterBaseForm, forms.Form):
-    __metaclass__ = BetterFormMetaclass
-    __doc__ = BetterBaseForm.__doc__
-
-
-class BetterModelForm(BetterBaseForm, forms.ModelForm):
-    __metaclass__ = BetterModelFormMetaclass
-    __doc__ = BetterBaseForm.__doc__
 
 
 class ProfileForm(ModelForm):
@@ -435,60 +288,43 @@ class ContestCloneForm(Form):
         return key
 
 
-class ProblemCreateForm(ModelForm):
-    
+class ProblemUpdateForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        super(ProblemCreateForm, self).__init__(*args, **kwargs)
+        super(ProblemUpdateForm, self).__init__(*args, **kwargs)
         self.fields['authors'].widget.can_add_related = False
         self.fields['curators'].widget.can_add_related = False
         self.fields['testers'].widget.can_add_related = False
-        # self.fields['banned_users'].widget.can_add_related = False
+        self.fields['banned_users'].widget.can_add_related = False
         # self.fields['change_message'].widget.attrs.update({
         #     'placeholder': gettext('Describe the changes you made (optional)'),
         # })
 
     class Meta:
         model = Problem
-        fields = ['code', 'name', 'is_public', 'is_manually_managed', 'date', 'authors', 'curators', 'testers',
-                'is_organization_private', 'organizations', 'submission_source_visibility_mode', 'is_full_markup',
-                'description', 'license', 'time_limit', 'memory_limit', 'types', 'group', 
-                'allowed_languages']
+        fields = ['code', 'name', 'is_public', 'is_manually_managed', 'authors', 'curators', 'testers', 
+                'banned_users', 'is_organization_private', 'organizations', 
+                'submission_source_visibility_mode', 'is_full_markup', 'description', 'license', 'og_image', 'summary',
+                'types', 'group', 
+                'time_limit', 'memory_limit', 'points', 'partial', 'allowed_languages']
         widgets = {
-            'authors': HeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 25%'}),
-            'curators': HeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 25%'}),
-            'testers': HeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 25%'}),
-            # 'banned_users': AdminHeavySelect2MultipleWidget(data_view='profile_select2',
-                                                            # attrs={'style': 'width: 100%'}),
+            'authors': HeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 30%'}),
+            'curators': HeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 30%'}),
+            'testers': HeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 30%'}),
+            'banned_users': HeavySelect2MultipleWidget(data_view='profile_select2',
+                                                            attrs={'style': 'width: 30%'}),
             'organizations': HeavySelect2MultipleWidget(data_view='organization_select2',
-                                                             attrs={'style': 'width: 50%'}),
+                                                                attrs={'style': 'width: 50%'}),
             'types': Select2MultipleWidget,
             'group': Select2Widget,
-            'allowed_languages': CheckboxSelectMultipleWithSelectAll,
             'description': MartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
+            'allowed_languages': CheckboxSelectMultipleWithSelectAll
         }
 
 
-class ProblemSolutionForm(ModelForm):
-    class Meta:
-        model = Solution
-        fields = ('is_public', 'publish_on', 'authors', 'content')
-        widgets = {
-            'authors': HeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 25%'}),
-            'content': MartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
-        }
+class ProblemCreateForm(ProblemUpdateForm):
 
-ProblemSolutionInlineForm = forms.inlineformset_factory(
-    Problem,
-    Solution,
-    form=ProblemSolutionForm,
-    extra=0,
-    can_delete=False,
-)
-
-
-class LanguageLimitForm(ModelForm):
-    class Meta:
-        model = LanguageLimit
-        fields = ('language', 'time_limit', 'memory_limit')
-
-# ProblemCreateAllForm = forms.inlineformset_factory()
+    def clean_code(self):
+        code = self.cleaned_data['code']
+        if Problem.objects.filter(code=code).exists():
+            raise ValidationError(_('Problem with code already exists.'))
+        return code

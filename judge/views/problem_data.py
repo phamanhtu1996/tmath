@@ -50,11 +50,14 @@ class ProblemDataForm(ModelForm):
 
     class Meta:
         model = ProblemData
-        fields = ['zipfile', 'generator', 'output_limit', 'output_prefix', 'checker', 'checker_args']
+        fields = ['zipfile', 'checker', 'checker_args', 'custom_checker', 'custom_validator']
         widgets = {
+            # 'zipfile': FineUploadFileInput,
             'checker_args': HiddenInput,
+            'generator': HiddenInput,
+            'output_limit': HiddenInput,
+            'output_prefix': HiddenInput,
         }
-
 
 class ProblemCaseForm(ModelForm):
     clean_checker_args = checker_args_cleaner
@@ -62,13 +65,13 @@ class ProblemCaseForm(ModelForm):
     class Meta:
         model = ProblemTestCase
         fields = ('order', 'type', 'input_file', 'output_file', 'points',
-                  'is_pretest', 'output_limit', 'output_prefix', 'checker', 'checker_args', 'generator_args')
+                  'is_pretest', 'checker', 'checker_args') #, 'output_limit', 'output_prefix', 'generator_args')
         widgets = {
-            'generator_args': HiddenInput,
+            # 'generator_args': HiddenInput,
             'type': Select(attrs={'style': 'width: 100%'}),
             'points': NumberInput(attrs={'style': 'width: 4em'}),
-            'output_prefix': NumberInput(attrs={'style': 'width: 4.5em'}),
-            'output_limit': NumberInput(attrs={'style': 'width: 6em'}),
+            # 'output_prefix': NumberInput(attrs={'style': 'width: 4.5em'}),
+            # 'output_limit': NumberInput(attrs={'style': 'width: 6em'}),
             'checker_args': HiddenInput,
         }
 

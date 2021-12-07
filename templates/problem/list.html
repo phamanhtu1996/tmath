@@ -29,8 +29,13 @@
 
             ul.problem-list {
                 padding: 0 !important;
-            }
-        </style>
+            
+		}
+       	    .type-tag{
+		font-size: 0.8rem;
+		color: #888 !important;	    
+		} 
+	</style>
     {% endif %}
 {% endblock %}
 
@@ -203,9 +208,6 @@
                         {% endif %}
                         <th class="problem">{{ _('Problem') }}</th>
                         <th class="category">{{ _('Category') }}</th>
-                        {% if show_types %}
-                            <th>{{ _('Types') }}</th>
-                        {% endif %}
                         <th class="points">{{ _('Points') }}</th>
                         <th class="users">{{ _('Users') }}</th>
                     {% else %}
@@ -221,14 +223,9 @@
                         <th class="id">
                             <a href="{{ sort_links.name }}">{{ _('ID') }}{{ sort_order.name }}</a>
                         </th>
-                        <th class="category">
+                        <th class="category" style="width: 40%;">
                             <a href="{{ sort_links.group }}">{{ _('Category') }}{{ sort_order.group }}</a>
                         </th>
-                        {% if show_types %}
-                            <th>
-                                <a href="{{ sort_links.type }}">{{ _('Types') }}{{ sort_order.type }}</a>
-                            </th>
-                        {% endif %}
                         <th class="points">
                             <a href="{{ sort_links.points }}">{{ _('Points') }}{{ sort_order.points }}</a>
                         </th>
@@ -276,19 +273,19 @@
                             {% endif %}
                         {% endif %}
                         <td class="problem">
-                            <a href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
-                        </td>
-                        <td class="problem">
-                            <a href="{{ url('problem_detail', problem.code) }}">{{ problem.code }}</a>
-                        </td>
-                        <td class="category">{{ problem.group.full_name }}</td>
-                        {% if show_types %}
-                            <td class="types">
+                            <div><a href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
+                      	    </div> 
+			    <div style="text-align:right; float:right;">
                                 {% for type in problem.types_list %}
-                                    <span class="type-tag">{{ type }}</span>{% if not loop.last %}, {% endif %}
+                                    <span class="type-tag"> {{ type }}{% if not loop.last %}, {% endif %} </span>
                                 {% endfor %}
+                            </div> </td>
+                        <td class="problem">
+                            <a href="{{ url('problem_detail', problem.code) }}">{{ str(problem.code).upper() }}</a>
                             </td>
-                        {% endif %}
+                        <td class="category">
+			    <div style="float:left;"> {{ problem.group.full_name }}</div> 
+			    </td>
                         <td class="p">{{ problem.points|floatformat }}{% if problem.partial %}p{% endif %}</td>
                         {% if not request.in_contest %}
                             <td class="ac-rate">{{ problem.ac_rate|floatformat(1) }}%</td>

@@ -1,35 +1,28 @@
-{% extends "base.html" %}
-
+{% extends "common-content.html" %}
 
 {% block media %}
-    <link rel="stylesheet" type="text/css" href="{{ static('admin/css/forms.css') }}">
     {{ form.media.css }}
-
+    <link rel="stylesheet" type="text/css" href="{{ static('admin/css/forms.css') }}">
     <style>
-        .help {
-
-            color: #999 !important;
-        }
-        .help:before {
-            font-family: FontAwesome;
-            content: "\f05a";
-        }
-        .module h2 {
-            font-size: 16px;
-            line-height: 1.4;
-            font-weight: 600;
-            padding: 8px 12px;
-            border-width: 0 0 1px 0;
-            border-style: solid;
-        }
+	.help {
+		color: #999 !important;
+	}
+	.help:before {
+		font-family: FontAwesome;
+		content: "\f05a";
+	}
+    select {
+        border-radius: 5px;
+        height: 25px;
+        width: 25%;
+        font-size: 14px;
+    }
     </style>
-    
 {% endblock %}
 
 {% block js_media %}
 
-    {{ form.media.js }}
-
+	{{ form.media.js }}
 {% endblock %}
 
 {% block body %}
@@ -37,40 +30,28 @@
         {% csrf_token %}
         <div>
         <fieldset class="module aligned">
+        <table>
         {% for item in form %}
-            <div class="form-row field-{{ str(item.id_for_label).split('id_')[1] }}">
-                <div>
+            <tr class="form-row field-{{ str(item.id_for_label).split('id_')[1] }}">
+                <td {% if item.id_for_label == "id_description" %} colspan="2" {% endif %} style="vertical-align:top;">
                 <label class="required" for="{{ item.id_for_label }}"> {{ item.label }} </label>
+                {% if item.id_for_label != "id_description" %}
+                </td>
+                <td style="padding: 4px 0px;">
+                {% endif %}
                 {{ item }}
                 {% if item.help_text %}
-                    <div class="help">
+                    <div class="help" style="margin-left: 0px">
                         {{ item.help_text }}
                     </div>
                 {% endif %}
-                </div>
-            </div>
+                </td>
+            </tr>
         {% endfor %}
+        </table>
         </fieldset>
-        <fieldset class="module aligned">
-        <h2>{{ _('Solution') }}</h2>
-        {% for item in solution_form %}
-            <div class="form-row field-{{ str(item.id_for_label).split('id_')[1] }}">
-                <div>
-                <label class="required" for="{{ item.id_for_label }}"> {{ item.label }} </label>
-                {{ item }}
-                {% if item.help_text %}
-                    <div class="help">
-                        {{ item.help_text }}
-                    </div>
-                {% endif %}
-                </div>
-            </div>
-        {% endfor %}
-        </fieldset>
-        <fieldset>
-            {{ language_form }}
-        </fieldset>
-        <button style="float:right;" type="submit">{{ _('Create!') }}</button>
+        <button style="float:right; margin-top: 5px;" type="submit">{{ _('Save!') }}</button>
         </div>
     </form>
 {% endblock %}
+

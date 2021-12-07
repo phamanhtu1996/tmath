@@ -22,9 +22,7 @@
                 </div>
             {% endif %}
             <div>
-                <input id="show_types" type="checkbox" name="show_types" value="1"
-                        {% if show_types %} checked{% endif %}>
-                <label for="show_types">{{ _('Show problem types') }}</label>
+                <input id="show_types" type="hidden" name="show_types" value="1"> 
             </div>
             <div class="filter-form-group">
                 <label for="category"><i>{{ _('Category') }}</i></label>

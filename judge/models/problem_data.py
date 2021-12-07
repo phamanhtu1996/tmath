@@ -1,6 +1,9 @@
 import errno
 import os
+from zipfile import BadZipFile, ZipFile
 
+from django.core.validators import FileExtensionValidator
+from django.core.cache import cache
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -28,6 +31,8 @@ CHECKERS = (
     ('sorted', _('Unordered')),
     ('identical', _('Byte identical')),
     ('linecount', _('Line-by-line')),
+    ('custom', _('Custom checker (PY)')),
+    ('customval', _('Custom validator (CPP)')),
 )
 
 
@@ -44,7 +49,18 @@ class ProblemData(models.Model):
     checker = models.CharField(max_length=10, verbose_name=_('checker'), choices=CHECKERS, blank=True)
     checker_args = models.TextField(verbose_name=_('checker arguments'), blank=True,
                                     help_text=_('checker arguments as a JSON object'))
-
+    custom_checker = models.FileField(verbose_name=_('custom checker file'),
+                                      storage=problem_data_storage,
+                                      null=True,
+                                      blank=True,
+                                      upload_to=problem_directory_file,
+                                      validators=[FileExtensionValidator(allowed_extensions=['py'])])
+    custom_validator = models.FileField(verbose_name=_('custom validator file'),
+                                        storage=problem_data_storage,
+                                        null=True,
+                                        blank=True,
+                                        upload_to=problem_directory_file,
+                                        validators=[FileExtensionValidator(allowed_extensions=['cpp'])])
     __original_zipfile = None
 
     def __init__(self, *args, **kwargs):
@@ -53,6 +69,14 @@ class ProblemData(models.Model):
 
     def save(self, *args, **kwargs):
         if self.zipfile != self.__original_zipfile:
+            # try: 
+            #     files = ZipFile(self.__original_zipfile.path).namelist()
+            #     for file in files:
+            #         cache_key = 'problem_archive:%s:%s' % (self.problem.code, get_file_cachekey(file))
+            #         cache.delete(cache_key)
+            # except BadZipFile:
+            #     pass
+
             self.__original_zipfile.delete(save=False)
         return super(ProblemData, self).save(*args, **kwargs)
 
@@ -69,6 +93,10 @@ class ProblemData(models.Model):
             self.zipfile.name = _problem_directory_file(new, self.zipfile.name)
         if self.generator:
             self.generator.name = _problem_directory_file(new, self.generator.name)
+        if self.custom_checker:
+            self.custom_checker.name = _problem_directory_file(new, self.custom_checker.name)
+        if self.custom_validator:
+            self.custom_validator.name = _problem_directory_file(new, self.custom_validator.name)
         self.save()
     _update_code.alters_data = True
 
