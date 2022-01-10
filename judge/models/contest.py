@@ -2,7 +2,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models, transaction
 from django.db.models import CASCADE, Q
-from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -508,7 +507,6 @@ class ContestProblem(models.Model):
     problem = models.ForeignKey(Problem, verbose_name=_('problem'), related_name='contests', on_delete=CASCADE)
     contest = models.ForeignKey(Contest, verbose_name=_('contest'), related_name='contest_problems', on_delete=CASCADE)
     points = models.IntegerField(verbose_name=_('points'))
-    first_accept = models.ForeignKey(ContestParticipation, verbose_name=_('first user accept this problem'), null=True, on_delete=models.SET_NULL)
     partial = models.BooleanField(default=True, verbose_name=_('partial'))
     is_pretested = models.BooleanField(default=False, verbose_name=_('is pretested'))
     order = models.PositiveIntegerField(db_index=True, verbose_name=_('order'))
@@ -519,16 +517,6 @@ class ContestProblem(models.Model):
                                           default=None, null=True, blank=True,
                                           validators=[MinValueOrNoneValidator(1, _('Why include a problem you '
                                                                                    'can\'t submit to?'))])
-
-    def update_first_accept(self):
-        if self.first_accept is not None:
-            return
-        queryset = ContestSubmission.objects.filter(problem=self, points=self.points, submission__date__lte=self.contest.end_time)
-        submission = queryset.order_by('id').first()
-        self.first_accept = submission.participation if submission is not None else None
-        self.save()
-    update_first_accept.alters_data = True
-    
 
     class Meta:
         unique_together = ('problem', 'contest')
