@@ -103,7 +103,7 @@ class AtCoderContestFormat(DefaultContestFormat):
             return format_html(
                 '<td class="{state}"><a href="{url}">{points}{penalty}<div class="solving-time">{time}</div></a></td>',
                 state=(('pretest-' if self.contest.run_pretests_only and contest_problem.is_pretested else '') +
-                       self.best_solution_state(format_data['points'], contest_problem.points)),
+                       self.best_solution_state(format_data['points'], contest_problem.points, contest_problem.first_accept == participation)),
                 url=reverse('contest_user_submissions',
                             args=[self.contest.key, participation.user.user.username, contest_problem.problem.code]),
                 points=floatformat(format_data['points']),
