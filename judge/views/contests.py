@@ -612,7 +612,9 @@ def get_contest_ranking_list(request, contest, participation=None, ranking_list=
                              show_current_virtual=True, ranker=ranker):
     problems = list(contest.contest_problems.select_related('problem').defer('problem__description').order_by('order'))
 
-    for problem in problems:
+    contest_problems = ContestProblem.objects.filter(contest=contest)
+
+    for problem in contest_problems:
         problem.update_first_accept()
 
     users = ranker(ranking_list(contest, problems), key=attrgetter('points', 'cumtime', 'tiebreaker'))

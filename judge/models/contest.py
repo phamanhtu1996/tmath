@@ -508,7 +508,7 @@ class ContestProblem(models.Model):
     problem = models.ForeignKey(Problem, verbose_name=_('problem'), related_name='contests', on_delete=CASCADE)
     contest = models.ForeignKey(Contest, verbose_name=_('contest'), related_name='contest_problems', on_delete=CASCADE)
     points = models.IntegerField(verbose_name=_('points'))
-    first_accept = models.ForeignKey(ContestParticipation, verbose_name=_('first user accept this problem'), null=True, on_delete=models.SET_NULL)
+    first_accept = models.ForeignKey(ContestParticipation, verbose_name=_('first user accept this problem'), default=None, null=True, on_delete=models.SET_NULL)
     partial = models.BooleanField(default=True, verbose_name=_('partial'))
     is_pretested = models.BooleanField(default=False, verbose_name=_('is pretested'))
     order = models.PositiveIntegerField(db_index=True, verbose_name=_('order'))
@@ -523,7 +523,9 @@ class ContestProblem(models.Model):
     def update_first_accept(self):
         if self.first_accept is not None:
             return
-        queryset = ContestSubmission.objects.filter(problem=self, points=self.points, submission__date__lte=self.contest.end_time)
+        queryset = ContestSubmission.objects.filter(problem=self, points=self.points, 
+                                                    submission__date__lte=self.contest.end_time, 
+                                                    submission__date__gte=self.contest.start_time)
         submission = queryset.order_by('id').first()
         self.first_accept = submission.participation if submission is not None else None
         self.save()
