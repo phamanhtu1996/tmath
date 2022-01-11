@@ -522,7 +522,9 @@ class ContestProblem(models.Model):
 
     def update_first_accept(self):
         if self.first_accept is not None:
-            return
+            if self.first_accept.contest == self.contest:
+                return
+            self.first_accept = None
         queryset = ContestSubmission.objects.filter(problem=self, points=self.points, 
                                                     submission__date__lte=self.contest.end_time, 
                                                     submission__date__gte=self.contest.start_time)
