@@ -2889,8 +2889,8 @@ msgid "Best solutions for problem {0} in <a href=\"{2}\">{1}</a>"
 msgstr "Những lời giải tốt nhất cho bài {0} trong <a href=\"{2}\">{1}</a>"
 
 #: judge/views/register.py:27
-msgid "A username must contain letters, numbers, or underscores"
-msgstr "Tên người dùng phải chứa chữ cái, số hoặc dấu gạch chân"
+msgid "A username must contain lower latinh letters, numbers, min length = 8, max length = 30"
+msgstr "Tên người dùng phải chứa chữ latinh in thường, ngắn nhất 8 kí tự, dài nhất 30 kí tự"
 
 #: judge/views/register.py:31
 msgid "Preferred language"
