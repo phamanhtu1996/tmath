@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from functools import cached_property
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models, transaction
@@ -9,6 +11,7 @@ from django.utils import timezone
 from django.db.models.fields.related import ForeignKey
 from django.urls import reverse
 from django.utils.translation import gettext, gettext_lazy as _
+# from judge.admin import organization
 
 from judge.models.contest import MinValueOrNoneValidator
 from judge.models.problem import disallowed_characters_validator
@@ -30,18 +33,24 @@ class MathGroup(models.Model):
 class MathProblem(models.Model):
 
     code = models.CharField(verbose_name=_("code"), max_length=20, unique=True, blank=False, null=False,
-                            help_text=_(""))
+                            validators=[RegexValidator('^[a-z0-9]+$', _('Problem code must be ^[a-z0-9]+$'))],
+                            help_text=_('A short, unique code for the problem, '
+                                        'used in the url after /problem/'))
     name = models.CharField(verbose_name=_("name"), max_length=200, blank=False, null=False,
-                            help_text=_(""))
-    datatime = models.DateTimeField(verbose_name=_("time"), default=timezone.now, blank=False, null=False,
-                            help_text=_(""))
+                            help_text=_('The full name of the problem, '
+                                        'as shown in the problem list.'))
+    datetime = models.DateTimeField(verbose_name=_("time"), default=timezone.now, blank=False, null=False,
+                            help_text=_("Doesn't have magic ability to auto-publish due to backward compatibility"))
     point = models.FloatField(verbose_name=_("points"),
-                            help_text=_(""))
+                            help_text=_('Points awarded for problem completion. '
+                                        "Points are displayed with a 'p' suffix if partial."),
+                            validators=[MinValueValidator(settings.DMOJ_PROBLEM_MIN_PROBLEM_POINTS)])
     authors = models.ManyToManyField(Profile, verbose_name=_("authors"), blank=True,
-                            help_text=_(""))
+                            help_text=_('These users will be able to edit the problem, '
+                                                 'and be listed as authors.'))
     description = models.TextField(verbose_name=_('problem body'), validators=[disallowed_characters_validator])
     answer = models.CharField(verbose_name=_("answer"), max_length=50, null=False, blank=False,
-                            help_text=_(""))
+                            help_text=_("One number that is the answer of this problem."))
     is_public = models.BooleanField(verbose_name=_('publicly visible'), db_index=True, default=False)
     ac_rate = models.FloatField(verbose_name=_('solve rate'), default=0)
     user_count = models.IntegerField(verbose_name=_('number of users'), default=0,
@@ -51,10 +60,10 @@ class MathProblem(models.Model):
     is_organization_private = models.BooleanField(verbose_name=_('private to organizations'), default=False)
 
     group = ForeignKey(MathGroup, verbose_name=_("group"), 
-                            help_text=_(""), on_delete=CASCADE)
+                            help_text=_('The group of problem, shown under Category in the problem list.'), on_delete=CASCADE)
     
     difficult = IntegerField(verbose_name=_("difficult"), validators=[MinValueValidator(0), MaxValueValidator(3000)],
-                            help_text=_(""))
+                            help_text=_("Difficult of problem"))
     
     def __init__(self, *args, **kwargs):
         super(MathProblem, self).__init__(*args, **kwargs)
@@ -72,14 +81,62 @@ class MathProblem(models.Model):
     def get_absolute_url(self):
         return reverse("MathProblem_detail", args=(self.code))
 
+    @classmethod
+    def get_visible_problems(cls, user):
+        if not user.is_authenticated:
+            return cls.get_public_problems
+        
+        queryset = cls.objects.defer('description')
+        if not (user.has_perm('judge.view_private_math_problem') or user.has_perm('judge.edit_all_math_problem')):
+            q = Q(is_public=True)
+            if not (user.has_perm('judge.see_organization_math_problem') or user.has_perm('judge.edit_public_math_problem')):
+                q &= (
+                    Q(is_organization_private=False) or
+                    Q(is_organization_private=True, organizations__in=user.profile.organizations.all())
+                )
+            if user.has_perm('judge.edit_own_math_problem'):
+                q |= Q(is_organization_private=True, organizations__in=user.profile.admin_of.all())
+            q |= Q(authors=user.profile)
+            queryset = queryset.filter(q)
+
+        return queryset
+
+
+    @classmethod
+    def get_public_problems(cls):
+        return cls.objects.filter(is_public=True, is_organization_private=False).defer('description')
+
+    @classmethod
+    def get_editable_problems(cls, user):
+        if not user.has_perm('judge.edit_own_math_problem'):
+            return cls.objects.none()
+        if user.has_perm('judge.edit_all_math_problem'):
+            return cls.objects.all()
+        
+        q = Q(authors=user.profile)
+        q |= Q(is_organization_private=True, organizations__in=user.profile.admin_of.all())
+
+        if user.has_perm('judge.edit_public_math_problem'):
+            q |= Q(is_public=True)
+        
+        return cls.objects.filter(q)
+
+    class Meta:
+        permissions = (
+            ('view_private_math_problem', _('View private Math problems')),
+            ('edit_own_math_problem', _('Edit own Math problems')),
+            ('edit_all_math_problem', _('Edit all Math problems')),
+            ('edit_public_math_problem', _('Edit all public Math problems')),
+            ('see_organization_math_problem', _('See organizations-private Math problems'))
+        )
 
 class Exam(models.Model):
     SCOREBOARD_VISIBLE = 'V'
-    SCOREBOARD_AFTER_exam = 'C'
+    SCOREBOARD_AFTER_EXAM = 'C'
     SCOREBOARD_AFTER_PARTICIPATION = 'P'
     SCOREBOARD_VISIBILITY = (
         (SCOREBOARD_VISIBLE, _('Visible')),
-        (SCOREBOARD_AFTER_exam, _('Hidden for duration of exam')),
+        (SCOREBOARD_AFTER_EXAM, _('Hidden for duration of exam')),
         (SCOREBOARD_AFTER_PARTICIPATION, _('Hidden for duration of participation')),
     )
     key = models.CharField(max_length=20, verbose_name=_('exam id'), unique=True,
@@ -214,7 +271,7 @@ class Exam(models.Model):
     class Inaccessible(Exception):
         pass
 
-    class Privateexam(Exception):
+    class PrivateExam(Exception):
         pass
 
     def access_check(self, user):
@@ -222,7 +279,7 @@ class Exam(models.Model):
             if not self.is_visible:
                 raise self.Inaccessible()
             if self.is_private or self.is_organization_private:
-                raise self.Privateexam()
+                raise self.PrivateExam()
             return
         
         if user.has_perm('judge.see_private_exam') or user.has_perm('judge.edit_all_exam'):
@@ -249,17 +306,17 @@ class Exam(models.Model):
         if self.is_private and not self.is_organization_private:
             if in_users:
                 return
-            raise self.Privateexam()
+            raise self.PrivateExam()
         
         if self.is_private and self.is_organization_private:
             if in_org and in_users:
                 return
-            raise self.Privateexam()
+            raise self.PrivateExam()
         
     def is_accessible_by(self, user):
         try:
             self.access_check(user)
-        except (self.Inaccessible, self.Privateexam):
+        except (self.Inaccessible, self.PrivateExam):
             return False
         else:
             return True
@@ -354,11 +411,11 @@ class ExamProblem(models.Model):
     points = IntegerField(verbose_name=_('points'))
     order = models.PositiveIntegerField(db_index=True, verbose_name=_('order'))
 
-    max_submissions = models.IntegerField(help_text=_('Maximum number of submissions for this problem, '
-                                                      'or leave blank for no limit.'),
-                                          default=None, null=True, blank=True,
-                                          validators=[MinValueOrNoneValidator(1, _('Why include a problem you '
-                                                                                   'can\'t submit to?'))])
+    # max_submissions = models.IntegerField(help_text=_('Maximum number of submissions for this problem, '
+    #                                                   'or leave blank for no limit.'),
+    #                                       default=None, null=True, blank=True,
+    #                                       validators=[MinValueOrNoneValidator(1, _('Why include a problem you '
+    #                                                                                'can\'t submit to?'))])
     
     class Meta:
         unique_together = ('problem', 'exam')
