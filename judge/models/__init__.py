@@ -14,13 +14,16 @@ from judge.models.profile import Organization, OrganizationRequest, Profile, Web
 from judge.models.runtime import Judge, Language, RuntimeVersion
 from judge.models.submission import SUBMISSION_RESULT, Submission, SubmissionSource, SubmissionTestCase
 from judge.models.ticket import Ticket, TicketMessage
-from judge.models.tmatheng import Exam, ExamProblem, ExamSubmission, ExamParticipation
+from judge.models.tmatheng import Exam, ExamProblem, ExamSubmission, ExamParticipation, MathProblem
 
 revisions.register(Profile, exclude=['points', 'last_access', 'ip', 'rating'])
 revisions.register(Problem, follow=['language_limits'])
+revisions.register(MathProblem)
 revisions.register(LanguageLimit)
 revisions.register(Contest, follow=['contest_problems'])
+revisions.register(Exam, follow=['exam_problems'])
 revisions.register(ContestProblem)
+revisions.register(ExamProblem)
 revisions.register(Organization)
 revisions.register(BlogPost)
 revisions.register(Solution)
