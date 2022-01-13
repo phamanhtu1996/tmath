@@ -408,7 +408,7 @@ class Exam(models.Model):
 class ExamProblem(models.Model):
     problem = ForeignKey(MathProblem, verbose_name=_('problem'), related_name='exams', on_delete=CASCADE)
     exam = ForeignKey(Exam, verbose_name=_('exam'), related_name='exam_problems', on_delete=CASCADE)
-    points = IntegerField(verbose_name=_('points'))
+    point = IntegerField(verbose_name=_('point'))
     order = models.PositiveIntegerField(db_index=True, verbose_name=_('order'))
 
     # max_submissions = models.IntegerField(help_text=_('Maximum number of submissions for this problem, '
