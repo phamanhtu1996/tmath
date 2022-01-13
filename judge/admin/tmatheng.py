@@ -34,7 +34,7 @@ class ExamProblemInline(SortableInlineAdminMixin, admin.TabularInline):
     model = ExamProblem
     verbose_name = _('Problem')
     verbose_name_plural = 'Problems'
-    fields = ('problem', 'point', 'order')
+    fields = ('problem', 'points', 'order')
             #   'rejudge_column')
     # readonly_fields = ('rejudge_column',)
     form = ExamProblemInlineForm
