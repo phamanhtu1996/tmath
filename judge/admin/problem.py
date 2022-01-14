@@ -15,7 +15,6 @@ from judge.utils.views import NoBatchDeleteMixin
 from judge.widgets import AdminHeavySelect2MultipleWidget, AdminMartorWidget, AdminSelect2MultipleWidget, \
     AdminSelect2Widget, CheckboxSelectMultipleWithSelectAll
 
-
 class ProblemForm(ModelForm):
     change_message = forms.CharField(max_length=256, label='Edit reason', required=False)
 

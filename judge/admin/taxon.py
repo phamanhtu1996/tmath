@@ -9,7 +9,7 @@ from judge.widgets import AdminHeavySelect2MultipleWidget
 class ProblemGroupForm(ModelForm):
     problems = ModelMultipleChoiceField(
         label=_('Included problems'),
-        queryset=Problem.objects.all(),
+        queryset=Problem.objects.defer('description').all(),
         required=False,
         help_text=_('These problems are included in this group of problems'),
         widget=AdminHeavySelect2MultipleWidget(data_view='problem_select2'))

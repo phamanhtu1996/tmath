@@ -274,6 +274,29 @@ class ExamAdmin(NoBatchDeleteMixin, VersionAdmin):
         return form
 
 
+class ProblemGroupForm(ModelForm):
+    problems = ModelMultipleChoiceField(
+        label=_('Included problems'),
+        queryset=MathProblem.objects.defer('description').all(),
+        required=False,
+        help_text=_('These problems are included in this group of problems'),
+        widget=AdminHeavySelect2MultipleWidget(data_view='mathproblem_select2'))
+
+
+class MathProblemGroupAdmin(admin.ModelAdmin):
+    fields = ('name', 'full_name', 'problems')
+    form = ProblemGroupForm
+
+    def save_model(self, request, obj, form, change):
+        super(MathProblemGroupAdmin, self).save_model(request, obj, form, change)
+        obj.problem_set.set(form.cleaned_data['problems'])
+        obj.save()
+
+    def get_form(self, request, obj=None, **kwargs):
+        self.form.base_fields['problems'].initial = [o.pk for o in obj.problem_set.all()] if obj else []
+        return super(MathProblemGroupAdmin, self).get_form(request, obj, **kwargs)
+
+
 class MathProblemForm(ModelForm):
     change_message = forms.CharField(max_length=256, label='Edit reason', required=False)
 
@@ -321,10 +344,11 @@ class MathProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
             "fields": (
                 'code', 'name', 'is_public', 'datetime', 'authors',# 'curators', 'testers',
                 'is_organization_private', 'organizations',# 'submission_source_visibility_mode', 'is_full_markup',
-                'description', 'answer'# 'license',
+                'description'# 'license',
             ),
         }),
-        # (_('Taxonomy'), {'fields': ('group')}),
+        (_('Answer'), {'fields': ('answer', 'wrong_answer1', 'wrong_answer2', 'wrong_answer3',)}),
+        (_('Taxonomy'), {'fields': ('group',)}),
         (_('Points'), {"fields": ('point',)}),
         # (_('Justice'), {'fields': ('banned_users',)}),
         (_('History'), {"fields": ('change_message',)}),
@@ -343,8 +367,14 @@ class MathProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
     def get_actions(self, request):
         actions = super(MathProblemAdmin, self).get_actions(request)
 
-        func, name, desc = self.get_actions('update_public_date')
+        if request.user.has_perm('judge.change_public_math_visibility'):
+            func, name, desc = self.get_action('make_public')
+            actions[name] = (func, name, desc)
 
+            func, name, desc = self.get_action('make_private')
+            actions[name] = (func, name, desc)
+
+        func, name, desc = self.get_action('update_publish_date')
         actions[name] = (func, name, desc)
 
         return actions
