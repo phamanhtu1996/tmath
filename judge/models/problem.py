@@ -158,7 +158,7 @@ class Problem(models.Model):
     is_public = models.BooleanField(verbose_name=_('publicly visible'), db_index=True, default=False)
     is_manually_managed = models.BooleanField(verbose_name=_('manually managed'), db_index=True, default=False,
                                               help_text=_('Whether judges should be allowed to manage data or not.'))
-    date = models.DateTimeField(verbose_name=_('date of publishing'), null=True, blank=True, db_index=True,
+    date = models.DateTimeField(verbose_name=_('date of publishing'), null=True, default=timezone.now, blank=True, db_index=True,
                                 help_text=_("Doesn't have magic ability to auto-publish due to backward compatibility"))
     banned_users = models.ManyToManyField(Profile, verbose_name=_('personae non gratae'), blank=True,
                                           help_text=_('Bans the selected users from submitting to this problem.'))
