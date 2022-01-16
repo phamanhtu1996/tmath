@@ -9,6 +9,12 @@
 
 {% block users_media %}
     <style>
+        #users-table, .h-scrollable-table {
+            transform:rotateX(180deg);
+            -ms-transform:rotateX(180deg); /* IE 9 */
+            -webkit-transform:rotateX(180deg); /* Safari and Chrome */
+        }
+
         #users-table .username {
             min-width: 20em;
         }
@@ -40,6 +46,8 @@
         #users-table td a:hover {
             text-decoration: underline;
         }
+
+
 
         .rank {
             min-width: 2.5em

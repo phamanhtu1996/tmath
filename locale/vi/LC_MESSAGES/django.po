@@ -4581,7 +4581,7 @@ msgstr "Kết quả thực hiện"
 
 #: templates/submission/status-testcases.html:51
 msgid "Batch "
-msgstr "Hàng loạt "
+msgstr "Subtask "
 
 #: templates/submission/status-testcases.html:64
 msgid "Case"
