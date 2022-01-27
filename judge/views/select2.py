@@ -6,7 +6,7 @@ from django.views.generic.list import BaseListView
 
 from judge.jinja2.gravatar import gravatar
 from judge.models import Comment, Contest, Organization, Problem, Profile
-from judge.models.tmatheng import MathProblem
+from emath.models import exam
 
 
 def _get_user_queryset(term):
@@ -126,6 +126,6 @@ class AssigneeSelect2View(UserSearchSelect2View):
 
 class MathProblemSelect2View(Select2View):
     def get_queryset(self):
-        return MathProblem.get_visible_problems(self.request.user).filter(
+        return exam.Problem.get_visible_problems(self.request.user).filter(
             Q(code__icontains=self.term) or Q(name__icontains=self.term)
         ).distinct()

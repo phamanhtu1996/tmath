@@ -207,7 +207,6 @@
                             <th class="solved"><i class="fa fa-check"></i></th>
                         {% endif %}
                         <th class="problem">{{ _('Problem') }}</th>
-                        <th class="category">{{ _('Category') }}</th>
                         <th class="points">{{ _('Points') }}</th>
                         <th class="users">{{ _('Users') }}</th>
                     {% else %}
@@ -219,9 +218,6 @@
                         {% endif %}
                         <th class="problem">
                             <a href="{{ sort_links.name }}">{{ _('Problem') }}{{ sort_order.name }}</a>
-                        </th>
-                        <th class="id">
-                            <a href="{{ sort_links.name }}">{{ _('ID') }}{{ sort_order.name }}</a>
                         </th>
                         <th class="category" style="width: 40%;">
                             <a href="{{ sort_links.group }}">{{ _('Category') }}{{ sort_order.group }}</a>
@@ -275,17 +271,19 @@
                         <td class="problem">
                             <div><a href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
                       	    </div> 
-			    <div style="text-align:right; float:right;">
+                            {% if not request.in_contest %}
+			                <div style="text-align:right; float:right;">
                                 {% for type in problem.types_list %}
                                     <span class="type-tag"> {{ type }}{% if not loop.last %}, {% endif %} </span>
                                 {% endfor %}
-                            </div> </td>
-                        <td class="problem">
-                            <a href="{{ url('problem_detail', problem.code) }}">{{ str(problem.code).upper() }}</a>
-                            </td>
+                            </div> 
+                            {% endif %}
+                        </td>
+                        {% if not request.in_contest %}
                         <td class="category">
-			    <div style="float:left;"> {{ problem.group.full_name }}</div> 
-			    </td>
+                        <div style="float:left;"> {{ problem.group.full_name }}</div> 
+                        </td>
+                        {% endif %}
                         <td class="p">{{ problem.points|floatformat }}{% if problem.partial %}p{% endif %}</td>
                         {% if not request.in_contest %}
                             <td class="ac-rate">{{ problem.ac_rate|floatformat(1) }}%</td>

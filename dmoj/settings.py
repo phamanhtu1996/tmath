@@ -224,12 +224,34 @@ else:
             'dashboard': {
                 'breadcrumbs': True,
             },
+            # 'custom_style': 'statics/' + 'wpadmin/css/themes/sunrise.css'
+        },
+        'emath_admin': {
+            'title': 'EMath Admin',
+            'menu': {
+                'top': 'wpadmin.menu.menus.BasicTopMenu',
+                'left': 'wpadmin.menu.custom.CustomModelLeftMenuWithDashboard',
+            },
+            'custom_menu': [
+                {
+                    'model': 'emath.Problem',
+                    'icon': 'fa-question-circle',
+                    'children': [
+                        'emath.MathGroup',
+                        # 'judge.ProblemType',
+                    ],
+                },
+            ],
+            'dashboard': {
+                'breadcrumbs': True,
+            },
         },
     }
 
 INSTALLED_APPS += (
     'django.contrib.admin',
     'judge',
+    'emath',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.flatpages',

@@ -116,7 +116,7 @@ class Profile(models.Model):
                                    help_text=_('User-defined JavaScript for site customization.'))
     current_contest = models.OneToOneField('ContestParticipation', verbose_name=_('current contest'),
                                            null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
-    current_exam = models.OneToOneField('ExamParticipation', verbose_name=_('current exam'),
+    current_exam = models.OneToOneField('emath.ExamParticipation', verbose_name=_('current exam'),
                                            null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
     math_engine = models.CharField(verbose_name=_('math engine'), choices=MATH_ENGINES_CHOICES, max_length=4,
                                    default=settings.MATHOID_DEFAULT_TYPE,

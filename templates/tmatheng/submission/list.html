@@ -1,0 +1,93 @@
+{% extends "common-content.html" %}
+{% block js_media %}
+    <script type="text/javascript">
+        {% if dynamic_update and last_msg %}
+            {% if dynamic_contest_id %}
+                window.dynamic_contest_id = {{ dynamic_contest_id }};
+            {% else %}
+                window.dynamic_contest_id = null;
+            {% endif %}
+            {% if dynamic_user_id %}
+                window.dynamic_user_id = {{ dynamic_user_id }};
+            {% else %}
+                window.dynamic_user_id = null;
+            {% endif %}
+            {% if dynamic_problem_id %}
+                window.dynamic_problem_id = {{ dynamic_problem_id }};
+            {% else %}
+                window.dynamic_problem_id = null;
+            {% endif %}
+            {% if show_problem %}
+                window.show_problem = 1;
+            {% else %}
+                window.show_problem = 0;
+            {% endif %}
+        {% endif %}
+        window.results_json = {{ results_json }};
+    </script>
+
+    {% if dynamic_update and last_msg %}
+        <script type="text/javascript">
+            $(function () {
+                load_dynamic_update({{last_msg}});
+            });
+        </script>
+    {% endif %}
+{% endblock %}
+
+{% block title_ruler %}{% endblock %}
+
+{% block title_row %}
+    {% include 'tmatheng/submission/submission-list-tabs.html' %}
+{% endblock %}
+
+{% block media %}
+    <style>
+        .total {
+            text-align: center;
+            margin-bottom: 0.5em;
+        }
+
+        #status-graph {
+            padding: 1em 0em;
+        }
+
+        #status-graph canvas {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {% if page_obj.has_other_pages() %}
+        <div class="top-pagination-bar">{% include "list-pages.html" %}</div>
+    {% endif %}
+
+    <div id="common-content">
+
+        <div id="content-left" class="submission">
+            <div class="ws-closed">
+                <a href="javascript:void(0)">{{ _('You were disconnected. Refresh to show latest updates.') }}</a>
+            </div>
+
+            <div id="submissions-table">
+                {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
+                {% for submission in submissions %}
+                    <div class="submission-row" id="{{ submission.id }}">
+                        {% with problem_name=show_problem and (submission.exam.i18n_name or submission.exam.name) %}
+                            {% include "tmatheng/submission/row.html" %}
+                        {% endwith %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% if page_obj.has_other_pages() %}
+        <div class="bottom-pagination-bar">{% include "list-pages.html" %}</div>
+    {% endif %}
+{% endblock %}
+
+{% block bodyend %}
+    {# Don't load MathJax from common-content! #}
+{% endblock %}

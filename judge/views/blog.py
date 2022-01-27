@@ -4,7 +4,8 @@ from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.views.generic import ListView
+from django.views import View
+from django.views.generic import ListView, TemplateView
 
 from judge.comments import CommentedDetailView
 from judge.models import BlogPost, Comment, Contest, Language, Problem, ProblemClarification, Profile, Submission, \
@@ -120,3 +121,8 @@ class PostView(TitleMixin, CommentedDetailView):
         if not post.can_see(self.request.user):
             raise Http404()
         return post
+
+
+class IndexView(TemplateView):
+    template_name = "landing.html"
+    # pass

@@ -25,6 +25,9 @@ from judge.views.select2 import AssigneeSelect2View, CommentSelect2View, Contest
     UserSearchSelect2View, UserSelect2View, MathProblemSelect2View
 from judge.views.widgets import martor_image_uploader
 
+from emath.admin import emath_admin_site
+from emath.views import ExamProblemView
+
 admin.autodiscover()
 
 register_patterns = [
@@ -101,9 +104,11 @@ def paged_list_view(view, name):
 
 
 urlpatterns = [
-    url(r'^$', blog.PostList.as_view(template_name='home.html', title=_('Home')), kwargs={'page': 1}, name='home'),
+    url(r'^$', blog.IndexView.as_view()),
+    url(r'^index/$', blog.PostList.as_view(template_name='home.html', title=_('Home')), kwargs={'page': 1}, name='home'),
     url(r'^500/$', exception),
     url(r'^admin/', admin.site.urls),
+    url(r'^emath_admin/', emath_admin_site.urls),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^accounts/', include(register_patterns)),
     url(r'^', include('social_django.urls')),
@@ -418,3 +423,7 @@ if 'newsletter' in settings.INSTALLED_APPS:
     urlpatterns.append(url(r'^newsletter/', include('newsletter.urls')))
 if 'impersonate' in settings.INSTALLED_APPS:
     urlpatterns.append(url(r'^impersonate/', include('impersonate.urls')))
+
+urlpatterns += [
+    url(r'^emath/', include('emath.urls'))
+]

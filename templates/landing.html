@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+         <!--=============== FAVICONS ===============-->
+         <link rel="shortcut icon" href="{{ static('assets/img/logo.png') }}" type="image/png">
+
+        <!--========== BOX ICONS ==========-->
+        <link href='https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+
+        <!--========== CSS ==========-->
+        <link rel="stylesheet" href="{{ static('assets/css/styles.css') }}">
+        <script src="https://cdn.tailwindcss.com"></script>
+           <!--=============== SWIPER CSS ===============--> 
+           <link rel="stylesheet" href="{{ static('assets/css/swiper-bundle.min.css') }}">
+
+        <title>Tmath Coding</title>
+    </head>
+    <body>
+
+        <!--========== SCROLL TOP ==========-->
+        <a href="#" class="scrolltop" id="scroll-top">
+            <i class='bx bx-chevron-up scrolltop__icon'></i>
+        </a>
+
+        <!--========== HEADER ==========-->
+        <header class="l-header" id="header">
+            <nav class="nav bd-container">
+                <a href="#">
+                    <div class="logo flex items-center" id="logo">
+                        <img src="{{ static('assets/img/logo.png') }}" alt="" class="nav__logo">
+                        <span class="font-bold mt-8 ml-2" id="logo"></span>
+                    </div>
+                </a>
+                
+
+                <div class="nav__menu" id="nav-menu">
+                    <ul class="nav__list">
+                        <li class="nav__item"><a href="#home" class="nav__link active-link">Home</a></li>
+                        <li class="nav__item"><a href="#about" class="nav__link">About</a></li>
+                        <li class="nav__item"><a href="#services" class="nav__link">Services</a></li>
+                        <li class="nav__item"><a href="#menu" class="nav__link">Menu</a></li>
+                        <li class="nav__item"><a href="#contact" class="nav__link">Contact us</a></li>
+                        <li class="nav__item"><a href="{{ url('emath:exam_list')}}" class="nav__apps">EMATH</a></li>
+                    </ul>
+                </div>
+
+                <div class="nav__toggle" id="nav-toggle">
+                    <i class='bx bx-menu'></i>
+                </div>
+            </nav>
+        </header>
+
+        <main class="l-main">
+            <!--========== HOME ==========-->
+            <section class="home" id="home">
+                <div class="home__container bd-grid">
+                    <img src="{{ static('assets/img/img1.png') }}" alt="" class="img__1">
+                    <img src="{{ static('assets/img/img2.png') }}" alt="" class="img__2">
+                    <div class="home__data">
+                        <h1 class="home__title reveal__top ">TMATH CODING</h1>
+                        <h2 class="home__subtitle reveal__top">NƠI NUÔI DƯỠNG <br> VÀ ĐÀO TẠO TÀI <br> NĂNG TRẺ </h2>
+                        <a href="{{ url('home')}}" class="button reveal__top">JOIN NOW</a>
+                    </div>
+    
+                    <div class="leader__board reveal__top">
+                        <div class="top3__ranking">
+                            <span>BẢNG XẾP HẠNG</span>
+                        </div>
+
+                        <div class="user__ranking reveal__top">
+                            <div class="user_stand ">
+                                <span class="text-sm">4</span>
+                                <i class="fas fa-user"></i>
+                                <span class="text-xs">leminhkhiet</span>
+                            </div>
+
+                            <div class="user_stand">
+                                <span class="text-sm">5</span>
+                                <i class="fas fa-user"></i>
+                                <span class="text-xs">Trung113395</span>
+                            </div>
+
+                            <div class="user_stand">
+                                <span class="text-sm">6</span>
+                                <i class="fas fa-user"></i>
+                                <span class="text-xs">YugiHacker</span>
+                            </div>
+
+                            <div class="user_stand">
+                                <span class="text-sm">7</span>
+                                <i class="fas fa-user"></i>
+                                <span class="text-xs">VoTrungDung</span>
+                            </div>
+
+                            <div class="user_stand">
+                                <span class="text-sm">8</span>
+                                <i class="fas fa-user"></i>
+                                <span class="text-xs">nhansp</span>
+                            </div>
+
+                            <div class="user_stand">
+                                <span class="text-sm">9</span>
+                                <i class="fas fa-user"></i>
+                                <span class="text-xs">Trung113395</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+            </section>
+            
+            <!--========== ABOUT ==========-->
+            <section class="about section bd-container" id="about">
+                <div class="about__container  bd-grid">
+                    <img src="{{ static('assets/img/logo.png') }}" alt="" class="about__img">
+                    <div class="about__data">
+                        <span class="section-subtitle about__initial">About Us</span>
+                        <h2 class="section-title about__initial mb-4">GIỚI THIỆU VỀ <br>
+                            TMATH CODING</h2>
+                        <p class="about__description">Sau một thời gian hoạt động trên nền tảng của ntucoder, chúng tôi đã xây dựng một nền tảng riêng dựa trên nền tảng của dmoj! Trang web sẽ là nơi đăng tải các đề thi, các chuỗi bài giảng, bài tập nhằm hỗ trợ cho các học viên của tmath có được kiến thức tốt nhất về lập trình thì đấu!</p>
+                        <a href="#" class="button mt-4">Explore Now</a>
+                    </div>
+                </div>
+            </section>
+
+            <!--========== SERVICES ==========-->
+            <section class="services section bd-container" id="services">
+                <span class="section-subtitle mt-16">NUMBERS</span>
+                <h2 class="section-title">Nơi ươm mầm những tài năng trẻ</h2>
+
+                <div class="services__container bd-grid ml-20 mr-20">
+                    <div class="services__content">
+                        <span class="services__number">10+</span>
+                        <p class="services__description">Đội ngũ giảng dạy chuyên nghiệp và dày dặn kinh nghiệm.</p>
+                    </div>
+
+                    <div class="services__content">
+                        <span class="services__number">100+</span>
+                        <p class="services__description">Học viên đạt danh hiệu học sinh giỏi cấp tỉnh, quốc gia.</p>
+                    </div>
+
+                    <div class="services__content">
+                        <span class="services__number">1000+</span>
+                        <p class="services__description">Bài tập tự luyện phù hợp với mọi cấp độ từ cơ bản đến nâng cao.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!--========== MENU ==========-->
+            <section class="menu pt-24 bd-container" id="menu">
+                <span class="section-subtitle">COURSES</span>
+                <h2 class="section-title">Các khóa học tại Tmath Coding</h2>
+
+                <div class="menu__container bd-grid">
+                    <div class="menu__content">
+                        <div class="menu__img text-6xl bg-gray-200">
+                            C++
+                        </div>
+                        <h3 class="menu__name">Khóa học lập trình thuật toán C++</h3>
+                        <span class="menu__detail">Dành cho khối THCS và THPT Hình thức: Online và Offilne</span>
+
+                        <a href="#" class="button menu__button"><i class="fas fa-unlock-alt"></i></a>
+                    </div>
+
+                    <div class="menu__content">
+                        <div class="menu__img text-4xl bg-gray-200">
+                            Python
+                        </div>
+                        <h3 class="menu__name">Khóa học lập trình ngôn ngữ Python</h3>
+                        <span class="menu__detail">Dành cho khối THCS và THPT Hình thức: Online và Offilne</span>
+
+                        <a href="#" class="button menu__button"><i class="fas fa-unlock-alt"></i></a>
+                    </div>
+
+                    <div class="menu__content">
+                        <div class="menu__img text-4xl bg-gray-200">
+                            Scrath
+                        </div>
+                        <h3 class="menu__name">Khóa học lập trình Scrath cho trẻ</h3>
+                        <span class="menu__detail">Dành cho trẻ từ 5-10 tuổi <br> Hình thức: Online và Offilne</span>
+
+                        <a href="#" class="button menu__button"><i class="fas fa-unlock-alt"></i></a>
+                    </div>
+                </div>
+            </section>
+
+            <!--==================== TESTIMONIAL ====================-->
+            <section class="testimonial section bd-container">
+                <div class="testimonial__container grid">
+                    <div class="swiper testimonial-swiper">
+                        <div class="swiper-wrapper ">
+                            <div class="testimonial__card swiper-slide reveal__right">
+                                <div class="testimonial__quote">
+                                    <i class='bx bxs-quote-alt-left' ></i>
+                                </div>
+                                <p class="testimonial__description ">
+                                    Khóa học rất tốt cho những bạn mới bắt đầu tiếp xúc
+                                    Thuật Toán và những bạn cần nâng cao thuật toán.
+                                    Thầy và các anh Trợ Giảng rất nhiệt tình chỉ bảo tận
+                                    tình. Mọi câu hỏi và thắc mắc đều được trả lời rất
+                                    nhanh chóng. Ngoài ra còn được làm quen với nhiều
+                                    trang web về thuật toán trên thế giới. Thầy với các anh
+                                    còn chia sẻ nhiều kinh nghiệm trong công việc.
+                                </p>
+                                <h3 class="testimonial__date">March 27. 2021</h3>
+        
+                                <div class="testimonial__perfil">
+                                    <img src="{{ static('assets/img/logo.png') }}" alt="" class="testimonial__perfil-img">
+        
+                                    <div class="testimonial__perfil-data">
+                                        <span class="testimonial__perfil-name">Lê Sỹ Hoàng</span>
+                                        <span class="testimonial__perfil-detail">Đội tuyển Tin học quốc gia 2020</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="testimonial__card swiper-slide">
+                                <div class="testimonial__quote">
+                                    <i class='bx bxs-quote-alt-left' ></i>
+                                </div>
+                                <p class="testimonial__description">
+                                    Đầu tiên, em muốn cám ơn các anh chị trợ giảng và
+                                    giáo viên. Có thể nói, trước khi bắt đầu khóa học em
+                                    dường như là người mất căn bản về lập trình vậy. Sau
+                                    khi tham gia khóa học thì em tiếp thu được rất nhiều,
+                                    mọi thắc mắc và khó khăn trước đó của e đã được giải
+                                    quyết. Em hiểu rõ hơn về lập trình, thuật toán và suy
+                                    nghĩ có logic hơn. Thật tiếc là em không biết về khóa
+                                    học sớm hơn. hì, cám ơn về tất cả.
+                                </p>
+                                <h3 class="testimonial__date">March 27. 2021</h3>
+        
+                                <div class="testimonial__perfil">
+                                    <img src="{{ static('assets/img/logo.png') }}" alt="" class="testimonial__perfil-img">
+        
+                                    <div class="testimonial__perfil-data">
+                                        <span class="testimonial__perfil-name">Nguyễn Thanh Hải</span>
+                                        <span class="testimonial__perfil-detail">Đội tuyển Tin học quốc gia 2020</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="testimonial__card swiper-slide">
+                                <div class="testimonial__quote">
+                                    <i class='bx bxs-quote-alt-left' ></i>
+                                </div>
+                                <p class="testimonial__description">
+                                    They are the best watches that one acquires, also they are always with the latest 
+                                    news and trends, with a very comfortable price and especially with the attention 
+                                    you receive, they are always attentive to your questions.
+                                </p>
+                                <h3 class="testimonial__date">March 27. 2021</h3>
+        
+                                <div class="testimonial__perfil">
+                                    <img src="{{ static('assets/img/plate1.png') }}" alt="" class="testimonial__perfil-img">
+        
+                                    <div class="testimonial__perfil-data">
+                                        <span class="testimonial__perfil-name">Samantha Mey</span>
+                                        <span class="testimonial__perfil-detail">Director of a company</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="testimonial__card swiper-slide">
+                                <div class="testimonial__quote">
+                                    <i class='bx bxs-quote-alt-left' ></i>
+                                </div>
+                                <p class="testimonial__description">
+                                    They are the best watches that one acquires, also they are always with the latest 
+                                    news and trends, with a very comfortable price and especially with the attention 
+                                    you receive, they are always attentive to your questions.
+                                </p>
+                                <h3 class="testimonial__date">March 27. 2021</h3>
+        
+                                <div class="testimonial__perfil">
+                                    <img src="{{ static('assets/img/plate1.png') }}" alt="" class="testimonial__perfil-img">
+        
+                                    <div class="testimonial__perfil-data">
+                                        <span class="testimonial__perfil-name">Raul Zaman</span>
+                                        <span class="testimonial__perfil-detail">Director of a company</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="">
+                            <div class="swiper-button-next">
+                                <i class='bx bx-right-arrow-alt' ></i>
+                            </div>
+                            <div class="swiper-button-prev">
+                                <i class='bx bx-left-arrow-alt' ></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial__images reveal__left">
+                        <div class="testimonial__square"></div>
+                        <img src="{{ static('assets/img/dtqg.jpg') }}" alt="" class="testimonial__img">
+                    </div>
+                </div>
+            </section>
+
+            <!--===== APP =======-->
+            <section class="app section bd-container">
+                <div class="app__container bd-grid">
+                    <div class="app__data">
+                        <span class="section-subtitle app__initial">Emath</span>
+                        <h2 class="section-title app__initial">Emath is cooming soon</h2>
+                        <p class="app__description">Emath là một ứng dụng học tiếng Anh được thiết kế để người dùng làm quen với tiếng Anh từ mức độ dễ đến khó. Phần mềm sẽ dạy cho bạn những từ vựng liên quan đến những chủ đề thông dụng thường ngày như học tập, khoa học, trường học,... bằng hình ảnh. Bên cạnh đó, bạn còn được làm bài tập giúp củng cố khả năng ghi nhớ từ vựng đã học.</p>
+                        <div class="app__stores flex">
+                            <a href="#"><img src="{{ static('assets/img/app1.png') }}" alt="" class="app__store"></a>
+                            <a href="#"><img src="{{ static('assets/img/app2.png') }}" alt="" class="app__store"></a>
+                        </div>
+                    </div>
+
+                    <img src="{{ static('assets/img/emath.png') }}" alt="" class="app__img">
+                </div>
+            </section>
+
+            <!--========== CONTACT US ==========-->
+            <section class="contact section bd-container" id="contact">
+                <div class="contact__container bd-grid">
+                    <div class="contact__data">
+                        <span class="section-subtitle contact__initial">Let's talk</span>
+                        <h2 class="section-title contact__initial">Contact us</h2>
+                        <p class="contact__description">If you want to reserve a table in our restaurant, contact us and we will attend you quickly, with our 24/7 chat service.</p>
+                    </div>
+
+                    <div class="contact__button">
+                        <a href="#" class="button">Contact us now</a>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!--========== FOOTER ==========-->
+        <footer class="footer section bd-container">
+            <div class="footer__container bd-grid">
+                <div class="footer__content">
+                    <a href="{{ url('home')}}" class="footer__logo">Tmath</a>
+                    <span class="footer__description">Education</span>
+                    <div>
+                        <a href="#" class="footer__social"><i class='bx bxl-facebook'></i></a>
+                        <a href="#" class="footer__social"><i class='bx bxl-instagram'></i></a>
+                        <a href="#" class="footer__social"><i class='bx bxl-twitter'></i></a>
+                    </div>
+                </div>
+
+                <div class="footer__content">
+                    <h3 class="footer__title">Services</h3>
+                    <ul>
+                        <li><a href="#" class="footer__link">Delivery</a></li>
+                        <li><a href="#" class="footer__link">Pricing</a></li>
+                        <li><a href="#" class="footer__link">Fast food</a></li>
+                        <li><a href="#" class="footer__link">Reserve your spot</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__content">
+                    <h3 class="footer__title">Information</h3>
+                    <ul>
+                        <li><a href="#" class="footer__link">Event</a></li>
+                        <li><a href="#" class="footer__link">Contact us</a></li>
+                        <li><a href="#" class="footer__link">Privacy policy</a></li>
+                        <li><a href="#" class="footer__link">Terms of services</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__content">
+                    <h3 class="footer__title">Adress</h3>
+                    <ul>
+                        <li>Vinh - Nghe An</li>
+                        <li>Jr Union #999</li>
+                        <li>999 - 888 - 777</li>
+                        <li>tmath@email.com</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p class="footer__copy">&#169; 2021 Nicolas William. All right reserved</p>
+        </footer>
+
+        <!--========== SCROLL REVEAL ==========-->
+        <script src="https://unpkg.com/scrollreveal"></script>
+
+        <!--=============== SWIPER JS ===============-->
+        <script src="{{ static('assets/js/swiper-bundle.min.js') }}"></script>
+
+        <!--========== MAIN JS ==========-->
+        <script src="{{ static('assets/js/main.js') }}"></script>
+    </body>
+</html>
