@@ -125,4 +125,16 @@ class PostView(TitleMixin, CommentedDetailView):
 
 class IndexView(TemplateView):
     template_name = "landing.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(IndexView, self).get_context_data(*args, **kwargs)
+
+        from judge.models import Profile
+        leaderboard = Profile.objects.order_by('-performance_points')[:9]
+        context['top_1'] = leaderboard[0]
+        context['top_2'] = leaderboard[1]
+        context['top_3'] = leaderboard[2]
+        context['rank'] = leaderboard[3:]
+
+        return context
     # pass

@@ -1,0 +1,66 @@
+id: aws_2
+key: dK1-T?O;Lc[.L|.(Nbo8LsfuE:+Kq:!+z-2v&Sd*Q+tL58c+}[Tp<P`n=/R/Y|/3_/]IHd4y<&VKXlEZXd%XZ=GR]JUn6`3`5K]b
+problem_storage_root:
+  - /mnt/problems
+
+runtime:
+  ccl: /opt/ccl/lx86cl
+  sed: /bin/sed
+  awk: /usr/bin/awk
+  gnatmake: /usr/bin/gnatmake
+  chicken-csc: /usr/bin/csc
+  dart: /opt/dart-sdk/bin/dart
+  tclsh: /usr/bin/tclsh
+  cobc: /usr/bin/cobc
+  erl: /usr/bin/erl
+  erlc: /usr/bin/erlc
+  tprolog: /opt/turing/tprolog/tprolog
+  tprologc: /opt/turing/tprolog/tprologc
+  turing_dir: /opt/turing/tprolog
+  node: /usr/bin/node
+  lua: /usr/bin/lua
+  ocaml: /usr/bin/ocamlopt
+  pypy: /opt/pypy/bin/pypy
+  pypydir: /opt/pypy/
+  pypy3: /opt/pypy3/bin/pypy
+  pypy3dir: /opt/pypy3/
+  ghc: /usr/bin/ghc
+  go: /usr/bin/go
+  fsharpc: /usr/bin/fsharpc
+  mono-csc: /usr/bin/mono-csc
+  mono-vbnc: /usr/bin/vbnc
+  mono: /usr/bin/mono
+  dmd: /usr/bin/dmd
+  fpc: /usr/bin/fpc
+  clang: /usr/bin/clang
+  clang++: /usr/bin/clang++
+  gcc: /usr/bin/gcc-11
+  gcc11: /usr/bin/gcc-11
+  g++: /usr/bin/g++-11
+  g++11: /usr/bin/g++-11
+  g++14: /usr/bin/g++-11
+  g++17: /usr/bin/g++-11
+  g++20: /usr/bin/g++-11
+  gfortran: /usr/bin/gfortran
+  nasm: /usr/bin/nasm
+  ld: /usr/bin/ld
+  python: /usr/bin/python2.7
+  python3: /usr/bin/python3
+  java: /usr/bin/java
+  javac: /usr/bin/javac
+  java17: /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+  javac17: /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+  java8: /usr/lib/jvm/java-8-openjdk-amd64/bin/java
+  javac8: /usr/lib/jvm/java-8-openjdk-amd64/bin/javac
+# Custom V8 build to facilitate online judging: https://github.com/DMOJ/v8dmoj
+  v8dmoj: /usr/bin/v8dmoj
+  php: /usr/bin/php
+  phpconfdir: /etc/php5/
+  perl: /usr/bin/perl
+  ruby19: /usr/bin/ruby1.9.1
+  ruby21: /usr/bin/ruby
+  racket: /opt/racket/bin/racket
+  raco: /opt/racket/bin/raco
+  racket-lib: /opt/racket/lib
+  gnustep-config: /usr/bin/gnustep-config
+  gobjc: /usr/bin/gcc-11
