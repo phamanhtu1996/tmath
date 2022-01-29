@@ -1,3 +1,4 @@
+
 import re
 
 from django.core.exceptions import ValidationError
@@ -97,3 +98,28 @@ class BlogPost(models.Model):
         )
         verbose_name = _('blog post')
         verbose_name_plural = _('blog posts')
+
+
+class CourseModel(models.Model):
+    language = models.CharField(max_length=20, null=False, blank=False, verbose_name=_('Language'))
+    title = models.CharField(max_length=200, null=False, blank=False, verbose_name=_('title'))
+    about = models.CharField(max_length=200, null=False, blank=False, verbose_name=_('about'))
+    link = models.URLField(max_length=128, db_index=True, null=True, blank=True, default=None, verbose_name=_('link'))
+    is_publish = models.BooleanField(_("Publish"), db_index=True, default=False)
+
+    def __str__(self):
+        return self.title
+
+    def is_editable_by(self, user):
+        if not user.is_authenticated:
+            return False
+        if user.has_perm('judge.edit_course'):
+            return True
+        return False
+
+    class Meta:
+        permissions = (
+            ('edit_course', _('Edit all course')),
+        )
+        verbose_name = _('course')
+        verbose_name_plural = _('courses')

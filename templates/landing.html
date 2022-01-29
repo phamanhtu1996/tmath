@@ -130,35 +130,17 @@
                 <h2 class="section-title">Các khóa học tại Tmath Coding</h2>
 
                 <div class="menu__container bd-grid">
-                    <div class="menu__content">
-                        <div class="menu__img text-6xl bg-gray-200">
-                            C++
-                        </div>
-                        <h3 class="menu__name">Khóa học lập trình thuật toán C++</h3>
-                        <span class="menu__detail">Dành cho khối THCS và THPT <br> Hình thức: Online và Offilne</span>
-
-                        <a href="#" class="button menu__button"><i class="fas fa-unlock-alt"></i></a>
-                    </div>
-
+                    {% for course in courses %}
                     <div class="menu__content">
                         <div class="menu__img text-4xl bg-gray-200">
-                            Python
+                            {{ course.language }}
                         </div>
-                        <h3 class="menu__name">Khóa học lập trình ngôn ngữ Python</h3>
-                        <span class="menu__detail">Dành cho khối THCS và THPT <br> Hình thức: Online và Offilne</span>
+                        <h3 class="menu__name">{{ course.title }}</h3>
+                        <span class="menu__detail">{{ course.about }}</span>
 
-                        <a href="#" class="button menu__button"><i class="fas fa-unlock-alt"></i></a>
+                        <a href="{{ course.link }}" class="button menu__button"><i class="fas fa-unlock-alt"></i></a>
                     </div>
-
-                    <div class="menu__content">
-                        <div class="menu__img text-4xl bg-gray-200">
-                            Scrath
-                        </div>
-                        <h3 class="menu__name">Khóa học lập trình Scrath cho trẻ</h3>
-                        <span class="menu__detail">Dành cho trẻ từ 5-10 tuổi <br> Hình thức: Online và Offilne</span>
-
-                        <a href="#" class="button menu__button"><i class="fas fa-unlock-alt"></i></a>
-                    </div>
+                    {% endfor %}
                 </div>
             </section>
 

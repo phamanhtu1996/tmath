@@ -85,6 +85,23 @@ class BlogPostAdmin(VersionAdmin):
         return obj.is_editable_by(request.user)
 
 
+class CourseForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(CourseForm, self).__init__(*args, **kwargs)
+
+class CourseAdmin(VersionAdmin):
+    fieldsets = (
+        (None, {
+            "fields": (
+                'language', 'title', 'is_publish', 'about', 'link'
+            ),
+        }),
+    )
+    list_display = ('language', 'title', 'is_publish')
+    ordering = ('-is_publish',)
+    form = CourseForm
+
+
 class SolutionForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(SolutionForm, self).__init__(*args, **kwargs)
