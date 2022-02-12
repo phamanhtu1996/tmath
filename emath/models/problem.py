@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext, gettext_lazy as _
 from django.urls import reverse
+from django.utils.functional import cached_property
 
 from judge.models.problem import disallowed_characters_validator
 from judge.models import Profile
@@ -73,6 +74,8 @@ class Problem(models.Model):
     difficult = models.IntegerField(verbose_name=_("difficult"), validators=[MinValueValidator(0), MaxValueValidator(3000)],
                             help_text=_("Difficult of problem"))
     
+    is_full_markup = models.BooleanField(verbose_name=_('allow full markdown access'), default=False)
+    
     def __init__(self, *args, **kwargs):
         super(Problem, self).__init__(*args, **kwargs)
         self._translated_name_cache = {}
@@ -85,6 +88,9 @@ class Problem(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('emath:problem_detail', args=(self.code,))
         
     @classmethod
     def get_visible_problems(cls, user):
@@ -125,6 +131,23 @@ class Problem(models.Model):
             q |= Q(is_public=True)
         
         return cls.objects.filter(q)
+
+    @cached_property
+    def author_ids(self):
+        return Problem.authors.through.objects.filter(problem=self).values_list('profile_id', flat=True)
+
+    def is_editable_by(self, user):
+        if not user.is_authenticated:
+            return False
+        if user.has_perm('emath.edit_all_math_problem') or user.has_perm('emath.edit_public_math_problem') and self.is_public:
+            return True
+        return user.has_perm('emath.edit_own_math_problem') and \
+            (user.profile.id in self.author_ids or
+                self.is_organization_private and self.organizations.filter(admins=user.profile).exists())
+
+    @property
+    def markdown_style(self):
+        return 'problem-full' if self.is_full_markup else 'problem'
 
     class Meta:
         permissions = (

@@ -1,0 +1,87 @@
+{% extends "common-content.html" %}
+
+{% block media %}
+    <link rel="stylesheet" href="{{ static('libs/nouislider.min.css') }}">
+    <noscript>
+        <style>
+        #category, #types {
+            visibility: visible;
+        }
+        </style>
+    </noscript>
+{% endblock %}
+
+{% block js_media %}
+    {% compress js %}
+        <script src="{{ static('libs/nouislider.min.js') }}" type="text/javascript"></script>
+    {% endcompress %}
+{% endblock %}
+
+{% block title_ruler %}{% endblock %}
+
+{% block title_row %}
+    {% set tab = 'list' %}
+    {% set title = 'Problems' %}
+    {% include "tmatheng/problem/problem-list-tabs.html" %}
+{% endblock %}
+
+{% block body %}
+    {% if page_obj.has_other_pages() %}
+        <div class="top-pagination-bar">{% include "list-pages.html" %}</div>
+    {% endif %}
+
+    <div id="common-content">
+        {% block before_table %}{% endblock %}
+        <div id="content-left" class="problems h-scrollable-table">
+            <table id="problem-table" class="table striped">
+                <thead>
+                <tr>
+                    <th class="problem">
+                        <a href="{{ sort_links.name }}">{{ _('Problem') }}{{ sort_order.name }}</a>
+                    </th>
+                    <th class="category" style="width: 40%;">
+                        <a href="{{ sort_links.group }}">{{ _('Category') }}{{ sort_order.group }}</a>
+                    </th>
+                    <th class="points">
+                        <a href="{{ sort_links.points }}">{{ _('Points') }}{{ sort_order.points }}</a>
+                    </th>
+                    <th class="users">
+                        <a href="{{ sort_links.user_count }}">{{ _('Users') }}{{ sort_order.user_count }}</a>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for problem in problems %}
+                    <tr>
+                        <td class="problem">
+                            <div><a href="{{ url('emath:problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
+                      	    </div> 
+			                <div style="text-align:right; float:right;">
+                                {% for type in problem.types_list %}
+                                    <span class="type-tag"> {{ type }}{% if not loop.last %}, {% endif %} </span>
+                                {% endfor %}
+                            </div> 
+                        </td>
+                        <td class="category">
+                        <div style="float:left;"> {{ problem.group.full_name }}</div> 
+                        </td>
+                        <td class="p">{{ problem.point  |floatformat }}{% if problem.partial %}p{% endif %}</td>
+                        <td class="users">
+                            <a href="{{ url('ranked_submissions', problem.code) }}">
+                                {% if not request.in_contest or not hide_contest_scoreboard %}
+                                    {{ problem.user_count }}
+                                {% else %}
+                                    ???
+                                {% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+   {% if page_obj.has_other_pages() %}
+       <div class="bottom-pagination-bar">{% include "list-pages.html" %}</div>
+   {% endif %}
+{% endblock %}

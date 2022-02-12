@@ -188,6 +188,7 @@
             <li class="home-nav-element"><a href="{{ url('home') }}">{% include "site-logo-fragment.html" %}</a></li>
             <li class="home-nav-element"><span class="nav-divider"></span></li>
             {% for node in mptt_tree(nav_bar) recursive %}
+                {% if not node.is_admin or request.user.is_staff or request.user.is_superuser %}
                 <li>
                     <a href="{{ node.path }}" class="nav-{{ node.key }} {% if node.key in nav_tab %} glow-on-hoverr {% else %} glow-on-hover {% endif %}">
                         {{ _(node.label) }}
@@ -199,8 +200,8 @@
                         {% if children %}<ul>{{ loop(children) }}</ul>{% endif %}
                     {% endwith %}
                 </li>
+                {% endif %}
             {% endfor %}
-            
         </ul>
 
         <span id="user-links">
@@ -220,6 +221,7 @@
                         <ul style="width: 150px">
                             {% if request.user.is_staff or request.user.is_superuser %}
                                 <li><a href="{{ url('admin:index') }}">{{ _('Admin') }}</a></li>
+                                <li><a href="{{ url('emath_admin:index') }}">{{ _('Emath Admin') }}</a></li>
                             {% endif %}
                             <li><a href="{{ url('user_edit_profile') }}">{{ _('Edit profile') }}</a></li>
                             {% if request.user.is_impersonate %}

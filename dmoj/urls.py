@@ -25,7 +25,7 @@ from judge.views.select2 import AssigneeSelect2View, CommentSelect2View, Contest
     UserSearchSelect2View, UserSelect2View, MathProblemSelect2View
 from judge.views.widgets import martor_image_uploader
 
-from emath.admin import emath_admin_site
+from emath.admin import emath_admin_site # name = emath_admin
 from emath.views import ExamProblemView
 
 admin.autodiscover()
@@ -108,7 +108,7 @@ urlpatterns = [
     url(r'^index/$', blog.PostList.as_view(template_name='home.html', title=_('Home')), kwargs={'page': 1}, name='home'),
     url(r'^500/$', exception),
     url(r'^admin/', admin.site.urls),
-    url(r'^emath_admin/', emath_admin_site.urls),
+    url(r'^emath_admin/', emath_admin_site.urls, name='emathadmin'),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^accounts/', include(register_patterns)),
     url(r'^', include('social_django.urls')),

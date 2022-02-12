@@ -1,7 +1,6 @@
 import hashlib
 import os
 import hmac
-from turtle import settiltangle
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist

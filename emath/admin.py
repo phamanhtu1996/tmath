@@ -364,7 +364,7 @@ class MathProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         # (_('Justice'), {'fields': ('banned_users',)}),
         (_('History'), {"fields": ('change_message',)}),
     )
-    list_display = ['code', 'name', 'show_authors', 'point', 'is_public']
+    list_display = ['code', 'name', 'show_authors', 'point', 'is_public', 'show_public']
     ordering = ['code']
     search_fields = ('code', 'name', 'authors__user__username')
     list_max_show_all = 1000
@@ -402,6 +402,11 @@ class MathProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         return ', '.join(map(attrgetter('user.username'), obj.authors.all()))
 
     show_authors.short_description = _('Authors')
+
+    def show_public(self, obj):
+        return format_html('<a href="{1}">{0}</a>', gettext('View on site'), obj.get_absolute_url())
+    
+    show_public.short_description = ''
 
     def make_public(self, request, queryset):
         count = queryset.update(is_public=True)
