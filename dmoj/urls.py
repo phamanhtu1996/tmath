@@ -425,5 +425,5 @@ if 'impersonate' in settings.INSTALLED_APPS:
     urlpatterns.append(url(r'^impersonate/', include('impersonate.urls')))
 
 urlpatterns += [
-    url(r'^emath/', include('emath.urls'))
+    url(r'^emath/', include('emath.urls')),
 ]

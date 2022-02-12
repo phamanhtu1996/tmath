@@ -100,3 +100,17 @@ def martor_image_uploader(request):
     else:
         data = imgur_uploader(image)
     return HttpResponse(data, content_type='application/json')
+
+
+def submission_uploader(submission_file, problem_code, user_id):
+    ext = os.path.splitext(submission_file.name)[1]
+    name = str(uuid.uuid4()) + ext
+    default_storage.save(
+        os.path.join(settings.SUBMISSION_FILE_UPLOAD_MEDIA_DIR, problem_code, str(user_id), name),
+        submission_file,
+    )
+    url_base = getattr(settings, 'SUBMISSION_FILE_UPLOAD_URL_PREFIX',
+                       urljoin(settings.MEDIA_URL, settings.SUBMISSION_FILE_UPLOAD_MEDIA_DIR))
+    if not url_base.endswith('/'):
+        url_base += '/'
+    return urljoin(url_base, os.path.join(problem_code, str(user_id), name))

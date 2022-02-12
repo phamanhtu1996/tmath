@@ -124,7 +124,7 @@ class PostView(TitleMixin, CommentedDetailView):
 
 
 class IndexView(TemplateView):
-    template_name = "landing.html"
+    template_name = "landing1.html"
 
     def get_context_data(self, *args, **kwargs):
         context = super(IndexView, self).get_context_data(*args, **kwargs)

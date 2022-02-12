@@ -1,5 +1,7 @@
 import hashlib
+import os
 import hmac
+from turtle import settiltangle
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -223,6 +225,10 @@ class SubmissionSource(models.Model):
     submission = models.OneToOneField(Submission, on_delete=models.CASCADE, verbose_name=_('associated submission'),
                                       related_name='source')
     source = models.TextField(verbose_name=_('source code'), max_length=65536)
+
+    # file = models.FileField(upload_to=os.path.join(settings.MEDIA_ROOT, 'submissions'), default=None)
+
+    # has_file = models.BooleanField(default=False)
 
     def __str__(self):
         return 'Source of %s' % self.submission
