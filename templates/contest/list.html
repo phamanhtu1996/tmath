@@ -148,7 +148,8 @@
             <table class="contest-list table striped">
                 <thead>
                 <tr>
-                    <th style="width:90%">{{ _('Contest') }}</th>
+                    <th style="width:70%">{{ _('Contest') }}</th>
+                    <th style="width:20%">{{ _('Rate') }}</th>
                     <th>{{ _('Users') }}</th>
                     {% if not request.in_contest %}
                         <th style="width:15%"></th>
@@ -174,6 +175,29 @@
                                 </div>
                             </td>
                             <td>
+                                {% if contest.is_rated %}
+                                    <b style="color:red">
+                                        {% if contest.rating_floor %}
+                                            {{ contest.rating_floor|floatformat(0) }}
+                                        {% else %}
+                                            0
+                                        {% endif %}
+                                    </b>
+                                    <b> &le; {{ _("point") }} &le; </b>
+                                    <b style="color:red">
+                                        {% if contest.rating_ceiling %}
+                                            {{ contest.rating_ceiling|floatformat(0) }}
+                                        {% else %}
+                                            3000
+                                        {% endif %}
+                                    </b>
+                                {% else %}
+                                    <b style="color:black">
+                                        {{ _('No') }}
+                                    </b>
+                                {% endif %}
+                            </td>
+                            <td>
                                 {{ user_count(contest, request.user) }}
                             </td>
                             {{ contest_join(contest, request) }}
@@ -190,7 +214,8 @@
             <table class="contest-list table striped">
                 <thead>
                 <tr>
-                    <th style="width:90%">{{ _('Contest') }}</th>
+                    <th style="width:70%">{{ _('Contest') }}</th>
+                    <th style="width:20%">{{ _('Rate') }}</th>
                     <th>{{ _('Users') }}</th>
                     {% if not request.in_contest %}
                         <th style="width:15%"></th>
@@ -213,6 +238,29 @@
                             </div>
                         </td>
                         <td>
+                            {% if contest.is_rated %}
+                                <b style="color:red">
+                                    {% if contest.rating_floor %}
+                                        {{ contest.rating_floor|floatformat(0) }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </b>
+                                <b> &le; {{ _("point") }} &le; </b>
+                                <b style="color:red">
+                                    {% if contest.rating_ceiling %}
+                                        {{ contest.rating_ceiling|floatformat(0) }}
+                                    {% else %}
+                                        3000
+                                    {% endif %}
+                                </b>
+                            {% else %}
+                                <b style="color:black">
+                                    {{ _('No') }}
+                                </b>
+                            {% endif %}
+                        </td>
+                        <td>
                             {{ user_count(contest, request.user) }}
                         </td>
                         {{ contest_join(contest, request) }}
@@ -228,7 +276,8 @@
             <table class="contest-list table striped">
                 <thead>
                 <tr>
-                    <th>{{ _('Contest') }}</th>
+                    <th style="width:80%" >{{ _('Contest') }}</th>
+                    <th style="width:20%" >{{ _('Rate') }}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -245,6 +294,29 @@
                                     {{ time_left(contest) }}
                                 {% endif %}
                             </div>
+                        </td>
+                        <td>
+                            {% if contest.is_rated %}
+                                <b style="color:red">
+                                    {% if contest.rating_floor %}
+                                        {{ contest.rating_floor|floatformat(0) }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </b>
+                                <b> &le; {{ _("point") }} &le; </b>
+                                <b style="color:red">
+                                    {% if contest.rating_ceiling %}
+                                        {{ contest.rating_ceiling|floatformat(0) }}
+                                    {% else %}
+                                        3000
+                                    {% endif %}
+                                </b>
+                            {% else %}
+                                <b style="color:black">
+                                    {{ _('No') }}
+                                </b>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
@@ -264,9 +336,10 @@
             <table class="contest-list table striped">
                 <thead>
                 <tr>
-                    <th style="width:90%">
+                    <th style="width:70%">
                         <a href="{{ sort_links.name }}" class="contest-sort-link">{{ _('Contest') }}{{ sort_order.name }}</a>
                     </th>
+                    <th style="width:20%" >{{ _('Rate') }}</th>
                     <th>
                         <a href="{{ sort_links.user_count }}" class="contest-sort-link">{{ _('Users') }}{{ sort_order.user_count }}</a>
                     </th>
@@ -283,6 +356,29 @@
                                 {{ contest_head(contest) }}
                                 {{ time_left(contest) }}
                             </div>
+                        </td>
+                        <td>
+                            {% if contest.is_rated %}
+                                <b style="color:red">
+                                    {% if contest.rating_floor %}
+                                        {{ contest.rating_floor|floatformat(0) }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </b>
+                                <b> &le; {{ _("point") }} &le; </b>
+                                <b style="color:red">
+                                    {% if contest.rating_ceiling %}
+                                        {{ contest.rating_ceiling|floatformat(0) }}
+                                    {% else %}
+                                        3000
+                                    {% endif %}
+                                </b>
+                            {% else %}
+                                <b style="color:black">
+                                    {{ _('No') }}
+                                </b>
+                            {% endif %}
                         </td>
                         <td>
                             {{ user_count(contest, request.user) }}

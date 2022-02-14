@@ -65,6 +65,13 @@
                 {% endtrans %}
             {% endif %}
         </div>
+        {% if contest.is_rated and contest.rating_ceiling %}
+        <div id="rate-contest" style="text-align:center; padding: 20px; color: red"> 
+            {% trans trimmed ceiling=contest.rating_ceiling|floatformat(0) %}
+                <h4>The contest will be rated for participants with rating lower than {{ ceiling }}</h4>
+            {% endtrans %}
+        </div>
+        {% endif %}
     </div>
 
     <div class="content-description">
