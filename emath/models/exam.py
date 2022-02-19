@@ -69,7 +69,7 @@ class Exam(models.Model):
     is_private = models.BooleanField(verbose_name=_('private to specific users'), default=False)
     private_contestants = models.ManyToManyField(Profile, blank=True, verbose_name=_('private examants'),
                                                  help_text=_('If private, only these users may see the exam'),
-                                                 related_name='private_examants+')
+                                                 related_name='private_contestants+')
     hide_problem_tags = models.BooleanField(verbose_name=_('hide problem tags'),
                                             help_text=_('Whether problem tags should be hidden by default.'),
                                             default=False)
@@ -200,7 +200,7 @@ class Exam(models.Model):
                 raise self.PrivateExam()
             return
         
-        if user.has_perm('judge.see_private_exam') or user.has_perm('judge.edit_all_exam'):
+        if user.has_perm('emath.see_private_exam') or user.has_perm('emath.edit_all_exam'):
             return
         
         if user.profile.id in self.editor_ids:
@@ -275,7 +275,7 @@ class Exam(models.Model):
             return True
         if not user.is_authenticated:
             return False
-        if user.has_perm('judge.see_private_exam') or user.has_perm('judge.edit_all_exam'):
+        if user.has_perm('emath.see_private_exam') or user.has_perm('emath.edit_all_exam'):
             return True
         if user.profile.id in self.editor_ids:
             return True
@@ -291,15 +291,15 @@ class Exam(models.Model):
             return cls.objects.filter(is_visible=True, is_organization_private=False, is_private=False) \
                 .defer('description').distinct()
         queryset = cls.objects.defer('description')
-        if not (user.has_perm('judge.see_private_exam') or user.has_perm('judge.edit_all_exam')):
+        if not (user.has_perm('emath.see_private_exam') or user.has_perm('emath.edit_all_exam')):
             q = Q(is_visible=True)
             q &= (
                 Q(view_exam_scoreboard=user.profile) |
                 Q(is_organization_private=False, is_private=False) |
-                Q(is_organization_private=False, is_private=True, private_examants=user.profile) |
-                Q(is_organization_private=True, is_private=False, organizations__in=user.profile.organizations.all()) |
-                Q(is_organization_private=True, is_private=True, organizations__in=user.profile.organizations.all(),
-                  private_contestants=user.profile)
+                Q(is_organization_private=False, is_private=True, private_contestants=user.profile) 
+                # Q(is_organization_private=True, is_private=False, organizations__in=user.profile.organizations.all()) |
+                # Q(is_organization_private=True, is_private=True, organizations__in=user.profile.organizations.all(),
+                #   private_contestants=user.profile)
             )
             q |= Q(authors=user.profile)
             q |= Q(curators=user.profile)
@@ -308,10 +308,10 @@ class Exam(models.Model):
         return queryset.distinct()
 
     def is_editable_by(self, user):
-        if user.has_perm('judge.edit_all_exam'):
+        if user.has_perm('emath.edit_all_exam'):
             return True
         
-        if user.has_perm('judge.edit_own_exam') and user.profile.id in self.editor_ids:
+        if user.has_perm('emath.edit_own_exam') and user.profile.id in self.editor_ids:
             return True
         
         return False

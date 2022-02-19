@@ -74,10 +74,10 @@ class ProblemList(QueryStringSortMixin, TitleMixin, ListView):
             filter |= Q(authors=self.profile)
 
         queryset = Problem.objects.filter(filter).select_related('group').defer('description')
-        if not self.request.user.has_perm('see_organization_problem'):
+        if not self.request.user.has_perm('see_organization_math_problem'):
             filter = Q(is_organization_private=False)
-            if self.profile is not None:
-                filter |= Q(organizations__in=self.profile.organizations.all())
+            # if self.profile is not None:
+            #     filter |= Q(organizations__in=self.profile.organizations.all())
             queryset = queryset.filter(filter)
 
         if self.category is not None:

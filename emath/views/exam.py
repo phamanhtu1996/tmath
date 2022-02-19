@@ -140,7 +140,7 @@ class ExamProblemView(LoginRequiredMixin, ExamMixin, TitleMixin, DetailView):
         name = self.request.user.profile.name if self.request.user.profile.name else self.request.user.username
         return mark_safe(escape(_('Exam %(exam)s by %(user)s')) % {
             'exam': format_html('<a href="{0}">{1}</a>',
-                                   reverse('emath:exam_detail', args=[exam.id]),
+                                   reverse('emath:exam_detail', args=[exam.key]),
                                    exam.name),
             'user': format_html('<a href="{0}">{1}</a>',
                                 reverse('user_page', args=[self.request.user.username]),
@@ -159,8 +159,10 @@ class ExamProblemView(LoginRequiredMixin, ExamMixin, TitleMixin, DetailView):
         auth = auth or self.is_editor or self.is_tester
         if not auth:
             raise Http404
+        content['has_submissions'] = auth and ExamSubmission.objects.filter(exam=exam, participation__user=profile).exists()
         random.shuffle(self.problems)
         for problem in self.problems:
+            # print(problem.problem.description)
             self.forms.append(ProblemForm(get_ans_problem(problem.problem), prefix=str(problem.id)))
         exam_problem = self.problems if auth else None
         

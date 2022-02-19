@@ -1,9 +1,28 @@
-{% extends 'common-content.html' %} {% block description %}
+{% extends 'common-content.html' %} 
+
+{% block content_media %}
+  <style>
+    .answer {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      grid-gap: 5px 5px;
+    }
+    .submit {
+      margin-top: 30px;
+    }
+    .answer-item {
+      font-size: 16px;
+    }
+  </style>
+{% endblock %}
+
+{% block description %}
 <form actions="" method="post">
   {% csrf_token %}
   <input type="hidden" id="exam_id" name="exam" value="{{ exam.id }}">
   {% for eproblem in data %}
-  <div>
+  <div style="font-size: 16px">
     {% cache 3600 'exam_html' eproblem.problem.id MATH_ENGINE %} 
       {% with problem=eproblem.problem.problem %}
         {{ problem.description|markdown(problem.markdown_style, MATH_ENGINE)|reference|str|safe }}
@@ -12,14 +31,32 @@
   </div>
   <div>
     <fieldset>
-    <legend><h3>Answer</h3></legend>
-    {{ eproblem.form }}
+    <legend><h4>Answer</h4></legend>
+    <div class="answer">
+    {% for radio in eproblem.form.ans %}
+    <div class='answer-item'>
+      {{ radio }}
+    </div>
+    {% endfor %}
+    <div>
     </fieldset>
   </div>
+  {% if not loop.last %}
   <hr style="border: 1px solid red;" />
+  {% endif %}
   {% endfor %}
   {% if has_joined %}
-  <input type="submit" id="submit" value="Submit" />
+  <input type="submit" class='submit' id="submit" value="Submit" />
   {% endif %}
 </form>
+{% endblock %}
+
+{% block info_float %}
+  {% if request.user.is_authenticated and has_submissions %}
+  <div>
+    <a href="{{ url('emath:user_submissions', exam.key, request.user.username) }}">{{ _('My submissions') }}</a>
+  </div>
+  {% endif %}
+  <div><a href="{{ url('emath:chronological_submissions', exam.key) }}">{{ _('All submissions') }}</a></div>
+  <div><a href="#{# url('ranked_submissions', problem.code) #}">{{ _('Best submissions') }}</a></div>
 {% endblock %}
