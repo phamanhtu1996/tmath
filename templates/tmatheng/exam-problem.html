@@ -1,0 +1,25 @@
+{% extends 'common-content.html' %} {% block description %}
+<form actions="" method="post">
+  {% csrf_token %}
+  <input type="hidden" id="exam_id" name="exam" value="{{ exam.id }}">
+  {% for eproblem in data %}
+  <div>
+    {% cache 3600 'exam_html' eproblem.problem.id MATH_ENGINE %} 
+      {% with problem=eproblem.problem.problem %}
+        {{ problem.description|markdown(problem.markdown_style, MATH_ENGINE)|reference|str|safe }}
+      {% endwith %}
+    {% endcache %}
+  </div>
+  <div>
+    <fieldset>
+    <legend><h3>Answer</h3></legend>
+    {{ eproblem.form }}
+    </fieldset>
+  </div>
+  <hr style="border: 1px solid red;" />
+  {% endfor %}
+  {% if has_joined %}
+  <input type="submit" id="submit" value="Submit" />
+  {% endif %}
+</form>
+{% endblock %}

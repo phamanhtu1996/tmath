@@ -1,17 +1,23 @@
+from django.forms import ValidationError
 from jsonfield import JSONField
 
 from django.db import models, transaction
+from django.db.models import Max, CASCADE
 from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext, gettext_lazy as _
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils import timezone
 from django.db.models.query_utils import Q
+from emath.models.submission import Submission
+from judge.contest_format.base import BaseContestFormat
 
 from judge.models import Profile
 from judge.models.contest import MinValueOrNoneValidator
 from emath.models.problem import Problem
 from emath.models import Organization
+from emath import exam_format
+
 
 class Exam(models.Model):
     SCOREBOARD_VISIBLE = 'V'
@@ -92,8 +98,8 @@ class Exam(models.Model):
                                                'to join the exam. Leave it blank to disable.'))
     banned_users = models.ManyToManyField(Profile, verbose_name=_('personae non gratae'), blank=True,
                                           help_text=_('Bans the selected users from joining this exam.'))
-    # format_name = models.CharField(verbose_name=_('exam format'), default='default', max_length=32,
-    #                                choices=exam_format.choices(), help_text=_('The exam format module to use.'))
+    format_name = models.CharField(verbose_name=_('exam format'), default='default', max_length=32,
+                                   choices=exam_format.choices(), help_text=_('The exam format module to use.'))
     # format_config = JSONField(verbose_name=_('exam format configuration'), null=True, blank=True,
     #                           help_text=_('A JSON object to serve as the configuration for the chosen exam format '
     #                                       'module. Leave empty to use None. Exact format depends on the exam format '
@@ -118,7 +124,7 @@ class Exam(models.Model):
         return self.name
     
     def get_absolute_url(self):
-        return reverse("exam_view", args=(self.key))
+        return reverse("exam_detail", args=(self.key))
     
     @property
     def exam_window_length(self):
@@ -127,6 +133,30 @@ class Exam(models.Model):
     @cached_property
     def _now(self):
         return timezone.now()
+
+    @cached_property
+    def format_class(self):
+        return exam_format.formats[self.format_name]
+    
+    @cached_property
+    def format(self):
+        return self.format_class(self)
+    
+    @cached_property
+    def get_label_for_problem(self):
+        return self.format.get_label_for_problem
+
+    def clean(self):
+        if self.start_time and self.end_time and self.start_time >= self.end_time:
+            raise ValidationError('What is this? A exam that ended before it starts?')
+
+        try:
+            label = self.get_label_for_problem(0)
+        except Exception as e:
+            raise ValidationError('Exam problem label script: %s' % e)
+        else:
+            if not isinstance(label, str):
+                raise ValidationError('Contest problem label script: script should return a string.')
 
     @cached_property
     def ended(self):
@@ -333,6 +363,7 @@ class ExamParticipation(models.Model):
 
     def recompute_results(self):
         with transaction.atomic():
+            self.exam.format.update_participation(self)
             if self.is_disqualified:
                 self.score = -9999
                 self.save(update_fields=['score'])
@@ -424,31 +455,17 @@ SUBMISSION_RESULT = (
 
 
 class ExamSubmission(models.Model):
-    STATUS = (
-        ('QU', _('Queued')),
-        ('P', _('Processing')),
-        ('G', _('Grading')),
-        ('D', _('Completed')),
-        ('IE', _('Internal Error')),
-        ('CE', _('Compile Error')),
-        ('AB', _('Aborted')),
-    )
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    date = models.DateTimeField(verbose_name=_('submission time'), auto_now_add=True, db_index=True)
-    time = models.FloatField(verbose_name=_('execution time'), null=True, db_index=True)
-    points = models.FloatField(verbose_name=_('points granted'), null=True, db_index=True)
-    status = models.CharField(verbose_name=_('status'), max_length=2, choices=STATUS, default='QU', db_index=True)
-    result = models.CharField(verbose_name=_('result'), max_length=3, choices=SUBMISSION_RESULT,
-                              default=None, null=True, blank=True, db_index=True)
-    current_testcase = models.IntegerField(default=0)
-    batch = models.BooleanField(verbose_name=_('batched cases'), default=False)
-    case_points = models.FloatField(verbose_name=_('test case points'), default=0)
-    case_total = models.FloatField(verbose_name=_('test case total points'), default=0)
-    # judged_on = models.ForeignKey('Judge', verbose_name=_('judged on'), null=True, blank=True,
-    #                               on_delete=models.SET_NULL)
-    judged_date = models.DateTimeField(verbose_name=_('submission judge time'), default=None, null=True)
-    rejudged_date = models.DateTimeField(verbose_name=_('last rejudge date by admin'), null=True, blank=True)
-    exam_object = models.ForeignKey('Exam', verbose_name=_('exam'), null=True, blank=True,
-                                       on_delete=models.SET_NULL, related_name='+')
-    locked_after = models.DateTimeField(verbose_name=_('submission lock'), null=True, blank=True)
+    submission = models.OneToOneField(Submission, verbose_name=_('submission'), null=True,
+                                      related_name='exam', on_delete=CASCADE)
+    exam = models.ForeignKey(Exam, verbose_name=_('exam'), on_delete=CASCADE, null=True,
+                             related_name='submissions', related_query_name='submission')
+    participation = models.ForeignKey(ExamParticipation, verbose_name=_('participation'), on_delete=CASCADE, null=True,
+                                      related_name='submissions', related_query_name='submission')
+    points = models.FloatField(verbose_name=_('points'), default=0.0)
+
+    def update_exam(self):
+        self.participation.recompute_results()
+
+    class Meta:
+        verbose_name = _('exam submission')
+        verbose_name_plural = _('exam submissions')

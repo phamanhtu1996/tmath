@@ -1,0 +1,72 @@
+{% extends "tabs-base.html" %}
+
+{% block tabs %}
+    {{ make_tab('detail', 'fa-info-circle', url('emath:exam_detail', exam.key), _('Info')) }}
+
+    {% if exam.start_time <= now or perms.judge.see_private_exam %}
+        {% if exam.can_see_own_scoreboard(request.user) %}
+            {{ make_tab('ranking', 'fa-bar-chart', url('emath:exam_ranking', exam.key), _('Rankings')) }}
+        {% else %}
+            {{ make_tab('ranking', 'fa-bar-chart', None, _('Hidden Rankings')) }}
+        {% endif %}
+    {% endif %}
+    {% if can_edit %}
+        {{ make_tab('edit', 'fa-edit', url('emath_admin:emath_exam_change', exam.id), _('Edit')) }}
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+        {% if exam.can_join or is_editor or is_tester %}
+            {% set in_exam = exam.is_in_exam(request.user) %}
+            {% if exam.ended %}
+                {# Allow users to leave the virtual exam #}
+                {% if in_exam %}
+                    <form action="{{ url("emath:exam_leave", exam.key) }}" method="post"
+                          class="exam-join-pseudotab unselectable button">
+                        {% csrf_token %}
+                        <input type="submit" class="leaving-forever" value="{{ _('Leave exam') }}">
+                    </form>
+                {% else %}
+                    {# Allow users to virtual join #}
+                    <form action="{{ url('emath:exam_join', exam.key) }}" method="post"
+                          class="exam-join-pseudotab unselectable button">
+                        {% csrf_token %}
+                        <input type="submit" value="{{ _('Virtual join') }}">
+                    </form>
+                {% endif %}
+            {% else %}
+                {# Allow users to leave the exam #}
+                {% if in_exam %}
+                    <form action="{{ url('emath:exam_leave', exam.key) }}" method="post"
+                          class="exam-join-pseudotab unselectable button">
+                        {% csrf_token %}
+                        <input type="submit" value="
+                            {% if request.participation.spectate %}
+                                {{- _('Stop spectating') -}}
+                            {% else %}
+                                {{- _('Leave exam') -}}
+                            {% endif %}">
+                    </form>
+                {% elif is_editor or is_tester or live_participation.ended %}
+                    <form action="{{ url('emath:exam_join', exam.key) }}" method="post"
+                          class="exam-join-pseudotab unselectable button">
+                        {% csrf_token %}
+                        <input type="submit" value="{{ _('Spectate exam') }}">
+                    </form>
+                {% else %}
+                    <form action="{{ url('emath:exam_join', exam.key) }}" method="post"
+                          class="exam-join-pseudotab unselectable button">
+                        {% csrf_token %}
+                        <input type="submit" {% if not has_joined %}class="first-join"{% endif %}
+                               value="{{ _('Join exam') }}">
+                    </form>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% elif exam.can_join %}
+        <form action="{{ url('auth_login') }}" method="get"
+              class="exam-join-pseudotab unselectable button">
+            <input type="hidden" name="next" value="{{ LOGIN_RETURN_PATH|urlencode }}">
+            <input type="submit" value="{{ _('Log in to participate') }}">
+        </form>
+    {% endif %}
+{% endblock %}

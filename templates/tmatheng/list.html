@@ -55,7 +55,7 @@
 
 {% macro exam_head(exam) %}
     {% spaceless %}
-        <a href="{{ url('emath:exam_detail', exam.id) }}" class="contest-list-title">
+        <a href="{{ url('emath:exam_detail', exam.key) }}" class="contest-list-title">
             {{- exam.name -}}
         </a>
         <span class="contest-tags">
@@ -111,13 +111,13 @@
     {% if not request.in_exam %}
         <td>
             {% if request.profile in exam.authors.all() or request.profile in exam.curators.all() or request.profile in exam.testers.all() %}
-                <form action="{{ url('emath:exam_detail', exam.pk) }}" method="post">
+                <form action="{{ url('emath:exam_detail', exam.key) }}" method="post">
                     {% csrf_token %}
                     <input type="submit" class="unselectable button full participate-button"
                            value="{{ _('Spectate') }}">
                 </form>
             {% else %}
-                <form action="{{ url('emath:exam_detail', exam.pk) }}" method="post">
+                <form action="{{ url('emath:exam_detail', exam.key) }}" method="post">
                     {% csrf_token %}
                     <input type="submit" class="unselectable button full participate-button join-warning"
                            value="{{ _('Join') }}">
@@ -161,7 +161,6 @@
                             <td>
                                 {{ user_count(exam, request.user) }}
                             </td>
-                            {{ exam_join(exam, request) }}
                         </tr>
                     {% endwith %}
                 {% endfor %}
@@ -199,7 +198,6 @@
                         <td>
                             {{ user_count(exam, request.user) }}
                         </td>
-                        {{ exam_join(exam, request) }}
                     </tr>
                 {% endfor %}
                 </tbody>

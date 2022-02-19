@@ -4,10 +4,8 @@ from django.utils.functional import cached_property
 from django.utils import timezone
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
-from emath.models.exam import Exam
 
 from judge.models import Profile
-from emath.models import Problem
 
 SUBMISSION_RESULT = (
     ('AC', _('Accepted')),
@@ -45,7 +43,6 @@ class Submission(models.Model):
     }
 
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name=_('emath_user'))
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     date = models.DateTimeField(verbose_name=_('submission time'), auto_now_add=True, db_index=True)
     time = models.FloatField(verbose_name=_('execution time'), null=True, db_index=True)
     points = models.FloatField(verbose_name=_('points granted'), null=True, db_index=True)
@@ -100,7 +97,7 @@ class Submission(models.Model):
         if not user.is_authenticated:
             return False
         profile = user.profile
-        source_visibility = self.problem.submission_source_visibility
+        # source_visibility = self.problem.submission_source_visibility
         if self.problem.is_editable_by(user):
             return True
         elif user.has_perm('judge.view_all_submission'):
@@ -123,18 +120,6 @@ class Submission(models.Model):
             return True
 
         return False
-
-    # def update_exam(self):
-    #     exam = self.exam
-    #     exam_problem = exam.problem
-    #     exam.points = round(self.case_points / self.case_total
-    #                            if self.case_total > 0 else 0, 3)
-    #     if not exam_problem.partial and exam.points != exam_problem.points:
-    #         exam.points = 0
-    #     exam.save()
-    #     exam.participation.recompute_results()
-
-    # update_exam.alters_data = True
 
     # @property
     # def is_graded(self):
@@ -179,3 +164,17 @@ class Submission(models.Model):
         )
         verbose_name = _('emath_submission')
         verbose_name_plural = _('emath_submissions')
+
+
+class SubmissionProblem(models.Model):
+    submission = models.ForeignKey(Submission, verbose_name=_('submission'),
+                                   related_name='problems', on_delete=models.CASCADE)
+    problem = models.ForeignKey('ExamProblem', verbose_name=_('problem'), on_delete=models.CASCADE)
+    result = models.BooleanField(verbose_name=_('result for this problem'), default=False)
+    points = models.FloatField(verbose_name=_('points granted'), null=True)
+    output = models.TextField(verbose_name=_('Student\'s answer'), blank=True)
+
+    class Meta:
+        unique_together = ('submission', 'problem')
+        verbose_name = _('submission problem')
+        verbose_name_plural = _('submission problems')

@@ -75,7 +75,7 @@
                 {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
                 {% for submission in submissions %}
                     <div class="submission-row" id="{{ submission.id }}">
-                        {% with problem_name=show_problem and (submission.exam.i18n_name or submission.exam.name) %}
+                        {% with problem_name=show_problem and (submission.exam.exam.i18n_name or submission.exam.exam.name) %}
                             {% include "tmatheng/submission/row.html" %}
                         {% endwith %}
                     </div>

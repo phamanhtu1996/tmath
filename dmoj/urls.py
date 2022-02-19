@@ -26,7 +26,6 @@ from judge.views.select2 import AssigneeSelect2View, CommentSelect2View, Contest
 from judge.views.widgets import martor_image_uploader
 
 from emath.admin import emath_admin_site # name = emath_admin
-from emath.views import ExamProblemView
 
 admin.autodiscover()
 
