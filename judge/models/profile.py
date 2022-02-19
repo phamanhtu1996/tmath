@@ -145,6 +145,8 @@ class Profile(models.Model):
                              help_text=_('Notes for administrators regarding this user.'))
     data_last_downloaded = models.DateTimeField(verbose_name=_('last data download time'), null=True, blank=True)
 
+    emath = models.BooleanField(verbose_name=_('Emath'), default=False)
+
     @cached_property
     def organization(self):
         # We do this to take advantage of prefetch_related

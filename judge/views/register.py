@@ -32,6 +32,8 @@ class CustomRegistrationForm(RegistrationForm):
     organizations = SortedMultipleChoiceField(queryset=Organization.objects.filter(is_open=True),
                                               label=_('Organizations'), required=False,
                                               widget=Select2MultipleWidget(attrs={'style': 'width:100%'}))
+    name = forms.CharField(max_length=50, required=True, label=_('Fullname'))
+    emath = forms.BooleanField(required=False, label=_('Emath'))
 
     if newsletter_id is not None:
         newsletter = forms.BooleanField(label=_('Subscribe to newsletter?'), initial=True, required=False)
@@ -75,6 +77,8 @@ class RegistrationView(OldRegistrationView):
 
         cleaned_data = form.cleaned_data
         profile.timezone = cleaned_data['timezone']
+        profile.emath = cleaned_data['emath']
+        profile.name = cleaned_data['name']
         profile.language = cleaned_data['language']
         profile.organizations.add(*cleaned_data['organizations'])
         profile.save()

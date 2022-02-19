@@ -140,6 +140,13 @@
                 <div class="form-field-error">{{ form.username.errors }}</div>
             {% endif %}
 
+            <div class="block-header">{{ _('Fullname') }}</div>
+            <span class="fullwidth{% if form.name.errors %}-error{% endif %}">{{ form.name }}</span>
+            {% if form.name.errors %}
+                <div class="form-field-error">{{ form.name.errors }}</div>
+            {% endif %}
+
+
             <div class="block-header">{{ _('Email') }}</div>
             <span class="fullwidth{% if form.email.errors %}-error{% endif %}">{{ form.email }}</span>
             {% if form.email.errors %}
@@ -183,7 +190,11 @@
 
             <div class="block-header">{{ _('Affiliated organizations') }}</div>
             {{ form.organizations }}
-
+            
+            <div style="margin-top: 8px">
+            {{ form.emath }}
+            <span class="block-header"> Emath </span>
+            </div>
             {% if form.newsletter %}
                 <div style="padding-top: 0.5em;">{{ form.newsletter }}
                     <label for="id_newsletter" style="float: unset;"

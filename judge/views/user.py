@@ -18,7 +18,7 @@ from django.db.models.fields import DateField
 from django.db.models.functions import Cast, ExtractYear
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.functional import cached_property
@@ -131,6 +131,12 @@ class CustomLoginView(LoginView):
     extra_context = {'title': gettext_lazy('Login')}
     authentication_form = CustomAuthenticationForm
     redirect_authenticated_user = True
+
+    def get_success_url(self):
+        if self.request.user.profile.emath:
+            return reverse_lazy('emath:exam_list')
+        else:
+            return reverse_lazy('home')
 
     def form_valid(self, form):
         password = form.cleaned_data['password']
