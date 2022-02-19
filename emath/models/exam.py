@@ -165,6 +165,22 @@ class Exam(models.Model):
     @cached_property
     def can_join(self):
         return self.start_time <= self._now
+        
+    @property
+    def time_before_start(self):
+        if self.start_time >= self._now:
+            return self.start_time - self._now
+        else:
+            return None
+
+    @property
+    def time_before_end(self):
+        if self.end_time >= self._now:
+            return self.end_time - self._now
+        else:
+            return None
+
+
     
     @cached_property
     def author_ids(self):
