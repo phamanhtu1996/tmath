@@ -4,6 +4,7 @@ from .organization import Organization
 from .problem import Problem
 from .exam import Exam, ExamProblem, ExamParticipation, ExamSubmission
 from .submission import Submission
+from .interface import Navigation
 
 revisions.register(Problem)
 revisions.register(Exam, follow=['exam_problems'])

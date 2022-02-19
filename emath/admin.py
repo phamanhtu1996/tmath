@@ -15,14 +15,17 @@ from django.utils.html import format_html
 from django.utils.translation import gettext, gettext_lazy as _, ungettext
 from reversion.admin import VersionAdmin
 
+from mptt.admin import DraggableMPTTAdmin
+
 from django_ace import AceWidget, widgets
 from emath.models.problem import MathGroup, Problem
 from judge import forms
 # from judge.admin.problem import ProblemAdmin
 from judge.models import  Profile, Rating
-from emath.models import Submission, Exam, ExamProblem, ExamSubmission
+from emath.models import Submission, Exam, ExamProblem, ExamSubmission, Navigation
 # from judge.ratings import rate_exam
 from judge.utils.views import NoBatchDeleteMixin
+from judge.dblock import LockModel
 from judge.widgets import AdminHeavySelect2MultipleWidget, AdminHeavySelect2Widget, AdminMartorWidget, \
     AdminSelect2MultipleWidget, AdminSelect2Widget
 
@@ -446,9 +449,39 @@ class MathProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         return super(MathProblemAdmin, self).construct_change_message(request, form, *args, **kwargs)
 
 
+class NavigationBarAdmin(DraggableMPTTAdmin):
+    list_display = DraggableMPTTAdmin.list_display + ('key', 'linked_path')
+    fields = ('key', 'label', 'path', 'order', 'regex', 'parent')
+    list_editable = ()  # Bug in SortableModelAdmin: 500 without list_editable being set
+    mptt_level_indent = 20
+    sortable = 'order'
+
+    def __init__(self, *args, **kwargs):
+        super(NavigationBarAdmin, self).__init__(*args, **kwargs)
+        self.__save_model_calls = 0
+
+    def linked_path(self, obj):
+        return format_html(u'<a href="{0}" target="_blank">{0}</a>', obj.path)
+    linked_path.short_description = _('link path')
+
+    def save_model(self, request, obj, form, change):
+        self.__save_model_calls += 1
+        return super(NavigationBarAdmin, self).save_model(request, obj, form, change)
+
+    def changelist_view(self, request, extra_context=None):
+        self.__save_model_calls = 0
+        with Navigation.objects.disable_mptt_updates():
+            result = super(NavigationBarAdmin, self).changelist_view(request, extra_context)
+        if self.__save_model_calls:
+            with LockModel(write=(Navigation,)):
+                Navigation.objects.rebuild()
+        return result
+
+
 emath_admin_site.register(Problem, MathProblemAdmin)
 emath_admin_site.register(Exam, ExamAdmin)
 emath_admin_site.register(MathGroup, MathProblemGroupAdmin)
+emath_admin_site.register(Navigation, NavigationBarAdmin)
 # admin.site.register(Exam, ExamAdmin)
 # admin.site.register(MathProblem, MathProblemAdmin)
 # admin.site.register(MathGroup, MathProblemGroupAdmin)

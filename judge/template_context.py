@@ -8,6 +8,7 @@ from django.utils.functional import SimpleLazyObject, new_method_proxy
 
 from judge.utils.caniuse import CanIUse, SUPPORT
 from .models import MiscConfig, NavigationBar, Profile
+from emath.models.interface import Navigation
 
 
 class FixedSimpleLazyObject(SimpleLazyObject):
@@ -29,6 +30,7 @@ def get_resource(request):
         'INLINE_FONTAWESOME': settings.INLINE_FONTAWESOME,
         'JQUERY_JS': settings.JQUERY_JS,
         'FONTAWESOME_CSS': settings.FONTAWESOME_CSS,
+        'MATERIAL_ICONS': settings.MATERIAL_ICONS,
         'DMOJ_SCHEME': scheme,
         'DMOJ_CANONICAL': settings.DMOJ_CANONICAL,
     }
@@ -60,7 +62,7 @@ def general_info(request):
     path = request.get_full_path()
     return {
         'nav_tab': FixedSimpleLazyObject(partial(__nav_tab, request.path)),
-        'nav_bar': NavigationBar.objects.all(),
+        'nav_bar': Navigation.objects.all() if path.startswith('/emath/') else NavigationBar.objects.all(),
         'LOGIN_RETURN_PATH': '' if path.startswith('/accounts/') else path,
         'perms': PermWrapper(request.user),
         'HAS_WEBAUTHN': bool(settings.WEBAUTHN_RP_ID),
