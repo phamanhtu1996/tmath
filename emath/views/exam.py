@@ -186,13 +186,15 @@ class ExamProblemView(LoginRequiredMixin, ExamMixin, TitleMixin, DetailView):
             raise Http404
         exam_id = request.POST['exam']
         exam = Exam.objects.get(id=exam_id)
+        profile = self.request.profile
         LIVE = ExamParticipation.LIVE
         SPECTATE = ExamParticipation.SPECTATE
+        spectate = (profile in exam.editor_ids) or (profile in exam.tester_ids)
         if not exam.ended:
             participation = ExamParticipation.objects.get(
                 user=self.request.profile, 
                 exam=exam, 
-                virtual=SPECTATE if self.is_editor or self.is_tester else LIVE)
+                virtual=SPECTATE if spectate else LIVE)
         else:
             participation = ExamParticipation.objects.filter(
                 user=self.request.profile, 
