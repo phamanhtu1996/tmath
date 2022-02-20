@@ -27,7 +27,7 @@ def filter_submissions_by_visible_exams(queryset, user):
         queryset,
         subquery=str(Exam.get_visible_exams(user).only('id').query),
         params=[],
-        join_fields=[('exam_id', 'id')],
+        join_fields=[('exam__exam_id', 'id')],
         alias='visible_exams',
     )
 
@@ -52,7 +52,7 @@ def get_result_data(*args, **kwargs):
 
 class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
     model = Submission
-    paginate_by = 50
+    paginate_by = 20
     show_problem = True
     title = _('All submissions')
     content_title = _('All submissions')
@@ -148,7 +148,7 @@ class AllSubmissions(InfinitePaginationMixin, SubmissionsListBase):
 
     @property
     def use_infinite_pagination(self):
-        return not self.in_exam
+        return True
 
     def get_context_data(self, **kwargs):
         context = super(AllSubmissions, self).get_context_data(**kwargs)
