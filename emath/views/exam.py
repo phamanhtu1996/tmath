@@ -483,6 +483,8 @@ class ExamJoin(LoginRequiredMixin, ExamMixin, BaseDetailView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if not self.request.profile.emath:
+            raise ExamAccessDenied()
         try:
             return self.join_exam(request)
         except ExamAccessDenied:
