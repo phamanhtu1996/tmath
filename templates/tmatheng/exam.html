@@ -65,11 +65,11 @@
     <div id="banner">
         <a href="https://www.timeanddate.com/worldclock/fixedtime.html?msg={{ exam.name|urlquote('') }}&amp;iso=
                 {{- exam.start_time|utc|date('Y-m-d\TH:i:s') }}" class="date">
-            {%- if exam.is_in_exam(request.user) and not request.participation.live -%}
-                {% if request.participation.spectate %}
+            {%- if exam.is_in_exam(request.user) and not request.examparticipation.live -%}
+                {% if request.examparticipation.spectate %}
                     {{- _('Spectating, exam ends in %(countdown)s.', countdown=exam.time_before_end|as_countdown) -}}
-                {% elif request.participation.end_time %}
-                    {{- _('Participating virtually, %(countdown)s remaining.', countdown=request.participation.time_remaining|as_countdown) -}}
+                {% elif request.examparticipation.end_time %}
+                    {{- _('Participating virtually, %(countdown)s remaining.', countdown=request.examparticipation.time_remaining|as_countdown) -}}
                 {% else %}
                     {{- _('Participating virtually.') -}}
                 {% endif %}

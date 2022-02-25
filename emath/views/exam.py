@@ -27,17 +27,24 @@ from judge.utils.opengraph import generate_opengraph
 from judge.utils.views import TitleMixin, QueryStringSortMixin, DiggPaginatorMixin, generic_message
 from judge.comments import CommentedDetailView
 from emath.forms import ProblemForm
-from emath.models import Exam, ExamProblem, ExamParticipation, ExamSubmission, Submission
+from emath.models import Exam, ExamProblem, ExamParticipation, ExamSubmission, Submission, Answer
 
 def get_exam_problem(exam, profile):
     return ExamProblem.objects.filter(exam=exam)
 
 def get_ans_problem(problem):
-    ans = [problem.answer, problem.wrong_answer1, problem.wrong_answer2, problem.wrong_answer3]
-    random.shuffle(ans)
-    id = problem.id
-    return [(ans[i], ans[i]) for i in range(4)]
+    answer = Answer.objects.filter(problem=problem).values_list('description')
+    if len(answer) == 0:
+        answer = [problem.answer, problem.wrong_answer1, problem.wrong_answer2, problem.wrong_answer3]
+    random.shuffle(answer)
+    return [(ans, ans) for ans in answer]
 
+def check_answer(problem, ans):
+    try:
+        answer = Answer.objects.get(problem=problem, is_correct=True)
+        return ans == answer.description
+    except Answer.DoesNotExist:
+        return ans == problem.answer
 
 class PrivateExamError(Exception):
     def __init__(self, name, is_private, is_organization_private, orgs):
@@ -215,8 +222,8 @@ class ExamProblemView(LoginRequiredMixin, ExamMixin, TitleMixin, DetailView):
         for problem in problems:
             key = str(problem.id) + '-ans'
             answer = self.request.POST[key]
-            check = answer == problem.problem.answer
-            print(answer, problem.problem.answer)
+            check = check_answer(problem.problem, answer)
+            # print(answer, problem.problem.answer)
             if check:
                 cnt += 1
             SubmissionProblem.objects.create(
@@ -566,7 +573,7 @@ class ExamJoin(LoginRequiredMixin, ExamMixin, BaseDetailView):
                 wrong_code = True
         else:
             form = ExamAccessCodeForm()
-        return render(self.request, 'exam/access_code.html', {
+        return render(self.request, 'tmatheng/access_code.html', {
             'form': form, 'wrong_code': wrong_code,
             'title': _('Enter access code for "%s"') % exam.name,
         })

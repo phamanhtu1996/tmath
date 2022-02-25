@@ -14,7 +14,7 @@
         {{ make_tab('edit', 'fa-edit', url('emath_admin:emath_exam_change', exam.id), _('Edit')) }}
     {% endif %}
 
-    {% if request.user.is_authenticated %}
+    {% if request.user.is_authenticated and request.profile.emath %}
         {% if exam.can_join or is_editor or is_tester %}
             {% set in_exam = exam.is_in_exam(request.user) %}
             {% if exam.ended %}
@@ -40,7 +40,7 @@
                           class="exam-join-pseudotab unselectable button">
                         {% csrf_token %}
                         <input type="submit" value="
-                            {% if request.participation.spectate %}
+                            {% if request.examparticipation.spectate %}
                                 {{- _('Stop spectating') -}}
                             {% else %}
                                 {{- _('Leave exam') -}}
@@ -62,7 +62,7 @@
                 {% endif %}
             {% endif %}
         {% endif %}
-    {% elif exam.can_join %}
+    {% elif exam.can_join and not request.user.is_authenticated %}
         <form action="{{ url('auth_login') }}" method="get"
               class="exam-join-pseudotab unselectable button">
             <input type="hidden" name="next" value="{{ LOGIN_RETURN_PATH|urlencode }}">

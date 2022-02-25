@@ -3,7 +3,7 @@ from adminsortable2.admin import SortableInlineAdminMixin
 from django.conf.urls import url
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
-from django.forms import forms
+from django.forms import BaseInlineFormSet, forms
 from django.db import connection, transaction
 from django.db.models import Q, TextField
 from django.forms import ModelForm, ModelMultipleChoiceField
@@ -22,7 +22,7 @@ from emath.models.problem import MathGroup, Problem
 from judge import forms
 # from judge.admin.problem import ProblemAdmin
 from judge.models import  Profile, Rating
-from emath.models import Submission, Exam, ExamProblem, ExamSubmission, Navigation
+from emath.models import Submission, Exam, ExamProblem, ExamSubmission, Navigation, Answer
 # from judge.ratings import rate_exam
 from judge.utils.views import NoBatchDeleteMixin
 from judge.dblock import LockModel
@@ -352,6 +352,22 @@ class MathProblemCreatorListFilter(admin.SimpleListFilter):
         return queryset.filter(authors__user__username=self.value())
 
 
+class AnswerInlineFormset(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        count = 0
+        for form in self.forms:
+            count += form.cleaned_data['is_correct'] == True
+        if count < 1:
+            raise forms.ValidationError('You must have at least one Correct answer')
+        if count > 1:
+            raise forms.ValidationError('You can only get one correct answer')
+
+class AnswerInline(admin.TabularInline):
+    model = Answer
+    formset = AnswerInlineFormset
+    fields = ('description', 'is_correct')
+
 class MathProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
     fieldsets = (
         (None, {
@@ -361,7 +377,7 @@ class MathProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
                 'description'# 'license',
             ),
         }),
-        (_('Answer'), {'fields': ('answer', 'wrong_answer1', 'wrong_answer2', 'wrong_answer3',)}),
+        # (_('Answer'), {'fields': ('answer', 'wrong_answer1', 'wrong_answer2', 'wrong_answer3')}),
         (_('Taxonomy'), {'fields': ('group',)}),
         (_('Points'), {"fields": ('point', 'difficult')}),
         # (_('Justice'), {'fields': ('banned_users',)}),
@@ -369,6 +385,7 @@ class MathProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
     )
     list_display = ['code', 'name', 'show_authors', 'point', 'is_public', 'show_public']
     ordering = ['code']
+    inlines = [AnswerInline]
     search_fields = ('code', 'name', 'authors__user__username')
     list_max_show_all = 1000
     actions_on_top = True

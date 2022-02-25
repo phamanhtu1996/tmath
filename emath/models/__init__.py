@@ -1,7 +1,7 @@
 from reversion import revisions
 
 from .organization import Organization
-from .problem import Problem
+from .problem import Problem, Answer, MathGroup
 from .exam import Exam, ExamProblem, ExamParticipation, ExamSubmission
 from .submission import Submission
 from .interface import Navigation

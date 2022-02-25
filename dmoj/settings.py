@@ -294,6 +294,7 @@ MIDDLEWARE = (
     'impersonate.middleware.ImpersonateMiddleware',
     'judge.middleware.DMOJImpersonationMiddleware',
     'judge.middleware.ContestMiddleware',
+    'judge.middleware.ExamMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'judge.social_auth.SocialAuthExceptionMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
@@ -415,7 +416,7 @@ BLEACH_USER_SAFE_TAGS = [
     'a',
     'style', 'noscript', 'center',
 ]
-
+    
 BLEACH_USER_SAFE_ATTRS = {
     '*': ['id', 'class', 'style'],
     'img': ['src', 'alt', 'title', 'width', 'height', 'data-src'],

@@ -124,7 +124,7 @@ class Exam(models.Model):
         return self.name
     
     def get_absolute_url(self):
-        return reverse("exam_detail", args=(self.key))
+        return reverse("emath:exam_detail", args=(self.key))
     
     @property
     def exam_window_length(self):
@@ -442,7 +442,7 @@ class ExamParticipation(models.Model):
             return end - self._now
         
     def __str__(self) -> str:
-        name = self.user.profile.name if self.user.profile.name is not None else self.user.username
+        name = self.user.name if self.user.name is not None else self.user.user.username
         if self.spectate:
             return gettext('%s spectating in %s') % (name, self.exam.name)
         if self.virtual:

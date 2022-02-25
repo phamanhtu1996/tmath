@@ -111,8 +111,8 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
     
     def get_queryset(self):
         queryset = self._get_queryset()
-        if not self.in_exam:
-            filter_submissions_by_visible_exams(queryset, self.request.user)
+        # if not self.in_exam:
+        #     filter_submissions_by_visible_exams(queryset, self.request.user)
 
         return queryset
 

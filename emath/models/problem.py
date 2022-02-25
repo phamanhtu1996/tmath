@@ -52,13 +52,13 @@ class Problem(models.Model):
                             help_text=_('These users will be able to edit the problem, '
                                                  'and be listed as authors.'))
     description = models.TextField(verbose_name=_('problem body'), validators=[disallowed_characters_validator])
-    answer = models.CharField(verbose_name=_("answer"), max_length=50, null=False, blank=False,
+    answer = models.CharField(verbose_name=_("answer"), max_length=50, blank=True,
                             help_text=_("One number that is the answer of this problem."))
-    wrong_answer1 = models.CharField(verbose_name=_("wrong answer"), max_length=50, default=None, null=False, blank=False,
+    wrong_answer1 = models.CharField(verbose_name=_("wrong answer"), max_length=50, default=None, blank=True,
                             help_text=_("One number that is a wrong answer of this problem."))
-    wrong_answer2 = models.CharField(verbose_name=_("wrong answer"), max_length=50, default=None, null=False, blank=False,
+    wrong_answer2 = models.CharField(verbose_name=_("wrong answer"), max_length=50, default=None, blank=True,
                             help_text=_("One number that is a wrong answer of this problem."))
-    wrong_answer3 = models.CharField(verbose_name=_("wrong answer"), max_length=50, default=None, null=False, blank=False,
+    wrong_answer3 = models.CharField(verbose_name=_("wrong answer"), max_length=50, default=None, blank=True,
                             help_text=_("One number that is a wrong answer of this problem."))
     is_public = models.BooleanField(verbose_name=_('publicly visible'), db_index=True, default=False)
     ac_rate = models.FloatField(verbose_name=_('solve rate'), default=0)
@@ -91,7 +91,7 @@ class Problem(models.Model):
 
     def get_absolute_url(self):
         return reverse('emath:problem_detail', args=(self.code,))
-        
+
     @classmethod
     def get_visible_problems(cls, user):
         if not user.is_authenticated:
@@ -158,3 +158,9 @@ class Problem(models.Model):
             ('see_organization_math_problem', _('See organizations-private Math problems')),
             ('change_public_math_visibility', _('Change public math problem visibility'))
         )
+
+
+class Answer(models.Model):
+    problem = models.ForeignKey(Problem, verbose_name=_("problem"), related_name='answers', null=True, on_delete=models.CASCADE)
+    description = models.CharField(_("Content"), max_length=100, blank=False)
+    is_correct = models.BooleanField(_("Correct answer"), default=False)

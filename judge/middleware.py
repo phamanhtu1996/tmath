@@ -80,6 +80,20 @@ class ContestMiddleware(object):
             request.participation = None
         return self.get_response(request)
 
+class ExamMiddleware(object):
+    def __init__(self, get_response):
+        self.get_response = get_response
+    
+    def __call__(self, request):
+        profile = request.profile
+        if profile:
+            profile.update_exam()
+            request.examparticipation = profile.current_exam
+            request.in_exam = request.examparticipation is not None
+        else:
+            request.in_exam = False
+            request.examparticipation = None
+        return self.get_response(request)
 
 class APIMiddleware(object):
     header_pattern = re.compile('^Bearer ([a-zA-Z0-9_-]{48})$')

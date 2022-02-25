@@ -22,27 +22,30 @@
   {% csrf_token %}
   <input type="hidden" id="exam_id" name="exam" value="{{ exam.id }}">
   {% for eproblem in data %}
-  <div style="font-size: 16px">
-    {% cache 3600 'exam_html' eproblem.problem.id MATH_ENGINE %} 
-      {% with problem=eproblem.problem.problem %}
-        {{ problem.description|markdown(problem.markdown_style, MATH_ENGINE)|reference|str|safe }}
-      {% endwith %}
-    {% endcache %}
-  </div>
-  <div>
-    <fieldset>
-    <legend><h4>Answer</h4></legend>
-    <div class="answer">
-    {% for radio in eproblem.form.ans %}
-    <div class='answer-item'>
-      {{ radio }}
+  <fieldset>
+    <legend><h4>Problem {{ loop.index }}</h4></legend>
+    <div style="font-size: 16px">
+      {% cache 3600 'exam_html' eproblem.problem.id MATH_ENGINE %} 
+        {% with problem=eproblem.problem.problem %}
+          {{ problem.description|markdown(problem.markdown_style, MATH_ENGINE)|reference|str|safe }}
+        {% endwith %}
+      {% endcache %}
     </div>
-    {% endfor %}
     <div>
-    </fieldset>
-  </div>
+      <fieldset>
+      <legend><h5>Answer</h5></legend>
+      <div class="answer">
+      {% for radio in eproblem.form.ans %}
+      <div class='answer-item'>
+        {{ radio }}
+      </div>
+      {% endfor %}
+      <div>
+      </fieldset>
+    </div>
+  </fieldset>
   {% if not loop.last %}
-  <hr style="border: 1px solid red;" />
+  <hr />
   {% endif %}
   {% endfor %}
   {% if has_joined %}
