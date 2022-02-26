@@ -23,15 +23,13 @@
     </div>
 </div>
 
-<div class="sub-usage">
+<div class="sub-usage" style="width: 120px!important;">
     {% if submission.status in ('QU', 'P', 'G', 'CE', 'IE', 'AB') %}
         <div class="time">---</div>
     {% else %}
         {% if "TLE" != submission.result %}
-            {% set hour = submission.time // 3600 %}
-            {% set minute = submission.time // 60 - hour * 60 %}
             <div title="{{ submission.time }}s" class="time">
-                {{ hour|floatformat(0) }}h:{{ minute|floatformat(0) }}m
+                {{ submission.time|timestampdelta('simple') }}
             </div>
         {% else %}
             <div class="time">---</div>

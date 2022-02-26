@@ -54,6 +54,25 @@ class ContestTag(models.Model):
         verbose_name_plural = _('contest tags')
 
 
+
+NEWBIE = 1000
+AMATEUR = 1200
+EXPERT = 1500
+CMASTER = 1800
+MASTER = 2200
+GMASTER = 3000
+TARGET = 4000
+
+RATE = (
+    (NEWBIE, _('Newbie')),
+    (AMATEUR, _('Amateur')),
+    (EXPERT, _('Expert')),
+    (CMASTER, _('Candidate Master')),
+    (MASTER, _('Master')),
+    (GMASTER, _('Grandmaster')),
+    (TARGET, _('Target'))
+)
+
 class Contest(models.Model):
     SCOREBOARD_VISIBLE = 'V'
     SCOREBOARD_AFTER_CONTEST = 'C'
@@ -97,7 +116,7 @@ class Contest(models.Model):
     rating_floor = models.IntegerField(verbose_name=('rating floor'), help_text=_('Rating floor for contest'),
                                        null=True, blank=True)
     rating_ceiling = models.IntegerField(verbose_name=('rating ceiling'), help_text=_('Rating ceiling for contest'),
-                                         null=True, blank=True)
+                                         default=NEWBIE, choices=RATE)
     rate_all = models.BooleanField(verbose_name=_('rate all'), help_text=_('Rate all users who joined.'), default=False)
     rate_exclude = models.ManyToManyField(Profile, verbose_name=_('exclude from ratings'), blank=True,
                                           related_name='rate_exclude+')

@@ -24,7 +24,7 @@
                 {{ user.performance_points|floatformat(0) }}
             </td>
         {% endblock %}
-        <td class="user-name">{{ link_user(user) }} {% block user_data scoped %}{% endblock %}</td>
+        <td class="user-name">{{ link_user(user.user) }} {% block user_data scoped %}{% endblock %}</td>
         {% block before_point scoped %}{% endblock %}
         {% block after_point scoped %}{% endblock %}
     </tr>

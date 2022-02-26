@@ -280,7 +280,6 @@ You will not be able to view your scratch codes after you leave this page!') }}"
             {% endif %}
 
             {% csrf_token %}
-
             <div style="padding-top:0.5em" class="block-header">{{ _('Self-description') }}:</div>
             {{ form.about }}
             <hr>
@@ -288,6 +287,10 @@ You will not be able to view your scratch codes after you leave this page!') }}"
             <div class="settings" style="padding-top:0.7em">
                 <div class="pane" style="vertical-align:top">
                     <table style="padding-right:0.8em">
+                        <tr>
+                            <td><label class="inline-header grayed">{{ _('Fullname') }}</label></td>
+                            <td><span class="fullwidth">{{ form.name }}</span></td>
+                        </tr>
                         <tr title="{{ _('Select your closest major city') }}">
                             <td><label class="inline-header grayed">{{ _('Timezone') }}:</label></td>
                             <td><span class="fullwidth">{{ form.timezone }}</span></td>
