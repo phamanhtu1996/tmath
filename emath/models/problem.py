@@ -52,13 +52,13 @@ class Problem(models.Model):
                             help_text=_('These users will be able to edit the problem, '
                                                  'and be listed as authors.'))
     description = models.TextField(verbose_name=_('problem body'), validators=[disallowed_characters_validator])
-    answer = models.CharField(verbose_name=_("answer"), max_length=50, blank=True,
+    answer = models.CharField(verbose_name=_("answer"), max_length=50, blank=True, null=True,
                             help_text=_("One number that is the answer of this problem."))
-    wrong_answer1 = models.CharField(verbose_name=_("wrong answer"), max_length=50, default=None, blank=True,
+    wrong_answer1 = models.CharField(verbose_name=_("wrong answer"), max_length=50, default=None, blank=True, null=True,
                             help_text=_("One number that is a wrong answer of this problem."))
-    wrong_answer2 = models.CharField(verbose_name=_("wrong answer"), max_length=50, default=None, blank=True,
+    wrong_answer2 = models.CharField(verbose_name=_("wrong answer"), max_length=50, default=None, blank=True, null=True,
                             help_text=_("One number that is a wrong answer of this problem."))
-    wrong_answer3 = models.CharField(verbose_name=_("wrong answer"), max_length=50, default=None, blank=True,
+    wrong_answer3 = models.CharField(verbose_name=_("wrong answer"), max_length=50, default=None, blank=True, null=True,
                             help_text=_("One number that is a wrong answer of this problem."))
     is_public = models.BooleanField(verbose_name=_('publicly visible'), db_index=True, default=False)
     ac_rate = models.FloatField(verbose_name=_('solve rate'), default=0)

@@ -25,7 +25,7 @@
   <fieldset>
     <legend><h4>Problem {{ loop.index }}</h4></legend>
     <div style="font-size: 16px">
-      {% cache 3600 'exam_html' eproblem.problem.id MATH_ENGINE %} 
+      {% cache 600 'exam_html' eproblem.problem.id MATH_ENGINE %} 
         {% with problem=eproblem.problem.problem %}
           {{ problem.description|markdown(problem.markdown_style, MATH_ENGINE)|reference|str|safe }}
         {% endwith %}

@@ -352,6 +352,10 @@ class MathProblemCreatorListFilter(admin.SimpleListFilter):
         return queryset.filter(authors__user__username=self.value())
 
 
+class AlwaysChangedModelForm(ModelForm):
+    def has_changed(self) -> bool:
+        return True
+
 class AnswerInlineFormset(BaseInlineFormSet):
     def clean(self):
         super().clean()
@@ -366,7 +370,14 @@ class AnswerInlineFormset(BaseInlineFormSet):
 class AnswerInline(admin.TabularInline):
     model = Answer
     formset = AnswerInlineFormset
+    form = AlwaysChangedModelForm
     fields = ('description', 'is_correct')
+
+    def get_extra(self, request, obj=None, **kwargs):
+        extra = 5
+        if obj:
+            return extra - obj.answers.count()
+        return extra
 
 class MathProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
     fieldsets = (

@@ -33,9 +33,11 @@ def get_exam_problem(exam, profile):
     return ExamProblem.objects.filter(exam=exam)
 
 def get_ans_problem(problem):
-    answer = Answer.objects.filter(problem=problem).values_list('description')
-    if len(answer) == 0:
+    ans = Answer.objects.filter(problem=problem)
+    if ans.count() == 0:
         answer = [problem.answer, problem.wrong_answer1, problem.wrong_answer2, problem.wrong_answer3]
+    else:
+        answer = [a.description for a in ans]
     random.shuffle(answer)
     return [(ans, ans) for ans in answer]
 
