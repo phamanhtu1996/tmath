@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _, ungettext
 from reversion.admin import VersionAdmin
 
 from django_ace import AceWidget
-from judge.models import Contest, ContestProblem, ContestSubmission, Profile, Rating, Submission
+from judge.models import Contest, ContestProblem, ContestSubmission, Profile, Rating, Submission, Organization
 from judge.ratings import rate_contest
 from judge.utils.views import NoBatchDeleteMixin
 from judge.widgets import AdminHeavySelect2MultipleWidget, AdminHeavySelect2Widget, AdminMartorWidget, \
@@ -93,6 +93,11 @@ class ContestForm(ModelForm):
     def clean(self):
         cleaned_data = super(ContestForm, self).clean()
         cleaned_data['banned_users'].filter(current_contest__contest=self.instance).update(current_contest=None)
+        if cleaned_data['is_rated'] and cleaned_data['is_organization_private']:
+            rate = cleaned_data['rating_ceiling']
+            for org in cleaned_data['organizations']:
+                rate = max(rate, org.rate)
+            cleaned_data['rating_ceiling'] = rate
 
     class Meta:
         widgets = {
@@ -147,6 +152,9 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
         if request.user.has_perm('judge.lock_contest'):
             for action in ('set_locked', 'set_unlocked'):
                 actions[action] = self.get_action(action)
+        
+        # if request.user.is_superuser:
+        #     actions['update_rate'] = self.get_action('update_rate')
 
         return actions
 
@@ -251,8 +259,18 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
             Submission.objects.filter(contest_object=contest,
                                       contest__participation__virtual=0).update(locked_after=locked_after)
 
+    def update_rate(self, request):
+        if not request.user.is_superuser:
+            raise PermissionDenied()
+        with transaction.atomic():
+            contests = Contest.objects.filter(is_rated=True)
+            for contest in contests:
+                contest.update_rate()
+        return HttpResponseRedirect(reverse('admin:judge_contest_changelist'))
+
     def get_urls(self):
         return [
+            url(r'^update/rate/$', self.update_rate, name='judge_update_rate'),
             url(r'^rate/all/$', self.rate_all_view, name='judge_contest_rate_all'),
             url(r'^(\d+)/rate/$', self.rate_view, name='judge_contest_rate'),
             url(r'^(\d+)/judge/(\d+)/$', self.rejudge_view, name='judge_contest_rejudge'),

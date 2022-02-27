@@ -131,7 +131,7 @@ class IndexView(TemplateView):
 
         from judge.models import Profile, CourseModel
         courses = CourseModel.objects.filter(is_publish=True)
-        leaderboard = Profile.objects.order_by('-performance_points')[:9]
+        leaderboard = Profile.objects.order_by('-rating')[:9]
         context['courses'] = courses
         context['top_1'] = leaderboard[0]
         context['top_2'] = leaderboard[1]

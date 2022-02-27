@@ -17,6 +17,24 @@ def make_timezones():
     return sorted(data.items(), key=itemgetter(0))
 
 
+NEWBIE = 1000
+AMATEUR = 1200
+EXPERT = 1500
+CMASTER = 1800
+MASTER = 2200
+GMASTER = 3000
+TARGET = 4000
+
+RATE = (
+    (NEWBIE, _('Newbie')),
+    (AMATEUR, _('Amateur')),
+    (EXPERT, _('Expert')),
+    (CMASTER, _('Candidate Master')),
+    (MASTER, _('Master')),
+    (GMASTER, _('Grandmaster')),
+    (TARGET, _('Target'))
+)
+
 TIMEZONE = make_timezones()
 del make_timezones
 

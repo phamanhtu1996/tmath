@@ -3,6 +3,7 @@ from django.utils.translation import gettext, gettext_lazy as _
 from django.urls import reverse
 
 from judge.models import Profile
+from judge.models.contest import RATE, NEWBIE
 
 class Organization(models.Model):
     name = models.CharField(max_length=128, verbose_name=_('organization title'))
@@ -25,6 +26,7 @@ class Organization(models.Model):
                                            blank=True,
                                            help_text=_('This image will replace the default site logo for users '
                                                        'viewing the organization.'))
+    rate = models.IntegerField(_("Rate of Organization"), default=NEWBIE, choices=RATE)
 
     def __contains__(self, item):
         if isinstance(item, int):

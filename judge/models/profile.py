@@ -22,8 +22,9 @@ from fernet_fields import EncryptedCharField
 from pyotp.utils import strings_equal
 from sortedm2m.fields import SortedManyToManyField
 
-from judge.models.choices import ACE_THEMES, MATH_ENGINES_CHOICES, TIMEZONE
+from judge.models.choices import ACE_THEMES, MATH_ENGINES_CHOICES, TIMEZONE, RATE, NEWBIE
 from judge.models.runtime import Language
+# from judge.models.contest import RATE, NEWBIE
 from judge.ratings import rating_class
 from judge.utils.two_factor import webauthn_decode
 
@@ -58,6 +59,7 @@ class Organization(models.Model):
                                            blank=True,
                                            help_text=_('This image will replace the default site logo for users '
                                                        'viewing the organization.'))
+    rate = models.IntegerField(_("Rate of Organization"), default=NEWBIE, choices=RATE)
 
     def __contains__(self, item):
         if isinstance(item, int):

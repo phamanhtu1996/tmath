@@ -14,6 +14,7 @@ from moss import MOSS_LANG_C, MOSS_LANG_CC, MOSS_LANG_JAVA, MOSS_LANG_PYTHON
 from judge import contest_format
 from judge.models.problem import Problem
 from judge.models.profile import Organization, Profile
+from judge.models.choices import RATE, NEWBIE
 from judge.models.submission import Submission
 from judge.ratings import rate_contest
 
@@ -54,24 +55,6 @@ class ContestTag(models.Model):
         verbose_name_plural = _('contest tags')
 
 
-
-NEWBIE = 1000
-AMATEUR = 1200
-EXPERT = 1500
-CMASTER = 1800
-MASTER = 2200
-GMASTER = 3000
-TARGET = 4000
-
-RATE = (
-    (NEWBIE, _('Newbie')),
-    (AMATEUR, _('Amateur')),
-    (EXPERT, _('Expert')),
-    (CMASTER, _('Candidate Master')),
-    (MASTER, _('Master')),
-    (GMASTER, _('Grandmaster')),
-    (TARGET, _('Target'))
-)
 
 class Contest(models.Model):
     SCOREBOARD_VISIBLE = 'V'
@@ -208,6 +191,19 @@ class Contest(models.Model):
             profile = user.profile
             return profile and profile.current_contest is not None and profile.current_contest.contest == self
         return False
+
+    def update_rate(self):
+        rate = 0
+        for organization in self.organizations.all():
+            rate = max(rate, organization.rate)
+        if rate == 0:
+            rate = 2200
+        if self.rating_ceiling < 3000:
+            self.rating_ceiling = max(self.rating_ceiling, rate)
+        else:
+            self.rating_ceiling = rate
+        self.save(update_fields=['rating_ceiling'])
+    update_rate.alter_data = True
 
     def can_see_own_scoreboard(self, user):
         if self.can_see_full_scoreboard(user):
