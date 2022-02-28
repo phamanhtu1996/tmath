@@ -59,6 +59,8 @@ class ProfileForm(ModelForm):
             'timezone': Select2Widget(attrs={'style': 'width:200px'}),
             'language': Select2Widget(attrs={'style': 'width:200px'}),
             'ace_theme': Select2Widget(attrs={'style': 'width:200px'}),
+            'name': forms.TextInput(attrs={'style': 'width:200px'}),
+            'last_change_name': forms.DateTimeInput(attrs={'style': 'width:200px'}),
         }
 
         has_math_config = bool(settings.MATHOID_URL)
@@ -99,6 +101,7 @@ class ProfileForm(ModelForm):
         self.fields['last_change_name'].disabled = True
         if user.profile.last_change_name > timezone.now() - timezone.timedelta(days=30):
             self.fields['name'].disabled = True
+        self.fields['name'].help_text = _('You can change the name every 30 days')
 
 
 class DownloadDataForm(Form):
