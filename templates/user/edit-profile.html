@@ -289,7 +289,9 @@ You will not be able to view your scratch codes after you leave this page!') }}"
                     <table style="padding-right:0.8em">
                         <tr>
                             <td><label class="inline-header grayed">{{ _('Fullname') }}</label></td>
-                            <td><span class="fullwidth">{{ form.name }}</span></td>
+                            <td>
+                                <span class="fullwidth">{{ form.name }}</span>
+                            </td>
                         </tr>
                         <tr title="{{ _('Select your closest major city') }}">
                             <td><label class="inline-header grayed">{{ _('Timezone') }}:</label></td>
@@ -324,6 +326,7 @@ You will not be able to view your scratch codes after you leave this page!') }}"
                     </div>
                 {% endif %}
             </div>
+            <p style="text-align: center; color: blue"><strong>{{ form.name.help_text }}</strong></p>
             <hr>
             <div class="settings" style="padding-top:0.7em">
                 <div class="pane">
