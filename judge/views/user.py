@@ -1,7 +1,7 @@
 import itertools
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
 
 from django.conf import settings
@@ -397,6 +397,8 @@ def edit_profile(request):
                 form.fields['newsletter'].initial = False
             else:
                 form.fields['newsletter'].initial = subscription.subscribed
+        if request.profile.last_change_name > timezone.now() - timedelta(days=30):
+            form.fields['name'].disabled = True
         form.fields['test_site'].initial = request.user.has_perm('judge.test_site')
 
     tzmap = settings.TIMEZONE_MAP
