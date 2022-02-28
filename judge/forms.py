@@ -13,7 +13,6 @@ from django.template.defaultfilters import filesizeformat
 from django.db.models import Q
 from django.forms import BooleanField, CharField, ChoiceField, Form, ModelForm, MultipleChoiceField
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from django_ace import AceWidget
@@ -53,7 +52,7 @@ class ProfileForm(ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['name', 'about', 'organizations', 'timezone', 'language', 'ace_theme', 'user_script', 'last_change_name']
+        fields = ['name', 'about', 'organizations', 'timezone', 'language', 'ace_theme', 'user_script']
         widgets = {
             'user_script': AceWidget(theme='github'),
             'timezone': Select2Widget(attrs={'style': 'width:200px'}),
@@ -77,11 +76,6 @@ class ProfileForm(ModelForm):
             raise ValidationError(_('You must solve at least one problem before you can update your profile.'))
         return self.cleaned_data['about']
 
-    def clean_name(self):
-        if 'name' in self.changed_data:
-            self.cleaned_data['last_change_name'] = timezone.now()
-        return self.cleaned_data['name']
-
     def clean(self):
         organizations = self.cleaned_data.get('organizations') or []
         max_orgs = settings.DMOJ_USER_MAX_ORGANIZATION_COUNT
@@ -101,7 +95,6 @@ class ProfileForm(ModelForm):
             )
         if not self.fields['organizations'].queryset:
             self.fields.pop('organizations')
-        self.fields['last_change_name'].disabled = True
 
 
 class DownloadDataForm(Form):

@@ -1,5 +1,4 @@
 import base64
-import datetime
 import hmac
 import json
 import secrets
@@ -89,9 +88,6 @@ class Organization(models.Model):
         verbose_name_plural = _('organizations')
 
 
-def get_default_time():
-    return now() - datetime.timedelta(days=30)
-
 class Profile(models.Model):
     user = models.OneToOneField(User, verbose_name=_('user associated'), on_delete=models.CASCADE)
     name = models.CharField(max_length=255, null=True)
@@ -151,11 +147,7 @@ class Profile(models.Model):
                              help_text=_('Notes for administrators regarding this user.'))
     data_last_downloaded = models.DateTimeField(verbose_name=_('last data download time'), null=True, blank=True)
 
-    last_change_name = models.DateTimeField(_("last change fullname"), default=get_default_time())
-
     emath = models.BooleanField(verbose_name=_('Emath'), default=False)
-
-    __last_name = None
 
     @cached_property
     def organization(self):
@@ -275,12 +267,6 @@ class Profile(models.Model):
     @cached_property
     def webauthn_id(self):
         return hmac.new(force_bytes(settings.SECRET_KEY), msg=b'webauthn:%d' % (self.id,), digestmod='sha256').digest()
-
-    def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if self.name != self.__last_name:
-            self.last_change_name = timezone.now() - datetime.timedelta(days=30) * (self.__last_name is None)
-            self.__last_name = self.name
-        return super().save(force_insert, force_update, *args, **kwargs)
 
     class Meta:
         permissions = (
