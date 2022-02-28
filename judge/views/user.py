@@ -365,7 +365,6 @@ def edit_profile(request):
         raise Http404()
     if request.method == 'POST':
         form = ProfileForm(request.POST, instance=request.profile, user=request.user)
-        print(form['name'])
         if form.is_valid():
             with revisions.create_revision(atomic=True):
                 form.save()
