@@ -128,6 +128,9 @@
             color: gray !important;
             font-weight: 600;
         }
+        .username-column {
+            display: none;
+        }
     </style>
 
     {% if has_rating %}
@@ -245,10 +248,20 @@
                 $('.organization-column').toggle();
                 localStorage.setItem('show-organizations', $('.organization-column').is(':visible') ? 'true' : 'false');
             });
+
+            $('#show-username-checkbox').click(function () {
+                $('.username-column').toggle();
+                localStorage.setItem('show-usernames', $('.username-column').is(':visible') ? 'true' : 'false');
+            });
             
             if (localStorage.getItem('show-organizations') == 'true') {
                 $('.organization-column').show();
                 $('#show-organizations-checkbox').prop('checked', true);
+            }
+
+            if (localStorage.getItem('show-usernames') == 'true') {
+                $('.username-column').show();
+                $('#show-usernames-checkbox').prop('checked', true);
             }
         });
     </script>
@@ -264,6 +277,8 @@
         {% endif %}
         <input id="show-organizations-checkbox" type="checkbox" style="vertical-align: bottom">
         <label for="show-organizations-checkbox" style="vertical-align: bottom">{{ _('Show organizations') }}</label>
+        <input id="show-username-checkbox" type="checkbox" style="vertical-align: bottom">
+        <label for="show-username-checkbox" style="vertical-align: bottom">{{ _('Show username') }}</label>
     </div>
 {% endblock %}
 

@@ -141,7 +141,7 @@ def item_title(item):
 
 @registry.function
 @registry.render_with('user/link.html')
-def link_user(user):
+def link_user(user, noname=False):
     if isinstance(user, Profile):
         user, profile = user.user, user
     elif isinstance(user, AbstractUser):
@@ -150,7 +150,7 @@ def link_user(user):
         user, profile = user.user, user
     else:
         raise ValueError('Expected profile or user, got %s' % (type(user),))
-    return {'user': user, 'profile': profile}
+    return {'user': user, 'profile': profile, 'noname': noname}
 
 
 @registry.function
