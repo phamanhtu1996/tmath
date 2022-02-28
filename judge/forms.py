@@ -77,11 +77,6 @@ class ProfileForm(ModelForm):
             raise ValidationError(_('You must solve at least one problem before you can update your profile.'))
         return self.cleaned_data['about']
 
-    def clean_name(self):
-        if 'name' in self.changed_data:
-            self.cleaned_data['last_change_name'] = timezone.now()
-        return self.cleaned_data['name']
-
     def clean(self):
         organizations = self.cleaned_data.get('organizations') or []
         max_orgs = settings.DMOJ_USER_MAX_ORGANIZATION_COUNT
@@ -102,6 +97,8 @@ class ProfileForm(ModelForm):
         if not self.fields['organizations'].queryset:
             self.fields.pop('organizations')
         self.fields['last_change_name'].disabled = True
+        if user.profile.last_change_name > timezone.now() - timezone.timedelta(days=30):
+            self.fields['name'].disabled = True
 
 
 class DownloadDataForm(Form):

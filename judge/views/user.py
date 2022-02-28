@@ -365,6 +365,7 @@ def edit_profile(request):
         raise Http404()
     if request.method == 'POST':
         form = ProfileForm(request.POST, instance=request.profile, user=request.user)
+        print(form['name'])
         if form.is_valid():
             with revisions.create_revision(atomic=True):
                 form.save()
@@ -397,8 +398,6 @@ def edit_profile(request):
                 form.fields['newsletter'].initial = False
             else:
                 form.fields['newsletter'].initial = subscription.subscribed
-        if request.profile.last_change_name > timezone.now() - timedelta(days=30):
-            form.fields['name'].disabled = True
         form.fields['test_site'].initial = request.user.has_perm('judge.test_site')
 
     tzmap = settings.TIMEZONE_MAP

@@ -155,7 +155,7 @@ class Profile(models.Model):
 
     emath = models.BooleanField(verbose_name=_('Emath'), default=False)
 
-    __last_name = None
+    last_name = models.CharField(_("prev name"), max_length=255, null=True, default=None)
 
     @cached_property
     def organization(self):
@@ -276,10 +276,13 @@ class Profile(models.Model):
     def webauthn_id(self):
         return hmac.new(force_bytes(settings.SECRET_KEY), msg=b'webauthn:%d' % (self.id,), digestmod='sha256').digest()
 
+    def pre_save(self):
+        pass
+
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if self.name != self.__last_name:
-            self.last_change_name = timezone.now() - datetime.timedelta(days=30) * (self.__last_name is None)
-            self.__last_name = self.name
+        if self.name != self.last_name:
+            self.last_change_name = timezone.now() - datetime.timedelta(days=30) * (self.last_name is None)
+            self.last_name = self.name
         return super().save(force_insert, force_update, *args, **kwargs)
 
     class Meta:
