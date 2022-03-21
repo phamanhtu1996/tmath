@@ -14,6 +14,14 @@
         .content-description ul {
             padding: 0 !important;
         }
+        .select2{
+            width: 100%;
+            padding: 0px 10px !important;
+            box-sizing: border-box !important;
+        }
+        form label {
+            margin: auto 0;
+        }
     </style>
 {% endblock %}
 
@@ -25,11 +33,12 @@
                 count_down($(this));
             });
 
+            $('#organizations').select2();
             $('.contest-tag').find('a[data-featherlight]').featherlight();
 
             $('.join-warning').click(function () {
-                return confirm('{{ _('Are you sure you want to join?') }}\n' +
-                    '{{ _('Joining a contest for the first time starts your timer, after which it becomes unstoppable.') }}');
+                return confirm('{{ _("Are you sure you want to join?") }}\n' +
+                    '{{ _("Joining a contest for the first time starts your timer, after which it becomes unstoppable.") }}');
             });
 
             // var tooltip_classes = 'tooltipped tooltipped-e';
@@ -43,6 +52,7 @@
             //     });
             // });
         });
+
     </script>
 {% endblock %}
 
@@ -143,6 +153,21 @@
 
 {% block body %}
     <div class="content-description">
+        <form action="" method="get" style="display: flex">
+            <div style="width:80%; display: flex;">
+                <label for="type"><i>{{ _('Organizations') }}</i></label>
+                <select name="organizations" id="organizations" multiple style="width:100%">
+                    {% for org in list_organizations %}
+                        <option value="{{ org.id }}" {% if org.id in organizations %} selected{% endif %}>
+                            {{ org.short_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="width: 20%">
+                <button style="width: 100%; margin: auto 0; height: 100%" type="submit">{{_('Search')}}</button>
+            </div>
+        </form>
         {% if active_participations %}
             <h4>{{ _('Active Contests') }}</h4>
             <table class="contest-list table striped">

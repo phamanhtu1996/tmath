@@ -33,6 +33,7 @@ from judge.comments import CommentedDetailView
 from judge.forms import ContestCloneForm
 from judge.models import Contest, ContestMoss, ContestParticipation, ContestProblem, ContestTag, \
     Problem, Profile, Submission
+from judge.models.profile import Organization
 from judge.tasks import run_moss
 from judge.utils.celery import redirect_to_task_status
 from judge.utils.opengraph import generate_opengraph
@@ -79,7 +80,10 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
         return timezone.now()
 
     def _get_queryset(self):
-        return super().get_queryset().prefetch_related('tags', 'organizations', 'authors', 'curators', 'testers')
+        query = super().get_queryset().prefetch_related('tags', 'organizations', 'authors', 'curators', 'testers')
+        if self.organizations:
+            query = query.filter(organizations__in=self.selected_org)
+        return query
 
     def get_queryset(self):
         return self._get_queryset().order_by(self.order, 'key').filter(end_time__lt=self._now)
@@ -109,12 +113,47 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
         context['active_participations'] = active
         context['current_contests'] = present
         context['future_contests'] = future
+        context['list_organizations'] = Organization.objects.all()
+        if self.organizations:
+            context['organizations'] = self.selected_org
         context['now'] = self._now
         context['first_page_href'] = '.'
         context['page_suffix'] = '#past-contests'
         context.update(self.get_sort_context())
         context.update(self.get_sort_paginate_context())
         return context
+    
+    def GET_with_session(self, request, key):
+        if not request.GET:
+            return request.session.get(key, False)
+        return request.GET.get(key, None) == '1'
+
+    def setup_contest_list(self, request):
+        self.organizations = self.GET_with_session(request, 'organizations')
+        self.selected_org = []
+
+        # This actually copies into the instance dictionary...
+        self.all_sorts = set(self.all_sorts)
+        if 'organizations' in request.GET:
+            try:
+                self.selected_org = list(map(int, request.GET.getlist('organizations')))
+            except ValueError:
+                pass
+
+    def get(self, request, *args, **kwargs):
+        self.setup_contest_list(request)
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        to_update = ('organizations')
+        for key in to_update:
+            if key in request.GET:
+                val = request.GET.get(key) == '1'
+                request.session[key] = val
+            else:
+                request.session.pop(key, None)
+        return HttpResponseRedirect(request.get_full_path())
+
 
 
 class PrivateContestError(Exception):

@@ -5,9 +5,9 @@ django-pagedown<2
 django-registration-redux==2.9
 django-reversion==4.0.1
 django-social-share==2.2.1
-django-sortedm2m @ git+git://github.com/DMOJ/django-sortedm2m.git
+django-sortedm2m @ git+https://github.com/DMOJ/django-sortedm2m.git
 django-impersonate==1.7.3
-dmoj-wpadmin @ git+git://github.com/DMOJ/dmoj-wpadmin.git
+dmoj-wpadmin @ git+https://github.com/DMOJ/dmoj-wpadmin.git
 lxml==4.6.4
 Pygments==2.10.0
 mistune==0.8.4
@@ -28,10 +28,10 @@ jsonfield==3.1.0
 pymoss==0.2
 packaging==21.3
 celery==5.2.1
-ansi2html @ git+git://github.com/DMOJ/ansi2html.git
+ansi2html @ git+https://github.com/DMOJ/ansi2html.git
 sqlparse==0.4.2
 lupa==1.10
-martor @ git+git://github.com/DMOJ/martor.git
+martor @ git+https://github.com/DMOJ/martor.git
 netaddr==0.8.0
 webauthn==1.1.0
 bleach==4.1.0

@@ -145,3 +145,22 @@ The judge can also grade in the languages listed below. These languages are less
 * V8 JavaScript
 * Brain\*\*\*\*
 * Zig
+
+
+## Create database
+
+### MariaDB
+```mysql
+CREATE DATABASE tmath DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;
+
+GRANT ALL PRIVILEGES ON tmath.* to 'tmath'@'localhost' IDENTIFIED BY 'emath123@';
+```
+
+### MySQL Server
+```mysql
+CREATE DATABASE tmath DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;
+
+CREATE USER 'tmath'@'localhost' IDENTIFIED BY 'emath123@';
+
+GRANT ALL PRIVILEGES ON tmath.* to 'tmath'@'localhost';
+```
