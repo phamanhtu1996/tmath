@@ -61,7 +61,7 @@ def recalculate_ratings(old_rating, old_volatility, actual_rank, times_rated, is
     N = len(old_rating)
     new_rating = old_rating[:]
     new_volatility = old_volatility[:]
-    if N <= 1:
+    if N <= 9:
         return new_rating, new_volatility
 
     ranking = list(range(N))
