@@ -81,7 +81,7 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
 
     def _get_queryset(self):
         query = super().get_queryset().prefetch_related('tags', 'organizations', 'authors', 'curators', 'testers')
-        if self.organizations:
+        if self.selected_org:
             query = query.filter(organizations__in=self.selected_org)
         return query
 
@@ -114,7 +114,7 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
         context['current_contests'] = present
         context['future_contests'] = future
         context['list_organizations'] = Organization.objects.all()
-        if self.organizations:
+        if self.selected_org:
             context['organizations'] = self.selected_org
         context['now'] = self._now
         context['first_page_href'] = '.'
@@ -122,14 +122,8 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
         context.update(self.get_sort_context())
         context.update(self.get_sort_paginate_context())
         return context
-    
-    def GET_with_session(self, request, key):
-        if not request.GET:
-            return request.session.get(key, False)
-        return request.GET.get(key, None) == '1'
 
     def setup_contest_list(self, request):
-        self.organizations = self.GET_with_session(request, 'organizations')
         self.selected_org = []
 
         # This actually copies into the instance dictionary...
@@ -143,16 +137,6 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
     def get(self, request, *args, **kwargs):
         self.setup_contest_list(request)
         return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        to_update = ('organizations')
-        for key in to_update:
-            if key in request.GET:
-                val = request.GET.get(key) == '1'
-                request.session[key] = val
-            else:
-                request.session.pop(key, None)
-        return HttpResponseRedirect(request.get_full_path())
 
 
 
