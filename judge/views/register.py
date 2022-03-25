@@ -22,7 +22,7 @@ bad_mail_regex = list(map(re.compile, settings.BAD_MAIL_PROVIDER_REGEX))
 
 
 class CustomRegistrationForm(RegistrationForm):
-    username = forms.RegexField(regex=r'^(?=.{8,30}$)(?![_.])(?!.*[_.]{2})[a-z0-9._]+(?<![_.])$', max_length=30, label=_('Username'),
+    username = forms.RegexField(regex=r'^(?=.{8,30}$)(?![_.])(?!.*[_.]{2})[a-z0-9_]+(?<![_.])$', max_length=30, label=_('Username'),
                                 error_messages={'invalid': _('A username must contain lower latinh letters, '
                                                              'numbers, min length = 8, max length = 30')})
     timezone = ChoiceField(label=_('Timezone'), choices=TIMEZONE,
