@@ -226,7 +226,7 @@ class SubmissionSource(models.Model):
     source = models.TextField(verbose_name=_('source code'), max_length=65536)
 
     # file = models.FileField(upload_to=os.path.join(settings.MEDIA_ROOT, 'submissions'), default=None)
-
+    file = models.TextField(verbose_name=_('origin source'), max_length=65536, blank=True)
     # has_file = models.BooleanField(default=False)
 
     def __str__(self):

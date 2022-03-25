@@ -646,16 +646,23 @@ class ProblemSubmit(LoginRequiredMixin, ProblemMixin, TitleMixin, SingleObjectFo
                 self.new_submission.save()
 
             submission_file = form.files.get('submission_file', None)
+            submission_json = submission_file
             if submission_file is not None:
                 if self.new_submission.language.key == 'SCRATCH':
                     try:
                         archive = zipfile.ZipFile(submission_file.file)
-                        submission_file.file = archive.open('project.json')
-                        submission_file.name = str(self.new_submission.id) + '.json'
+                        submission_json.file = archive.open('project.json')
+                        submission_json.name = str(self.new_submission.id) + '.json'
+                        submission_file.name = str(self.new_submission.id) + '.sb3'
                     except (zipfile.BadZipFile, KeyError):
                         pass
 
                 source_url = submission_uploader(
+                    submission_file=submission_json,
+                    problem_code=self.new_submission.problem.code,
+                    user_id=self.new_submission.user.user.id,
+                )
+                origin_url = submission_uploader(
                     submission_file=submission_file,
                     problem_code=self.new_submission.problem.code,
                     user_id=self.new_submission.user.user.id,
@@ -664,10 +671,12 @@ class ProblemSubmit(LoginRequiredMixin, ProblemMixin, TitleMixin, SingleObjectFo
             else:
                 # has_file = False
                 source_url = ''
+                origin_url = ''
 
             source = SubmissionSource(
                 submission=self.new_submission, 
                 source=form.cleaned_data['source'] + source_url,
+                file=origin_url
             )
             source.save()
 
