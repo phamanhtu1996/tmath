@@ -646,7 +646,7 @@ class ProblemSubmit(LoginRequiredMixin, ProblemMixin, TitleMixin, SingleObjectFo
                 self.new_submission.save()
 
             submission_file = form.files.get('submission_file', None)
-            submission_json = None
+            submission_json = submission_file
             if submission_file is not None:
                 if self.new_submission.language.key == 'SCRATCH':
                     try:
