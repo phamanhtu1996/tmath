@@ -151,7 +151,7 @@ class TicketView(TitleMixin, TicketMixin, SingleObjectFormView):
         context = super(TicketView, self).get_context_data(**kwargs)
         context['ticket_messages'] = self.object.messages.select_related('user__user')
         context['assignees'] = self.object.assignees.select_related('user')
-        context['last_msg'] = event.last()
+        # context['last_msg'] = event.last()
         return context
 
 
@@ -263,7 +263,7 @@ class TicketList(LoginRequiredMixin, ListView):
                                            .values_list('id', flat=True))),
             'own_id': self.profile.id if self.GET_with_session('own') else 'null',
         }
-        context['last_msg'] = event.last()
+        # context['last_msg'] = event.last()
         context.update(paginate_query_context(self.request))
         return context
 
