@@ -11,6 +11,7 @@ from django.utils.translation import gettext, gettext_lazy as _, ungettext
 from reversion.admin import VersionAdmin
 
 from judge.models import LanguageLimit, Problem, ProblemClarification, ProblemTranslation, Profile, Solution
+from judge.models.problem import ProblemGroup, ProblemType
 from judge.utils.views import NoBatchDeleteMixin
 from judge.widgets import AdminHeavySelect2MultipleWidget, AdminMartorWidget, AdminSelect2MultipleWidget, \
     AdminSelect2Widget, CheckboxSelectMultipleWithSelectAll
@@ -54,6 +55,33 @@ class ProblemCreatorListFilter(admin.SimpleListFilter):
         if self.value() is None:
             return queryset
         return queryset.filter(authors__user__username=self.value())
+
+
+class ProblemGroupFilter(admin.SimpleListFilter):
+    title = parameter_name = 'group'
+
+    def lookups(self, request, model_admin):
+        queryset = ProblemGroup.objects.values_list('name', 'full_name')
+        return [(name, fullname) for name, fullname in queryset]
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+        return queryset.filter(group__name=self.value())
+
+
+class ProblemTypeFilter(admin.SimpleListFilter):
+    title = parameter_name = 'type'
+
+    def lookups(self, request, model_admin):
+        queryset = ProblemType.objects.values_list('name', 'full_name')
+        return [(name, fullname) for name, fullname in queryset]
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+        return queryset.filter(types__name=self.value())
+
 
 
 class LanguageLimitInlineForm(ModelForm):
@@ -141,7 +169,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
     list_max_show_all = 1000
     actions_on_top = True
     actions_on_bottom = True
-    list_filter = ('is_public', ProblemCreatorListFilter)
+    list_filter = ('is_public', ProblemCreatorListFilter, ProblemGroupFilter, ProblemTypeFilter)
     form = ProblemForm
     date_hierarchy = 'date'
 
