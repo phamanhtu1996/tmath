@@ -95,7 +95,7 @@ class ContestForm(ModelForm):
         cleaned_data['banned_users'].filter(current_contest__contest=self.instance).update(current_contest=None)
         if 'is_rated' in cleaned_data:
             if cleaned_data['is_rated'] and cleaned_data['is_organization_private']:
-                rate = cleaned_data['rating_ceiling']
+                rate = min(2400, cleaned_data['rating_ceiling'])
                 for org in cleaned_data['organizations']:
                     rate = max(rate, org.rate)
                 cleaned_data['rating_ceiling'] = rate
