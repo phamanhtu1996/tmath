@@ -197,7 +197,7 @@ class Contest(models.Model):
         for organization in self.organizations.all():
             rate = max(rate, organization.rate)
         if rate == 0:
-            rate = 2200
+            rate = 2400
         if self.rating_ceiling < 3000:
             self.rating_ceiling = max(self.rating_ceiling, rate)
         else:
