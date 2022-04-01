@@ -11,13 +11,14 @@ from django.utils.translation import gettext, gettext_lazy as _, ungettext
 from reversion.admin import VersionAdmin
 
 from judge.models import LanguageLimit, Problem, ProblemClarification, ProblemTranslation, Profile, Solution
-from judge.models.problem import ProblemGroup, ProblemType
+from judge.models.problem import ProblemClass, ProblemGroup, ProblemType
 from judge.utils.views import NoBatchDeleteMixin
 from judge.widgets import AdminHeavySelect2MultipleWidget, AdminMartorWidget, AdminSelect2MultipleWidget, \
     AdminSelect2Widget, CheckboxSelectMultipleWithSelectAll
 
 class ProblemForm(ModelForm):
     change_message = forms.CharField(max_length=256, label='Edit reason', required=False)
+    # classes = forms.CharField(max_length=255, label="Problem class", required=True)
 
     def __init__(self, *args, **kwargs):
         super(ProblemForm, self).__init__(*args, **kwargs)
@@ -40,6 +41,7 @@ class ProblemForm(ModelForm):
                                                              attrs={'style': 'width: 100%'}),
             'types': AdminSelect2MultipleWidget,
             'group': AdminSelect2Widget,
+            'classes': AdminSelect2Widget,
             'description': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
         }
 
@@ -82,6 +84,18 @@ class ProblemTypeFilter(admin.SimpleListFilter):
             return queryset
         return queryset.filter(types__name=self.value())
 
+
+class ProblemClassFilter(admin.SimpleListFilter):
+    title = parameter_name = 'class'
+
+    def lookups(self, request, model_admin):
+        queryset = ProblemClass.objects.values_list('name', 'full_name')
+        return [(name, fullname) for name, fullname in queryset]
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+        return queryset.filter(classes__name=self.value())
 
 
 class LanguageLimitInlineForm(ModelForm):
@@ -155,7 +169,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
             ),
         }),
         (_('Social Media'), {'classes': ('collapse',), 'fields': ('og_image', 'summary')}),
-        (_('Taxonomy'), {'fields': ('types', 'group')}),
+        (_('Taxonomy'), {'fields': ('classes', 'types', 'group')}),
         (_('Points'), {'fields': (('points', 'partial'), 'short_circuit')}),
         (_('Limits'), {'fields': ('time_limit', 'memory_limit')}),
         (_('Language'), {'fields': ('allowed_languages',)}),
@@ -169,7 +183,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
     list_max_show_all = 1000
     actions_on_top = True
     actions_on_bottom = True
-    list_filter = ('is_public', ProblemCreatorListFilter, ProblemGroupFilter, ProblemTypeFilter)
+    list_filter = ('is_public', ProblemCreatorListFilter, ProblemClassFilter, ProblemGroupFilter, ProblemTypeFilter)
     form = ProblemForm
     date_hierarchy = 'date'
 

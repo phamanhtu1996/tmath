@@ -57,6 +57,19 @@ class ProblemGroup(models.Model):
         verbose_name_plural = _('problem groups')
 
 
+class ProblemClass(models.Model):
+    name = models.CharField(max_length=20, verbose_name=_('problem class ID'), unique=True)
+    full_name = models.CharField(max_length=100, verbose_name=_('problem class name'))
+
+    def __str__(self):
+        return self.full_name
+
+    class Meta:
+        ordering = ['full_name']
+        verbose_name = _('problem class')
+        verbose_name_plural = _('problem classes')
+
+
 class License(models.Model):
     key = models.CharField(max_length=20, unique=True, verbose_name=_('key'),
                            validators=[RegexValidator(r'^[-\w.]+$', r'License key must be ^[-\w.]+$')])
@@ -137,6 +150,9 @@ class Problem(models.Model):
                                                "as shown on the problem's page."))
     group = models.ForeignKey(ProblemGroup, verbose_name=_('problem group'), on_delete=CASCADE,
                               help_text=_('The group of problem, shown under Category in the problem list.'))
+    classes = models.ForeignKey(ProblemClass, verbose_name=_("problem class"), on_delete=models.CASCADE,
+                              help_text=_('The class of problem, shown under Class in the problem list.'), null=True, blank=False)
+
     time_limit = models.FloatField(verbose_name=_('time limit'),
                                    help_text=_('The time limit for this problem, in seconds. '
                                                'Fractional seconds (e.g. 1.5) are supported.'),

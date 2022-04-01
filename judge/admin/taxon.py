@@ -50,3 +50,26 @@ class ProblemTypeAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         self.form.base_fields['problems'].initial = [o.pk for o in obj.problem_set.all()] if obj else []
         return super(ProblemTypeAdmin, self).get_form(request, obj, **kwargs)
+
+
+class ProblemClassForm(ModelForm):
+    problems = ModelMultipleChoiceField(
+        label=_('Included problems'),
+        queryset=Problem.objects.all(),
+        required=False,
+        help_text=_('These problems are included in this class of problems'),
+        widget=AdminHeavySelect2MultipleWidget(data_view='problem_select2'))
+
+
+class ProblemClassAdmin(admin.ModelAdmin):
+    fields = ('name', 'full_name', 'problems')
+    form = ProblemTypeForm
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        obj.problem_set.set(form.cleaned_data['problems'])
+        obj.save()
+
+    def get_form(self, request, obj=None, **kwargs):
+        self.form.base_fields['problems'].initial = [o.pk for o in obj.problem_set.all()] if obj else []
+        return super().get_form(request, obj, **kwargs)
