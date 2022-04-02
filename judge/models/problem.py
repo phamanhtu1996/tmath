@@ -148,9 +148,9 @@ class Problem(models.Model):
     types = models.ManyToManyField(ProblemType, verbose_name=_('problem types'),
                                    help_text=_('The type of problem, '
                                                "as shown on the problem's page."))
-    group = models.ForeignKey(ProblemGroup, verbose_name=_('problem group'), on_delete=CASCADE,
+    group = models.ForeignKey(ProblemGroup, verbose_name=_('problem group'), on_delete=models.SET_NULL, null=True,
                               help_text=_('The group of problem, shown under Category in the problem list.'))
-    classes = models.ForeignKey(ProblemClass, verbose_name=_("problem class"), on_delete=models.CASCADE,
+    classes = models.ForeignKey(ProblemClass, verbose_name=_("problem class"), on_delete=models.SET_NULL,
                               help_text=_('The class of problem, shown under Class in the problem list.'), null=True, blank=False)
 
     time_limit = models.FloatField(verbose_name=_('time limit'),
