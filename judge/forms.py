@@ -345,7 +345,7 @@ class ProblemUpdateForm(ModelForm):
         fields = ['code', 'name', 'is_public', 'is_manually_managed', 'authors', 'curators', 'testers', 
                 'banned_users', 'is_organization_private', 'organizations', 
                 'submission_source_visibility_mode', 'is_full_markup', 'description', 'license', 'og_image', 'summary',
-                'types', 'group', 
+                'types', 'group', 'classes', 
                 'time_limit', 'memory_limit', 'points', 'partial', 'allowed_languages']
         widgets = {
             'authors': HeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 30%'}),
@@ -357,6 +357,7 @@ class ProblemUpdateForm(ModelForm):
                                                                 attrs={'style': 'width: 50%'}),
             'types': Select2MultipleWidget,
             'group': Select2Widget,
+            'classes': Select2Widget,
             'description': MartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
             'allowed_languages': CheckboxSelectMultipleWithSelectAll
         }
