@@ -17,7 +17,7 @@ from judge.utils.timedelta import nice_repr
 @register_contest_format('tmath')
 class TmathContestFormat(DefaultContestFormat):
     name = gettext_lazy('Tmath')
-    config_defaults = {'penalty': 20, 'weight': 0.97}
+    config_defaults = {'penalty': 20, 'weight': 0.98}
     config_validators = {'penalty': lambda x: x >= 0, 'weight': lambda x: x > 0 and x <= 1}
     '''
         penalty: Number of penalty minutes each incorrect submission adds. Defaults to 20.
