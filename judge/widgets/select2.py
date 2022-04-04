@@ -270,3 +270,15 @@ class AdminHeavySelect2Widget(AdminSelect2Mixin, HeavySelect2Widget):
 
 class AdminHeavySelect2MultipleWidget(AdminSelect2Mixin, HeavySelect2MultipleWidget):
     pass
+
+
+class SemanticSelect(forms.Select):
+    template_name = "forms/widgets/select.html"
+
+
+class SemanticSelectMultiple(forms.SelectMultiple, SemanticSelect):
+    pass
+
+class SemanticCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
+    template_name = "forms/widgets/checkbox_select.html"
+    option_template_name = "forms/widgets/checkbox_option.html"

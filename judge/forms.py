@@ -1,6 +1,7 @@
 import json
 import os
 from operator import attrgetter, itemgetter
+from attr import field
 
 import pyotp
 import webauthn
@@ -11,17 +12,18 @@ from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator, RegexValidator
 from django.template.defaultfilters import filesizeformat
 from django.db.models import Q
-from django.forms import BooleanField, CharField, ChoiceField, Form, ModelForm, MultipleChoiceField
+from django.forms import BooleanField, CharField, ChoiceField, Form, ModelForm, MultipleChoiceField, inlineformset_factory
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from django_ace import AceWidget
 from judge.models import Contest, Language, Organization, Problem, Profile, Submission, WebAuthnCredential
+from judge.models.problem import LanguageLimit, Solution
 from judge.utils.subscription import newsletter_id
 from judge.widgets import HeavyPreviewPageDownWidget, Select2MultipleWidget, Select2Widget, CheckboxSelectMultipleWithSelectAll
 from judge.widgets.martor import MartorWidget
-from judge.widgets.select2 import HeavySelect2MultipleWidget
+from judge.widgets.select2 import HeavySelect2MultipleWidget, SemanticSelect, SemanticSelectMultiple, SemanticCheckboxSelectMultiple
 
 TOTP_CODE_LENGTH = 6
 
@@ -348,18 +350,21 @@ class ProblemUpdateForm(ModelForm):
                 'types', 'group', 'classes', 
                 'time_limit', 'memory_limit', 'points', 'partial', 'allowed_languages']
         widgets = {
-            'authors': HeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 30%'}),
-            'curators': HeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 30%'}),
-            'testers': HeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 30%'}),
-            'banned_users': HeavySelect2MultipleWidget(data_view='profile_select2',
-                                                            attrs={'style': 'width: 30%'}),
-            'organizations': HeavySelect2MultipleWidget(data_view='organization_select2',
-                                                                attrs={'style': 'width: 50%'}),
-            'types': Select2MultipleWidget,
-            'group': Select2Widget,
-            'classes': Select2Widget,
+            'code': forms.TextInput(attrs={'placeholder': _('Problem code')}),
+            'name': forms.TextInput(attrs={'placeholder': _('Problem name')}),
+            'authors': HeavySelect2MultipleWidget(data_view='profile_select2'),
+            'curators': HeavySelect2MultipleWidget(data_view='profile_select2'),
+            'testers': HeavySelect2MultipleWidget(data_view='profile_select2'),
+            'banned_users': HeavySelect2MultipleWidget(data_view='profile_select2'),
+            'organizations': SemanticSelectMultiple,
+            'types': SemanticSelectMultiple,
+            'group': SemanticSelect,
+            'classes': SemanticSelect,
+            'submission_source_visibility_mode': SemanticSelect,
+            # 'summary': MartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
+            'license': SemanticSelect,
             'description': MartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
-            'allowed_languages': CheckboxSelectMultipleWithSelectAll
+            'allowed_languages': SemanticCheckboxSelectMultiple
         }
 
 
@@ -370,3 +375,49 @@ class ProblemCreateForm(ProblemUpdateForm):
         if Problem.objects.filter(code=code).exists():
             raise ValidationError(_('Problem with code already exists.'))
         return code
+
+
+class LanguageLimitForm(ModelForm):
+    class Meta:
+        model = LanguageLimit
+        fields = '__all__'
+
+
+class SolutionForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['authors'].widget.can_add_related = False
+        self.fields['authors'].queryset = Profile.objects.filter(
+            Q(user__is_superuser=True) |
+            Q(user__is_staff=True) |
+            Q(user__user_permissions__codename='add_solution') |
+            Q(user__user_permissions__codename='change_solution') |
+            Q(user__user_permissions__codename='delete_solution')
+        ).distinct()
+
+    class Meta:
+        model = Solution
+        fields = '__all__'
+        widgets = {
+            'authors': SemanticSelectMultiple(),
+            'content': MartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
+        }
+
+
+LanguageInlineFormset = inlineformset_factory(
+    Problem,
+    LanguageLimit,
+    form=LanguageLimitForm,
+    extra=3,
+    can_delete=True,
+)
+
+
+SolutionInlineFormset = inlineformset_factory(
+    Problem,
+    Solution,
+    form=SolutionForm,
+    extra=0,
+    can_delete=True,
+    max_num=1
+)

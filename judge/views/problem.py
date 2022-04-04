@@ -27,7 +27,7 @@ from django.views.generic.detail import SingleObjectMixin
 from reversion import revisions
 
 from judge.comments import CommentedDetailView
-from judge.forms import ProblemCloneForm, ProblemCreateForm, ProblemSubmitForm, ProblemUpdateForm
+from judge.forms import LanguageInlineFormset, ProblemCloneForm, ProblemCreateForm, ProblemSubmitForm, ProblemUpdateForm, SolutionForm, SolutionInlineFormset
 from judge.models import ContestSubmission, Judge, Language, Problem, ProblemGroup, \
     ProblemTranslation, ProblemType, RuntimeVersion, Solution, Submission, SubmissionSource, \
     TranslatedProblemForeignKeyQuerySet
@@ -761,9 +761,65 @@ class ProblemNew(ProblemMixin, PermissionRequiredMixin, TitleMixin, CreateView):
     template_name = 'problem/create.html'
     form_class = ProblemCreateForm
     permission_required = 'judge.add_problem'
+
+    def get(self, request, *args, **kwargs):
+        languagelimitform = LanguageInlineFormset()
+        # solutionform = SolutionInlineFormset()
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        return self.render_to_response(
+            self.get_context_data(
+                form=form,
+                languagelimitform=languagelimitform,
+                # solutionform=solutionform,
+            )
+        )
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        languagelimitform = LanguageInlineFormset(self.request.POST)
+        # solutionform = SolutionInlineFormset(self.request.POST)
+        if form.is_valid() and languagelimitform.is_valid():
+            return self.form_valid(form, languagelimitform)
+        else:
+            return self.form_invalid(form, languagelimitform)
+
+    def form_valid(self, form, languagelimitform):
+        print(form.cleaned_data['authors'])
+        self.object = form.save()
+
+        language_limits = languagelimitform.save(commit=False)
+        for language in language_limits:
+            language.problem = self.object
+            language.save()
+        
+        # solution = solutionform.save(commit=False)
+        # for sol in solution:
+        #     sol.problem = self.object
+        #     sol.save()
+        
+        return HttpResponseRedirect(self.get_success_url())
     
-    # def get(self, request, *args, **kwargs):
-    #     return ProblemCreateForm()
+    def form_invalid(self, form, languagelimitform):
+        return self.render_to_response(
+            self.get_context_data(
+                form=form,
+                languagelimitform=languagelimitform,
+                # solutionform=solutionform
+            )
+        )
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not self.has_permission():
+            return self.handle_no_permission()
+        self.object = None
+        if request.method == 'POST':
+            return self.post(request, *args, **kwargs)
+        elif request.method == 'GET':
+            return self.get(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
+        
 
 
 class ProblemEdit(ProblemMixin, PermissionRequiredMixin, TitleMixin, UpdateView):
@@ -771,3 +827,68 @@ class ProblemEdit(ProblemMixin, PermissionRequiredMixin, TitleMixin, UpdateView)
     template_name = 'problem/create.html'
     form_class = ProblemUpdateForm
     permission_required = 'judge.edit_problem'
+
+    def get(self, request, *args, **kwargs):
+        languagelimitform = LanguageInlineFormset(instance=self.object)
+        # solutionform = SolutionInlineFormset(instance=self.object)
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        return self.render_to_response(
+            self.get_context_data(
+                form=form,
+                languagelimitform=languagelimitform,
+                # solutionform=solutionform,
+            )
+        )
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        languagelimitform = LanguageInlineFormset(self.request.POST, instance=self.object)
+        # solutionform = SolutionInlineFormset(self.request.POST, instance=self.object)
+        if form.is_valid() and languagelimitform.is_valid(): # and solutionform.is_valid():
+            return self.form_valid(form, languagelimitform)
+        else:
+            return self.form_invalid(form, languagelimitform)
+
+    def form_valid(self, form, languagelimitform):
+        self.object = form.save()
+        language_limits = languagelimitform.save(commit=False)
+
+        for language in language_limits:
+            language.problem_id = self.object.id
+            language.save()
+        
+        for language in languagelimitform.deleted_objects:
+            language.delete()
+
+        # solution = solutionform.save(commit=False)
+
+        # for sol in solution:
+        #     sol.problem_id = self.object.id
+        #     sol.save()
+        
+        # for sol in solutionform.deleted_objects:
+        #     sol.delete()
+
+        return HttpResponseRedirect(self.get_success_url())
+    
+    def form_invalid(self, form, languagelimitform):
+        print(languagelimitform.errors)
+        return self.render_to_response(
+            self.get_context_data(
+                form=form,
+                languagelimitform=languagelimitform,
+                # solutionform=solutionform
+            )
+        )
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.has_permission():
+            return self.handle_no_permission()
+        self.object = self.get_object()
+        if request.method == 'POST':
+            return self.post(request, *args, **kwargs)
+        elif request.method == 'GET':
+            return self.get(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)

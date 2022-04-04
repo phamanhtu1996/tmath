@@ -92,7 +92,7 @@ class TmathContestFormat(DefaultContestFormat):
 
                 format_data[str(prob)] = {'time': dt, 'points': points, 'penalty': prev}
                 score += points
-        print(format_data)
+        # print(format_data)
         participation.cumtime = cumtime + penalty
         participation.score = round(score, self.contest.points_precision)
         participation.tiebreaker = last  # field is sorted from least to greatest

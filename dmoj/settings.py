@@ -263,6 +263,7 @@ INSTALLED_APPS += (
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.sitemaps',
+    'django.forms',
     'registration',
     'mptt',
     'reversion',
@@ -337,7 +338,7 @@ TEMPLATES = [
         'APP_DIRS': False,
         'OPTIONS': {
             'match_extension': ('.html', '.txt'),
-            'match_regex': '^(?!admin/)',
+            'match_regex': '^(?!(admin/|forms/))',
             'context_processors': [
                 'django.template.context_processors.media',
                 'django.template.context_processors.tz',
@@ -382,7 +383,7 @@ TEMPLATES = [
         },
     },
 ]
-
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale'),
 ]
