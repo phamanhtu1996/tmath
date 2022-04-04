@@ -48,6 +48,11 @@
             font-style: italic;
             text-align: center;
         }
+        @media (min-width: 800px) {
+            #blog-sidebar {
+                display: block !important;
+            }
+        }
     </style>
 {% endblock %}
 
@@ -58,20 +63,20 @@
                 count_down($(this));
             });
 
-            $('.blog-sidebar').hide();
+            $('#blog-sidebar').hide();
             $('#blog-tab').find('a').click(function (e) {
                 e.preventDefault();
                 $('#blog-tab').addClass('active');
                 $('#event-tab').removeClass('active');
-                $('.blog-content').show();
-                $('.blog-sidebar').hide();
+                $('#blog-content').show();
+                $('#blog-sidebar').hide();
             });
             $('#event-tab').find('a').click(function (e) {
                 e.preventDefault();
                 $('#event-tab').addClass('active');
                 $('#blog-tab').removeClass('active');
-                $('.blog-content').hide();
-                $('.blog-sidebar').show();
+                $('#blog-content').hide();
+                $('#blog-sidebar').show();
             });
         });
     </script>
@@ -87,60 +92,86 @@
             <li id="event-tab" class="tab"><a href="#"><i class="tab-icon fa fa-rss"></i> {{ _('Events') }}</a></li>
         </ul>
     </div>
-    <div id="blog-container">
-        <div class="blog-content sidebox">
-            <h3>{{ _('News') }} <i class="fa fa-terminal"></i></h3>
-            <div class="sidebox-content">
-                {% for post in posts %}
-                    <section class="{% if post.sticky %}sticky {% endif %}post">
-                        <h2 class="title">
-                            <a href="{{ url('blog_post', post.id, post.slug) }}">{{ post.title }}</a>
-                        </h2>
-                        <span class="time">
-                            {%- if post.sticky %}<i title="Sticky" class="fa fa-star fa-fw"></i>{% endif -%}
-                            {% with authors=post.authors.all() %}
-                                {%- if authors -%}
-                                    <span class="post-authors">{{ link_users(authors) }}</span>
-                                {%- endif -%}
-                            {% endwith %}
-                            {{ relative_time(post.publish_on, abs=_('posted on {time}'), rel=_('posted {time}')) -}}
-                        </span><span class="comment-data">
-                            <a href="{{ url('blog_post', post.id, post.slug) }}#comments" class="comment-count-link">
-                                <i class="fa fa-comments comment-icon"></i><span class="comment-count">
-                                    {{- post_comment_counts[post.id] or 0 -}}
-                                </span>
-                            </a>
-                        </span>
-                        <div class="summary content-description">
-                            {% cache 86400 'post_summary' post.id %}
-                                {{ post.summary|default(post.content, true)|markdown('blog', 'svg', lazy_load=True)|reference|str|safe }}
-                            {% endcache %}
-                        </div>
-                    </section>
-                {% endfor %}
+    <div id="blog-container" class="ui grid">
+        <div id="blog-content" class="ui twelve wide computer sixteen wide tablet column">
+            <div class="ui top attached secondary black inverted menu">
+                <div class="ui header item">
+                    {{ _('News') }} 
+                </div>
+                <div class="right menu">
+                    <div class="icon item">
+                        <i class="terminal icon"></i>
+                    </div>
+                </div>
             </div>
-            {% if page_obj.has_other_pages() %}
-                <div class="bottom-pagination-bar">{% include "list-pages.html" %}</div>
-            {% endif %}
+            <div class="ui bottom attached segment">
+                <div class="ui raised segments">
+                    {% for post in posts %}
+                        <div class="ui segment">
+                            <h2 class="ui header">
+                                <a href="{{ url('blog_post', post.id, post.slug) }}">{{ post.title }}</a>
+                                <div class="sub header">
+                                    {%- if post.sticky %}<i class="star icon"></i>{% endif -%}
+                                    {% with authors=post.authors.all() %}
+                                    {%- if authors -%}
+                                    <span>{{ link_users(authors) }}</span>
+                                    {%- endif -%}
+                                    {% endwith %}
+                                    {{ relative_time(post.publish_on, abs=_('posted on {time}'), rel=_('posted {time}')) -}}
+                                    <span class="comment-data">
+                                        <a href="{{ url('blog_post', post.id, post.slug) }}#comments" class="comment-count-link">
+                                            <i class="comments icon"></i>
+                                            <span class="comment-count">
+                                                {{- post_comment_counts[post.id] or 0 -}}
+                                            </span>
+                                        </a>
+                                    </span>
+                                </div>
+                            </h2>
+                            <div class="summary content-description">
+                                {% cache 86400 'post_summary' post.id %}
+                                    {{ post.summary|default(post.content, true)|markdown('blog', 'svg', lazy_load=True)|reference|str|safe }}
+                                {% endcache %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if page_obj.has_other_pages() %}
+                    <div class="bottom-pagination-bar">{% include "list-pages.html" %}</div>
+                {% endif %}
+            </div>
         </div>
 
-        <div class="blog-sidebar">
+        <div id="blog-sidebar" class=" ui four wide computer sixteen wide tablet column">
             {% if request.in_contest and request.participation.contest.use_clarifications %}
                 <div class="blog-sidebox sidebox">
-                    <h3>{{ _('Clarifications') }} <i class="fa fa-question-circle"></i></h3>
-                    <div class="sidebox-content">
+                    <div class="ui top attached secondary black inverted menu">
+                        <div class="ui header item">
+                            {{ _('Clarifications') }}
+                        </div>
+                        <div class="right menu">
+                            <div class="icon item">
+                                <i class="question circle icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui bottom attached segment">
                         {% if has_clarifications %}
-                            <ul>
+                            <div class="ui relaxed divided list">
                                 {% for clarification in clarifications %}
-                                    <li class="clarification">
-                                        <a href="{{ url('problem_detail', clarification.problem.code) }}"
-                                           class="problem">
-                                            {{ clarification.problem.name }}
-                                        </a>
-                                        <span class="time">{{ relative_time(clarification.date) }}</span>
-                                    </li>
+                                    <div class="item">
+                                        <div class="content">
+                                            <div class="header">
+                                                <a href="{{ url('problem_detail', clarification.problem.code) }}"
+                                                   class="problem">
+                                                    {{ clarification.problem.name }}
+                                                </a>
+                                            </div>
+                                            <div class="description">{{ relative_time(clarification.date) }}</div>
+                                        </div>
+                                    </div>
                                 {% endfor %}
-                            </ul>
+                            </div>
                         {% else %}
                             <p class="no-clarifications-message">
                                 {{ _('No clarifications have been made at this time.') }}
@@ -151,8 +182,17 @@
             {% endif %}
             {% if current_contests %}
                 <div class="blog-sidebox sidebox">
-                    <h3>{{ _('Ongoing contests') }} <i class="fa fa-trophy"></i></h3>
-                    <div class="sidebox-content sidebox-ongoing-contest">
+                    <div class="ui top attached secondary black inverted menu">
+                        <div class="ui header item">
+                            {{ _('Ongoing contests') }}
+                        </div>
+                        <div class="right menu">
+                            <div class="icon item">
+                                <i class="trophy icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui bottom attached segment sidebox-ongoing-contest">
                         {% for contest in current_contests %}
                             <div class="contest">
                                 <div class="contest-list-title">
@@ -169,8 +209,17 @@
 
             {% if future_contests %}
                 <div class="blog-sidebox sidebox">
-                    <h3>{{ _('Upcoming contests') }} <i class="fa fa-trophy"></i></h3>
-                    <div class="sidebox-content">
+                    <div class="ui top attached secondary black inverted menu">
+                        <div class="ui header item">
+                            {{ _('Upcomming contests') }}
+                        </div>
+                        <div class="right menu">
+                            <div class="icon item">
+                                <i class="trophy icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui bottom attached segment">
                         {% for contest in future_contests %}
                             <div class="contest">
                                 <div class="contest-list-title">
@@ -186,18 +235,30 @@
             {% endif %}
 
             <div class="blog-sidebox sidebox">
-                <h3>{{ _('Comment stream') }} <i class="fa fa-comments"></i></h3>
-                <div class="sidebox-content">
-                    <ul>
+                <div class="ui top attached secondary black inverted menu">
+                    <div class="ui header item">
+                        {{ _('Comment stream') }}
+                    </div>
+                    <div class="right menu">
+                        <div class="icon item">
+                            <i class="comments icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui bottom attached segment">
+                    <div class="ui relaxed divided list">
                         {% for comment in comments %}
-                            <li>
-                                <span style="padding-left:0.25em" class="poster">
-                                    {{ link_user(comment.author) }}
-                                </span> &rarr;
-                                <a href="{{ comment.link }}#comment-{{ comment.id }}">{{ comment.page_title }}</a>
-                            </li>
+                            <div class="item">
+                                <img class="ui avatar image" src="{{ gravatar(comment.author.user, 80)}}" alt="{{ comment.author.user.username }}">
+                                <div class="content">
+                                    <a class="header" href="{{ comment.link }}#comment-{{ comment.id }}">{{ comment.page_title }}</a>
+                                    <div class="description">
+                                        {{ link_user(comment.author) }}
+                                    </div>
+                                </div>
+                            </div>
                         {% endfor %}
-                    </ul>
+                    </div>
                     <span class="rssatom">
                         <a href="{{ url('comment_rss') }}"><span><i class="fa fa-rss"></i></span> RSS</a>
                         /
@@ -206,14 +267,22 @@
                 </div>
             </div>
             <div class="blog-sidebox sidebox">
-                <h3>{{ _('New problems') }} <i class="fa fa-puzzle-piece"></i>
-                </h3>
-                <div class="sidebox-content">
-                    <ul class="problem-list">
+                <div class="ui top attached secondary black inverted menu">
+                    <div class="ui header item">
+                        {{ _('New problems') }}
+                    </div>
+                    <div class="right menu">
+                        <div class="icon item">
+                            <i class="puzzle piece icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui bottom attached segment">
+                    <div class="ui secondary vertical fluid menu">
                         {% for problem in new_problems %}
-                            <li><a href="{{ url('problem_detail', problem.code) }}">{{ problem.name }}</a></li>
+                            <a class="item" style="font-weight: 700" href="{{ url('problem_detail', problem.code) }}">{{ problem.name }}</a>
                         {% endfor %}
-                    </ul>
+                    </div>
                     <span class="rssatom">
                         <a href="{{ url('problem_rss') }}"><span><i class="fa fa-rss"></i></span> RSS</a>
                         /
@@ -223,8 +292,17 @@
             </div>
             {% if perms.judge.test_site and own_open_tickets %}
                 <div class="blog-sidebox sidebox">
-                    <h3>{{ _('My open tickets') }} <i class="fa fa-question-circle"></i></h3>
-                    <div class="sidebox-content">
+                    <div class="ui top attached secondary black inverted menu">
+                        <div class="ui header item">
+                            {{ _('My open tickets') }}
+                        </div>
+                        <div class="right menu">
+                            <div class="icon item">
+                                <i class="question circle icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui bottom attached segment">
                         <ul class="own-open-tickets">
                             {% for ticket in own_open_tickets %}
                                 <li>
@@ -244,8 +322,17 @@
 
             {% if perms.judge.test_site and open_tickets %}
                 <div class="blog-sidebox sidebox">
-                    <h3>{{ _('New tickets') }} <i class="fa fa-exclamation-circle"></i></h3>
-                    <div class="sidebox-content">
+                    <div class="ui top attached secondary black inverted menu">
+                        <div class="ui header item">
+                            {{ _('New tickets') }}
+                        </div>
+                        <div class="right menu">
+                            <div class="icon item">
+                                <i class="exclamation circle icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui bottom attached segment">
                         <ul class="open-tickets">
                             {% for ticket in open_tickets %}
                                 <li>
