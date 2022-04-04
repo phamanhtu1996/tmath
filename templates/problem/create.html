@@ -1,13 +1,9 @@
 {% extends "common-content.html" %}
 
 {% block media %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css" integrity="sha512-pbLYRiE96XJxmJgF8oWBfa9MdKwuXhlV7vgs2LLlapHLXceztfcta0bdeOgA4reIf0WH67ThWzA684JwkM3zfQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 {{ form.media.css }}
 <link rel="stylesheet" type="text/css" href="{{ static('admin/css/forms.css') }}">
 <style>
-.glow-on-hoverr, .glow-on-hover {
-    padding-top: 0;
-}
 .help {
     color: #999 !important;
     font-size: 12px;
@@ -36,7 +32,6 @@ fieldset {
 
 {% block js_media %}
 <script src="{{ static('admin/js/jquery.init.js') }}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.js" integrity="sha512-t5mAtfZZmR2gl5LK7WEkJoyHCfyzoy10MlerMGhxsXl3J7uSSNTAW6FK/wvGBC8ua9AFazwMaC0LxsMTMiM5gg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {{ form.media.js }}
 {% endblock %}
 

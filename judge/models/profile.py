@@ -286,6 +286,7 @@ class Profile(models.Model):
         return super().save(force_insert, force_update, *args, **kwargs)
 
     class Meta:
+        ordering = ['id']
         permissions = (
             ('test_site', _('Shows in-progress development stuff')),
             ('totp', _('Edit TOTP settings')),
