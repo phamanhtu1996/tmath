@@ -1,6 +1,6 @@
 {% set can_view, can_edit = submission_layout(submission, profile_id, request.user, completed_problem_ids, editable_problem_ids, tester_problem_ids) %}
 <div class="sub-result {{ submission.result_class }}">
-    <div class="score">
+    <div class="score" style="font-size: 14px;">
         {%- if submission.is_graded -%}
             {%- if submission.status in ('IE', 'CE', 'AB') -%}
                 ---
