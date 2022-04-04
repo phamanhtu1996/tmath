@@ -1,7 +1,6 @@
 import json
 import os
 from operator import attrgetter, itemgetter
-from attr import field
 
 import pyotp
 import webauthn
