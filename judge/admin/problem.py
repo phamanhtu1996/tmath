@@ -135,7 +135,7 @@ class ProblemSolutionForm(ModelForm):
 
 class ProblemSolutionInline(admin.StackedInline):
     model = Solution
-    fields = ('is_public', 'publish_on', 'authors', 'content')
+    fields = ('is_public', 'publish_on', 'authors', 'is_full_markup', 'content')
     form = ProblemSolutionForm
     extra = 0
 

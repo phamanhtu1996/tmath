@@ -33,7 +33,7 @@
                 </p>
             {% endif %}
         {% endwith %}
-        {{ solution.content|markdown('solution', MATH_ENGINE)|reference|str|safe }}
+        {{ solution.content|markdown(solution.markdown_style, MATH_ENGINE)|reference|str|safe }}
     </div>
     <hr>
     {% include "comments/list.html" %}

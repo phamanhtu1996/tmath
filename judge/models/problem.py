@@ -512,9 +512,14 @@ class Solution(models.Model):
     problem = models.OneToOneField(Problem, on_delete=SET_NULL, verbose_name=_('associated problem'),
                                    null=True, blank=True, related_name='solution')
     is_public = models.BooleanField(verbose_name=_('public visibility'), default=False)
+    is_full_markup = models.BooleanField(_('markup full'), default=False)
     publish_on = models.DateTimeField(verbose_name=_('publish date'))
     authors = models.ManyToManyField(Profile, verbose_name=_('authors'), blank=True)
     content = models.TextField(verbose_name=_('editorial content'))
+
+    @property
+    def markdown_style(self):
+        return 'solution-full' if self.is_full_markup else 'solution'
 
     def get_absolute_url(self):
         problem = self.problem

@@ -254,6 +254,7 @@ INSTALLED_APPS += (
     'django.contrib.admin',
     'judge',
     'emath',
+    # 'chat',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.flatpages',
@@ -278,6 +279,7 @@ INSTALLED_APPS += (
     'django_jinja',
     'martor',
     'adminsortable2',
+    # 'channels',
 )
 
 MIDDLEWARE = (
@@ -328,6 +330,7 @@ SILENCED_SYSTEM_CHECKS = ['urls.W002', 'fields.W342']
 ROOT_URLCONF = 'dmoj.urls'
 LOGIN_REDIRECT_URL = '/user'
 WSGI_APPLICATION = 'dmoj.wsgi.application'
+# ASGI_APPLICATION = 'dmoj.asgi.application'
 
 TEMPLATES = [
     {
@@ -476,6 +479,7 @@ MARKDOWN_STYLES = {
     'problem': MARKDOWN_STAFF_EDITABLE_STYLE,
     'problem-full': MARKDOWN_ADMIN_EDITABLE_STYLE,
     'contest': MARKDOWN_STAFF_EDITABLE_STYLE,
+    'contest-full': MARKDOWN_ADMIN_EDITABLE_STYLE,
     'exam': MARKDOWN_STAFF_EDITABLE_STYLE,
     'flatpage': MARKDOWN_ADMIN_EDITABLE_STYLE,
     'language': MARKDOWN_STAFF_EDITABLE_STYLE,
@@ -483,6 +487,7 @@ MARKDOWN_STYLES = {
     'judge': MARKDOWN_STAFF_EDITABLE_STYLE,
     'blog': MARKDOWN_STAFF_EDITABLE_STYLE,
     'solution': MARKDOWN_STAFF_EDITABLE_STYLE,
+    'solution-full': MARKDOWN_ADMIN_EDITABLE_STYLE,
     'contest_tag': MARKDOWN_STAFF_EDITABLE_STYLE,
     'organization-about': MARKDOWN_USER_LARGE_STYLE,
     'ticket': MARKDOWN_USER_LARGE_STYLE,

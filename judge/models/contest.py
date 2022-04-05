@@ -126,6 +126,7 @@ class Contest(models.Model):
                                            blank=True,
                                            help_text=_('This image will replace the default site logo for users '
                                                        'inside the contest.'))
+    is_full_markup = models.BooleanField(_('markup full'), default=False)
     tags = models.ManyToManyField(ContestTag, verbose_name=_('contest tags'), blank=True, related_name='contests')
     user_count = models.IntegerField(verbose_name=_('the amount of live participants'), default=0)
     summary = models.TextField(blank=True, verbose_name=_('contest summary'),
@@ -151,6 +152,10 @@ class Contest(models.Model):
     points_precision = models.IntegerField(verbose_name=_('precision points'), default=3,
                                            validators=[MinValueValidator(0), MaxValueValidator(10)],
                                            help_text=_('Number of digits to round points to.'))
+
+    @property
+    def markdown_style(self):
+        return 'contest-full' if self.is_full_markup else 'contest'
 
     @cached_property
     def format_class(self):
