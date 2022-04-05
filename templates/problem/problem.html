@@ -130,8 +130,8 @@
     </div>
     <hr>
     {% endif %}
-    {% if can_edit_problem %}
     <div class="ui fluid vertical inverted blue menu">
+    {% if can_edit_problem %}
     <a class="item" href="{{ url('problem_ticket_list', problem.code) }}">{{ _('Manage tickets') }}
         {% if num_open_tickets %}<span class="badge">{{ num_open_tickets }}</span>{% endif %}
     </a>
