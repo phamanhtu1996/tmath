@@ -101,6 +101,21 @@
             $(function () {
                 $('img.unveil').unveil(200);
             });
+            $(function() {
+                if (typeof window.orientation !== 'undefined') {
+                    $(window).resize(function() {
+                        var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+                        $('#viewport').attr('content', width > 480 ? 'initial-scale=1' : 'width=480');
+                    });
+                }
+            
+                $.ajaxSetup({
+                    beforeSend: function(xhr, settings) {
+                        if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain)
+                            xhr.setRequestHeader('X-CSRFToken', $.cookie('csrftoken'));
+                    }
+                });
+            });
             if (!Date.now) {
                 Date.now = function() {
                     return new Date().getTime();
