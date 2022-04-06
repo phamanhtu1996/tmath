@@ -303,6 +303,7 @@
     {% if request.user.is_authenticated %}
     <div class="item">
         <div class="header">
+            <img src="{{ gravatar(request.user, 80) }}" alt="{{ request.user.username }}" class="ui avatar mini image">
             <a href="{{ url('user_page') }}">
             {%- trans username=request.user.username -%}
                 Hello, <b>{{ username }}</b>.
@@ -364,6 +365,7 @@
                 {% endfor %}
                 {% if request.user.is_authenticated %}
                 <div class="ui right dropdown item">
+                    <img src="{{ gravatar(request.user, 80) }}" alt="{{ request.user.username }}" class="ui avatar mini image">
                     <a href="{{ url('user_page') }}">
                     {%- trans username=request.user.username -%}
                         Hello, <b>{{ username }}</b>
