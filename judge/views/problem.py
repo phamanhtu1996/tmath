@@ -779,7 +779,7 @@ class ProblemNew(ProblemMixin, PermissionRequiredMixin, TitleMixin, CreateView):
             return self.form_invalid(form, languagelimitform)
 
     def form_valid(self, form, languagelimitform):
-        print(form.cleaned_data['authors'])
+        # print(form.cleaned_data['authors'])
         self.object = form.save()
 
         language_limits = languagelimitform.save(commit=False)
@@ -867,7 +867,7 @@ class ProblemEdit(ProblemMixin, PermissionRequiredMixin, TitleMixin, UpdateView)
         return HttpResponseRedirect(self.get_success_url())
     
     def form_invalid(self, form, languagelimitform):
-        print(languagelimitform.errors)
+        # print(languagelimitform.errors)
         return self.render_to_response(
             self.get_context_data(
                 form=form,
