@@ -122,8 +122,8 @@
                     <div class="content">
                         {% set print_case_output = case.status != 'AC' and case.output and (prefix_length is none or prefix_length > 0) %}
                         {% if print_case_output %}
-                        <div class="ui segment">
-                            <div class="ui header">{{ _('Your output (clipped)') }}</div>
+                        <div class="ui info message">
+                            <div class="header">{{ _('Your output (clipped)') }}</div>
                             {% if prefix_length is none %}
                                 <pre class="case-output">{{ case.output|linebreaksbr }}</pre>
                             {% else %}
@@ -132,7 +132,7 @@
                         </div>
                         {% endif %}
                         {% if case.extended_feedback %}
-                        <div class="ui {% if case.status == "AC" %}positive{% else %}negative{% endif %}  message">
+                        <div class="ui {% if case.status == "AC" %}positive{% else %}negative{% endif %} message">
                             <div class="header">{{ _('Judge feedback') }}</div>
                             <pre class="case-output">{{ case.extended_feedback|linebreaksbr }}</pre>
                         </div>
