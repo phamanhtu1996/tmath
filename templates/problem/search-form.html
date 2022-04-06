@@ -1,65 +1,101 @@
-<div class="sidebox">
-    <h3>{{ _('Problem search') }} <i class="fa fa-search"></i>
-    </h3>
-    <div class="sidebox-content">
-        <form id="filter-form" name="form" action="" method="get">
-            <div>
+<div class="ui container">
+    <div class="ui top attached secondary black inverted menu">
+        <div class="ui header item">
+            {{ _('Problem search') }}
+        </div>
+        <div class="right menu">
+            <div class="icon item">
+                <i class="search icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="ui bottom attached segment">
+        <form action="" method="get" class="ui form">
+            <div class="field">
                 <input id="search" type="text" name="search" value="{{ search_query or '' }}"
                        placeholder="{{ _('Search problems...') }}">
             </div>
             {% if has_fts %}
-                <div>
+            <div class="field">
+                <div class="ui checkbox">
                     <input id="full_text" type="checkbox" name="full_text" value="1"
-                           {% if full_text %}checked{% endif %}>
+                    {% if full_text %}checked{% endif %}>
                     <label for="full_text">{{ _('Full text search') }}</label>
                 </div>
+            </div>
             {% endif %}
             {% if request.user.is_authenticated %}
-                <div>
+            <div class="field">
+                <div class="ui checkbox">
                     <input id="hide_solved" type="checkbox" name="hide_solved" value="1"
-                           {% if hide_solved %}checked{% endif %}>
+                            {% if hide_solved %}checked{% endif %}>
                     <label for="hide_solved">{{ _('Hide solved problems') }}</label>
                 </div>
-            {% endif %}
-            <div>
-                <input id="show_types" type="hidden" name="show_types" value="1"> 
             </div>
-            <div class="filter-form-group">
-                <label for="category"><i>{{ _('Category') }}</i></label>
-                <select id="category" name="category">
-                    {% if category %}
-                        <option value="" selected="selected">{{ _('All') }}</option>
-                    {% else %}
-                        <option value="">{{ _('All') }}</option>{% endif %}
-                    <option disabled="disabled">---</option>
-                    {% for group in categories %}
-                        <option value="{{ group.id }}"{% if group.id == category %} selected{% endif %}>
+            {% endif %}
+            <div class="field">
+                <label for="category">{{ _('Category') }}</label>
+                <div class="ui selection dropdown">
+                    <input type="hidden" name="category" onchange="this.form.submit()" {% if category %}value="{{category}}"{% endif %}>
+                    <i class="dropdown icon"></i>
+                    <div class="default text">{{ _('All') }}</div>
+                    <div class="menu">
+                        {% for group in categories %}
+                        <div class="item" data-value="{{ group.id }}">
                             {{ group.full_name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            {% if show_types %}
-                <div class="filter-form-group">
-                    <label for="type"><i>{{ _('Problem types') }}</i></label>
-                    <select id="types" name="type" multiple>
-                        {% for type in problem_types %}
-                            <option value="{{ type.id }}"{% if type.id in selected_types %} selected{% endif %}>
-                                {{ type.full_name }}
-                            </option>
+                        </div>
                         {% endfor %}
-                    </select>
+                    </div>
                 </div>
-            {% endif %}
+            </div>
+            <div class="field">
+                <label for="type">{{ _('Problem types') }}</label>
+                <div class="ui fluid multiple search normal selection dropdown">
+                    <input type="hidden" name="type" {% if selected_types %}value="{{ selected_types|join(',') }}"{% endif %}>
+                    <div class="default text">{{ _('Select type') }}</div>
+                    <div class="menu">
+                        {% for type in problem_types %}
+                        <div class="item" data-value="{{ type.id }}">
+                            {{ type.full_name }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
             {% if point_values %}
-                <div class="form-label">{{ _('Point range') }}</div>
-                <div id="point-slider"></div>
+            <div class="ui range slider" id="point-range"></div>
+            <div class="field">
+                <label>Min point</label>
+                <input type="text" name="start" id="point_start" disabled value="{% if point_start and point_start > point_values.min %}{{ point_start|floatformat(0) }}{% else %}{{ point_values.min|floatformat(0) }}{% endif %}">
+                <input type="hidden" name="point_start" value="{% if point_start and point_start > point_values.min %}{{ point_start|floatformat(0) }}{% else %}{{ point_values.min|floatformat(0) }}{% endif %}">
+            </div>
+            <div class="field">
+                <label>Max point</label>
+                <input type="text" name="end" id="point_end" disabled value="{% if point_end and point_end < point_values.max %}{{ point_end|floatformat(0) }}{% else %}{{ point_values.max|floatformat(0) }}{% endif %}">
+                <input type="hidden" name="point_end" value="{% if point_end and point_end < point_values.max %}{{ point_end|floatformat(0) }}{% else %}{{ point_values.max|floatformat(0) }}{% endif %}">
+            </div>
+            <script>
+                $('.ui.slider')
+                .slider({
+                    min             : {{ point_values.min }},
+                    max             : {{ point_values.max }},
+                    start           : {% if point_start and point_start > point_values.min %}{{ point_start }}{% else %}{{ point_values.min }}{% endif %},
+                    end             : {% if point_end and point_end < point_values.max %}{{ point_end }}{% else %}{{ point_values.max }}{% endif %},
+                    labelDistance   : {{ point_values.max - point_values.min }},
+                    onChange        : function(range, firstVal, secondVal) {
+                        if (firstVal > secondVal) {
+                            swap(firstVal, secondVal)
+                        }
+                        $('#point_start').val(firstVal)
+                        $('input[name=point_start]').val(firstVal)
+                        $('#point_end').val(secondVal)
+                        $('input[name=point_end]').val(secondVal)
+                    }
+                });
+            </script>
             {% endif %}
-            <input id="point-start" type="hidden" name="point_start" {% if point_start and point_start != point_values.min %}value="{{ point_start }}"{% else %}disabled{% endif %}>
-            <input id="point-end" type="hidden" name="point_end" {% if point_end and point_end != point_values.max %}value="{{ point_end }}"{% else %}disabled{% endif %}>
-            <div class="form-submit-group">
-                <a id="go" class="button">{{ _('Go') }}</a>
-                <a id="random" class="button">{{ _('Random') }}</a>
+            <div class="field">
+                <button id="go" type="submit" class="ui primary button">{{ _('Go') }}</button>
             </div>
         </form>
     </div>

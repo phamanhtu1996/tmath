@@ -58,6 +58,7 @@
         <link rel="stylesheet" type="text/css" href="{{ static('libs/featherlight/featherlight.min.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ static('libs/clipboard/tooltip.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ static('libs/select2/select2.css') }}">
+        <link rel="stylesheet" href="{{ static('navbar.css') }}">
     {% endcompress %}
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css" integrity="sha512-pbLYRiE96XJxmJgF8oWBfa9MdKwuXhlV7vgs2LLlapHLXceztfcta0bdeOgA4reIf0WH67ThWzA684JwkM3zfQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="canonical"
@@ -94,12 +95,85 @@
         <script src="{{ static('libs/moment.js') }}"></script>
         <script src="{{ static('libs/select2/select2.js') }}"></script>
         {% include "extra_js.html" %}
-        <script src="{{ static('common.js') }}"></script>
         <script src="{{ static('event.js') }}"></script>
         <script>
             moment.locale('{{ LANGUAGE_CODE }}');
             $(function () {
                 $('img.unveil').unveil(200);
+            });
+            if (!Date.now) {
+                Date.now = function() {
+                    return new Date().getTime();
+                };
+            }
+            
+            function count_down(label) {
+                var initial = parseInt(label.attr('data-secs'));
+                var start = Date.now();
+            
+                function format(num) {
+                    var s = "0" + num;
+                    return s.substr(s.length - 2);
+                }
+            
+                var timer = setInterval(function() {
+                    var time = Math.round(initial - (Date.now() - start) / 1000);
+                    if (time <= 0) {
+                        clearInterval(timer);
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 2000);
+                    }
+                    var d = Math.floor(time / 86400);
+                    var h = Math.floor(time % 86400 / 3600);
+                    var m = Math.floor(time % 3600 / 60);
+                    var s = time % 60;
+                    if (d > 0)
+                        label.text(npgettext('time format with day', '%d day %h:%m:%s', '%d days %h:%m:%s', d)
+                            .replace('%d', d).replace('%h', format(h)).replace('%m', format(m)).replace('%s', format(s)));
+                    else
+                        label.text(pgettext('time format without day', '%h:%m:%s')
+                            .replace('%h', format(h)).replace('%m', format(m)).replace('%s', format(s)));
+                }, 1000);
+            }
+            
+            function register_time(elems, limit) {
+                limit = limit || 300;
+                elems.each(function() {
+                    var outdated = false;
+                    var $this = $(this);
+                    var time = moment($this.attr('data-iso'));
+                    var rel_format = $this.attr('data-format');
+                    var abs = $this.text();
+            
+                    function update() {
+                        if ($('body').hasClass('window-hidden'))
+                            return outdated = true;
+                        outdated = false;
+                        if (moment().diff(time, 'days') > limit) {
+                            $this.text(abs);
+                            return;
+                        }
+                        $this.text(rel_format.replace('{time}', time.fromNow()));
+                        setTimeout(update, 10000);
+                    }
+            
+                    $(window).on('dmoj:window-visible', function() {
+                        if (outdated)
+                            update();
+                    });
+            
+                    update();
+                });
+            }
+            
+            $(function() {
+                register_time($('.time-with-rel'));
+            
+                $('form').submit(function(evt) {
+                    // Prevent multiple submissions of forms, see #565
+                    $("input[type='submit']").prop('disabled', true);
+                });
             });
         </script>
     {% endcompress %}
@@ -203,119 +277,207 @@
         <clipPath id="rating-clip"><circle cx="8" cy="8" r="7"/></clipPath>
     </defs>
 </svg>
-<nav id="navigation" class="unselectable">
-    <div id="nav-container">
-        <a id="navicon" href="javascript:void(0)"><i class="fa fa-bars"></i></a>
-        <ul id="nav-list">
-            <li class="home-nav-element"><a href="{{ url('home') }}">{% include "site-logo-fragment.html" %}</a></li>
-            <li class="home-nav-element"><span class="nav-divider"></span></li>
-            {% for node in mptt_tree(nav_bar) recursive %}
-                {% if not node.is_admin or request.user.is_staff or request.user.is_superuser %}
-                <li>
-                    <a href="{{ node.path }}" class="nav-{{ node.key }} {% if node.key in nav_tab %} glow-on-hoverr {% else %} glow-on-hover {% endif %}">
-                        {{ _(node.label) }}
-                        {% if not node.is_leaf_node %}
-                            <div href="javascript:void(0)" class="nav-expand">></div>
-                        {% endif %}
-                    </a>
+
+<div class="ui vertical inverted sidebar menu left" id="mobile-nav">
+    <a class="ui item image" href="/index">
+        {% include 'site-logo-fragment.html' %}
+    </a>
+    {% for node in mptt_tree(nav_bar) recursive %}
+        {% if not node.is_admin or request.user.is_staff or request.user.is_superuser %}
+            {% if not node.is_leaf_node() %}
+            <div class="item">
+                <div class="header">
+                    <a href="{{ node.path }}">{{ _(node.label) }}</a>
+                </div>
+                <div class="menu">
                     {% with children=node.get_children() %}
-                        {% if children %}<ul>{{ loop(children) }}</ul>{% endif %}
+                        {{ loop(children) }}
                     {% endwith %}
-                </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-
-        <span id="user-links">
-            {% if request.user.is_authenticated %}
-                <ul>
-                    <li>
-                        <a href="{{ url('user_page') }}">
-                            <span>
-                                <img src="{{ gravatar(request.user, 32) }}" height="24" width="24">{# -#}
-                                <span>
-                                    {%- trans username=request.user.username -%}
-                                        Hello, <b>{{ username }}</b>.
-                                    {%- endtrans %}
-                                </span>
-                            </span>
-                        </a>
-                        <ul style="width: 150px">
-                            {% if request.user.is_staff or request.user.is_superuser %}
-                                <li><a href="{{ url('admin:index') }}">{{ _('Admin') }}</a></li>
-                                <li><a href="{{ url('emath_admin:index') }}">{{ _('Emath Admin') }}</a></li>
-                            {% endif %}
-                            <li><a href="{{ url('user_edit_profile') }}">{{ _('Edit profile') }}</a></li>
-                            {% if request.user.is_impersonate %}
-                                <li><a href="{{ url('impersonate-stop') }}">Stop impersonating</a></li>
-                            {% else %}
-                                <li>
-                                    <form action="{{ url('auth_logout') }}" method="POST">
-                                        {% csrf_token %}
-                                        <button type="submit">{{ _('Log out') }}</button>
-                                    </form>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </li>
-                </ul>
+                </div>
+            </div>
             {% else %}
-                <span class="anon">
-                    <a href="{{ url('auth_login') }}?next={{ LOGIN_RETURN_PATH|urlencode }}"><b>{{ _('Log in') }}</b></a>
-                    &nbsp;{{ _('or') }}&nbsp;
-                    <a href="{{ url('registration_register') }}"><b>{{ _('Sign up') }}</b></a>
-                </span>
+            <a href="{{ node.path }}" class="item header"> {{ _(node.label) }}</a>
             {% endif %}
-        </span>
+        {% endif %}
+    {% endfor %}
+    {% if request.user.is_authenticated %}
+    <div class="item">
+        <div class="header">
+            <a href="{{ url('user_page') }}">
+            {%- trans username=request.user.username -%}
+                Hello, <b>{{ username }}</b>.
+            {%- endtrans %}
+            </a>
+        </div>
+        <div class="menu">
+            {% if request.user.is_staff or request.user.is_superuser %}
+            <a href="{{ url('admin:index') }}" class="item">{{ _('Admin') }}</a>
+            <a href="{{ url('emath_admin:index') }}" class="item">{{ _('Emath admin') }}</a>
+            {% endif %}
+            <a href="{{ url('user_edit_profile') }}" class="item">{{ _('Edit profile') }}</a>
+            {% if request.user.is_impersonate %}
+            <a href="{{ url('impersonate-stop') }}" class="item">Stop impersonating</a>
+            {% else %}
+            <a href="{{ url('auth_logout') }}" class="item">{{ _('Logout') }}</a>
+            {% endif %}
+        </div>
     </div>
-    <div id="nav-shadow"></div>
-</nav>  
-<div id="page-container">
-    <noscript>
-        <div id="noscript">{{ _('This site works best with JavaScript enabled.') }}</div>
-    </noscript>
-    <br>
-    <main id="content">
-        {% block title_row %}
-            <h2 style="color:#393630; display:inline">
-                {% block content_title %}
-                    {% if content_title %}{{ content_title }}{% else %}{{ title }}{% endif %}
-                {% endblock %}
-            </h2>
-        {% endblock %}
-        {% block header %}{% endblock %}
-        {% block title_ruler %}
-            <hr>
-        {% endblock %}
-        <div id="content-body">{% block body %}{% endblock %}</div>
-    </main>
-
-    {% if i18n_config.announcement %}
-        <div id="announcement">{{ i18n_config.announcement|safe }}</div>
+    {% else %}
+    <a href="{{ url('auth_login') }}?next={{ LOGIN_RETURN_PATH|urlencode }}" class="item"> <b>{{ _('Login') }}</b> </a>
+    <a href="{{ url('registration_register') }}" class="item"><b>{{ _('Sign up') }}</b></a>
     {% endif %}
-
-    {% block bodyend %}{% endblock %}
-
-    <footer>
-        <span id="footer-content">
-            <br>
-            <a style="color: #808080" href="https://dmoj.ca">proudly powered by <b>DMOJ</b></a> |
-            {% if i18n_config.footer %}
-                {{ i18n_config.footer|safe }} |
-            {% endif %}
-            <form action="{{ url('set_language') }}" method="post" style="display: inline">
-                {% csrf_token %}
-            <input name="next" type="hidden" value="{{ request.get_full_path() }}">
-            <select name="language" onchange="form.submit()" style="height: 1.5em">
-                {% for language in language_info_list(LANGUAGES) %}
-                    <option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %}selected{% endif %}>
-                        {{ language.name_local }} ({{ language.code }})
-                    </option>
-                {% endfor %}
-            </select>
-          </form>
-        </span>
-    </footer>
 </div>
+<div class="ui fixed inverted main menu">
+    <div class="ui container">
+        <a class="launch icon item">
+            <i class="content icon"></i>
+        </a>
+    </div>
+</div>
+<div class="pusher">
+    <div class="following bar">
+        <div class="ui container">
+            <div class="ui secondary menu inverted">
+                <a class="ui item image" href="/index">
+                    {% include 'site-logo-fragment.html' %}
+                </a>
+                {% for node in mptt_tree(nav_bar) recursive %}
+                {% if not node.is_admin or request.user.is_staff or request.user.is_superuser %}
+                    {% if not node.is_leaf_node() %}
+                    <div class="ui item dropdown">
+                        <a href="{{ node.path }}" style="font-weight: 700; color: rgba(255,255,255,.7);">
+                            {{ _(node.label) }}
+                        </a>
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            {% with children=node.get_children() %}
+                                {{ loop(children) }}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <a href="{{ node.path }}" class="item header" style="font-weight: 700 !important;"> 
+                        {{ _(node.label) }}
+                    </a>
+                    {% endif %}
+                {% endif %}
+                {% endfor %}
+                {% if request.user.is_authenticated %}
+                <div class="ui right dropdown item">
+                    <a href="{{ url('user_page') }}">
+                    {%- trans username=request.user.username -%}
+                        Hello, <b>{{ username }}</b>
+                    {%- endtrans %}
+                    </a>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        {% if request.user.is_staff or request.user.is_superuser %}
+                        <a href="{{ url('admin:index') }}" class="item">{{ _('Admin') }}</a>
+                        <a href="{{ url('emath_admin:index') }}" class="item">{{ _('Emath admin') }}</a>
+                        {% endif %}
+                        <a href="{{ url('user_edit_profile') }}" class="item">{{ _('Edit profile') }}</a>
+                        {% if request.user.is_impersonate %}
+                        <a href="{{ url('impersonate-stop') }}" class="item">Stop impersonating</a>
+                        {% else %}
+                        <a href="{{ url('auth_logout') }}" class="item">{{ _('Logout') }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="right menu inverted">
+                    <a href="{{ url('auth_login') }}?next={{ LOGIN_RETURN_PATH|urlencode }}" class="item"> <b>{{ _('Login') }}</b> </a>
+                    <a href="{{ url('registration_register') }}" class="item"><b>{{ _('Sign up') }}</b></a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div id="page-container" style="padding-top: 4.5em">
+        <noscript>
+            <div id="noscript">{{ _('This site works best with JavaScript enabled.') }}</div>
+        </noscript>
+        <br>
+        <main id="content">
+            {% block title_row %}
+                <h2 style="color:#393630; display:inline">
+                    {% block content_title %}
+                        {% if content_title %}{{ content_title }}{% else %}{{ title }}{% endif %}
+                    {% endblock %}
+                </h2>
+            {% endblock %}
+            {% block header %}{% endblock %}
+            {% block title_ruler %}
+                <hr>
+            {% endblock %}
+            <div id="content-body">{% block body %}{% endblock %}</div>
+        </main>
+    
+        {% if i18n_config.announcement %}
+            <div id="announcement">{{ i18n_config.announcement|safe }}</div>
+        {% endif %}
+    
+        {% block bodyend %}{% endblock %}
+    
+        <footer>
+            <span id="footer-content">
+                <br>
+                <a style="color: #808080" href="https://dmoj.ca">proudly powered by <b>DMOJ</b></a> |
+                {% if i18n_config.footer %}
+                    {{ i18n_config.footer|safe }} |
+                {% endif %}
+                <form action="{{ url('set_language') }}" method="post" style="display: inline">
+                    {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.get_full_path() }}">
+                <select name="language" onchange="form.submit()" style="height: 1.5em">
+                    {% for language in language_info_list(LANGUAGES) %}
+                        <option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %}selected{% endif %}>
+                            {{ language.name_local }} ({{ language.code }})
+                        </option>
+                    {% endfor %}
+                </select>
+              </form>
+            </span>
+        </footer>
+    </div>
+</div>
+<script>
+    if ($(window).width() > 1023) {
+        $('body').visibility({
+            offset         : -10,
+            observeChanges : false,
+            once           : false,
+            continuous     : false,
+            onTopPassed: function() {
+            requestAnimationFrame(function() {
+                $('.following.bar')
+                .addClass('light fixed')
+            });
+            },
+            onTopPassedReverse: function() {
+            requestAnimationFrame(function() {
+                $('.following.bar')
+                .removeClass('light fixed')
+            });
+            }
+        });
+    }
+    $('.ui.dropdown').dropdown({
+        on: 'hover'
+    });
+    $('.ui.sidebar').sidebar('setting', {
+        transition: 'overlay'
+    });
+    $('.ui.search').search({
+        type: 'category'
+    });
+    $('#mobile-nav').sidebar({
+        dimPage             : true,
+        transition          : 'overlay',
+        mobileTransition    : 'uncover'
+    });
+    $('#mobile-nav').sidebar('attach events', '.launch.item');
+
+</script>
 </body>
 </html>

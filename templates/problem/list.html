@@ -82,7 +82,7 @@
 
                 $('#go').click(clean_submit);
 
-                $('input#full_text, input#hide_solved, input#show_types').click(function () {
+                $('input#full_text, input#hide_solved').click(function () {
                     prep_form();
                     ($('<form>').attr('action', window.location.pathname + '?' + $form.serialize())
                         .append($('<input>').attr('type', 'hidden').attr('name', 'csrfmiddlewaretoken')
@@ -94,8 +94,7 @@
                 var container = $('#content-right');
                 if (window.bad_browser) {
                     container.css('float', 'right');
-                } else if (!featureTest('position', 'sticky')) {
-                    fix_div(info_float, 55);
+                } else {
                     $(window).resize(function () {
                         info_float.width(container.width());
                     });

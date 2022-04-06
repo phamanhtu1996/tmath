@@ -459,6 +459,7 @@ class Problem(models.Model):
     save.alters_data = True
 
     class Meta:
+        ordering = ['code']
         permissions = (
             ('see_private_problem', _('See hidden problems')),
             ('edit_own_problem', _('Edit own problems')),

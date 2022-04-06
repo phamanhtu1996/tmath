@@ -9,7 +9,7 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Permission
-from django.contrib.auth.views import LoginView, PasswordChangeView, redirect_to_login
+from django.contrib.auth.views import LoginView, PasswordChangeView, redirect_to_login, LogoutView as BaseLogoutView
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -504,10 +504,11 @@ def user_ranking_redirect(request):
     return HttpResponseRedirect('%s%s#!%s' % (reverse('user_list'), '?page=%d' % (page + 1) if page else '', username))
 
 
-class UserLogoutView(TitleMixin, TemplateView):
+class UserLogoutView(TitleMixin, BaseLogoutView):
     template_name = 'registration/logout.html'
     title = gettext_lazy('You have been successfully logged out.')
 
-    def post(self, request, *args, **kwargs):
-        auth_logout(request)
-        return HttpResponseRedirect(request.get_full_path())
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('auth_login'))
+        return super().dispatch(request, *args, **kwargs)
