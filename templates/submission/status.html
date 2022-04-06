@@ -18,9 +18,7 @@
                         url: '{{ url('submission_testcases_query') }}',
                         data: {id: '{{ submission.id }}'}
                     }).done(function (data) {
-                        list.empty().html(data).find('.toggle').each(function () {
-                            register_toggle($(this));
-                        });
+                        list.empty().html(data);
                         setTimeout(function () {
                             blocked = false;
                             if (request)
@@ -109,4 +107,7 @@
             </div>
         {% endif %}
     {% endif %}
+    <script>
+        $(".ui.accordion").accordion();
+    </script>
 {% endblock %}
