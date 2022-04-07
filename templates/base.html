@@ -410,7 +410,7 @@
         </div>
     </div>
     
-    <div id="page-container" style="padding-top: 4.5em" class="ui fluid container">
+    <div id="page-container" style="padding-top: 4.5em; min-height: 100vh;" class="ui fluid container">
         <noscript>
             <div id="noscript">{{ _('This site works best with JavaScript enabled.') }}</div>
         </noscript>
@@ -436,8 +436,7 @@
     
         {% block bodyend %}{% endblock %}
     
-        <footer class="ui fluid container">
-
+        <footer style="height: 4em">
             <span id="footer-content">
                 <br>
                 <a style="color: #808080" href="https://dmoj.ca">proudly powered by <b>DMOJ</b></a> |
