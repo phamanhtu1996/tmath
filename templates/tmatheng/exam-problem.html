@@ -18,40 +18,47 @@
 {% endblock %}
 
 {% block description %}
-<form actions="" method="post">
-  {% csrf_token %}
-  <input type="hidden" id="exam_id" name="exam" value="{{ exam.id }}">
-  {% for eproblem in data %}
-  <fieldset>
-    <legend><h4>Problem {{ loop.index }}</h4></legend>
-    <div style="font-size: 16px">
-      {% cache 600 'exam_html' eproblem.problem.id MATH_ENGINE %} 
-        {% with problem=eproblem.problem.problem %}
-          {{ problem.description|markdown(problem.markdown_style, MATH_ENGINE)|reference|str|safe }}
-        {% endwith %}
-      {% endcache %}
-    </div>
-    <div>
-      <fieldset>
-      <legend><h5>Answer</h5></legend>
-      <div class="answer">
-      {% for radio in eproblem.form.ans %}
-      <div class='answer-item'>
-        {{ radio }}
+<div class="ui container">
+  <form actions="" method="post" class="ui form">
+    {% csrf_token %}
+    <input type="hidden" id="exam_id" name="exam" value="{{ exam.id }}">
+    {% for eproblem in data %}
+    <div class="ui segments">
+      <div class="ui top attached secondary black inverted menu">
+        <div class="ui header item">Problem {{ loop.index }}</div>
       </div>
-      {% endfor %}
-      <div>
-      </fieldset>
+      <div class="ui bottom attached segment">
+        <div style="font-size: 16px">
+          {% cache 600 'exam_html' eproblem.problem.id MATH_ENGINE %} 
+            {% with problem=eproblem.problem.problem %}
+              {{ problem.description|markdown(problem.markdown_style, MATH_ENGINE)|reference|str|safe }}
+            {% endwith %}
+          {% endcache %}
+        </div>
+      </div>
+      <div class="ui segment">
+        <h3 class="ui header">Answer</h3>
+        <div class="ui grid">
+          {% for radio in eproblem.form.ans %}
+          <div class="sixteen wide tablet eight wide computer column">
+            <div class="ui radio checkbox">
+              {{ radio.tag() }}
+              <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
-  </fieldset>
-  {% if not loop.last %}
-  <hr />
-  {% endif %}
-  {% endfor %}
-  {% if has_joined %}
-  <input type="submit" class='submit' id="submit" value="Submit" />
-  {% endif %}
-</form>
+    {% endfor %}
+    {% if has_joined %}
+    <input type="submit" class='ui primary fluid button' id="submit" value="Submit" />
+    {% endif %}
+  </form>
+</div>
+<script>
+  $('.ui.radio.checkbox').checkbox();
+</script>
 {% endblock %}
 
 {% block info_float %}
