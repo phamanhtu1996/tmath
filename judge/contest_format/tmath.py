@@ -106,7 +106,7 @@ class TmathContestFormat(DefaultContestFormat):
             penalty = format_html('<small style="color:red"> ({penalty})</small>',
                                   penalty=floatformat(format_data['penalty'])) if format_data['penalty'] else ''
             return format_html(
-                '<td class="{state}"><a href="{url}">{points}{penalty}<div class="solving-time">{time}</div></a></td>',
+                '<td class="{state} one wide center aligned"><a href="{url}">{points}{penalty}<div class="solving-time">{time}</div></a></td>',
                 state=(('pretest-' if self.contest.run_pretests_only and contest_problem.is_pretested else '') +
                        self.best_solution_state(format_data['points'], contest_problem.points * (self.config['weight'] ** format_data['penalty']), contest_problem.first_accept == participation)),
                 url=reverse('contest_user_submissions',
@@ -116,7 +116,7 @@ class TmathContestFormat(DefaultContestFormat):
                 time=nice_repr(timedelta(seconds=format_data['time']), 'noday'),
             )
         else:
-            return mark_safe('<td></td>')
+            return mark_safe('<td class="one wide"></td>')
 
     def get_label_for_problem(self, index):
         index += 1

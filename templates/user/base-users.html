@@ -73,12 +73,13 @@
         </div>
     {% endif %}
 
-    <div id="common-content">
-        <div id="content-left" class="users">
-            {% block before_users_table %}{% endblock %}
-
-            <div class="h-scrollable-table">
-                <table id="users-table" class="table">
+    <div id="common-content" class="ui fluid container">
+        <div id="content-left" class="ui grid">
+            <div class="row">
+                {% block before_users_table %}{% endblock %}
+            </div>
+            <div class="h-scrollable-table ui row fluid container">
+                <table id="users-table" class="ui unstackable table">
                     {% block users_table %}{% endblock %}
                 </table>
             </div>

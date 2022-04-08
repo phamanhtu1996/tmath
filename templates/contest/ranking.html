@@ -120,8 +120,6 @@
 
         .organization-column {
             display: none;
-            text-align: left !important;
-            border-right: none !important;
         }
 
         .organization-column a {
@@ -269,9 +267,13 @@
 {% endblock %}
 
 {% block before_users_table %}
+
+<div class="ui grid fluid container">
 {% if request.user.is_superuser %}
-<div>
-    <button onclick="exportData()">Export to CSV</button>
+<div class="row">
+    <div class="column">
+        <button class="ui primary button" onclick="exportData()">Export to CSV</button>
+    </div>
 </div>
 
 <script>
@@ -341,17 +343,24 @@ function exportData() {
 }
 </script>
 {% endif %}
-    <div style="margin-bottom: 0.5em">
-        {% if tab == 'participation' %}
-            {% if contest.can_see_full_scoreboard(request.user) %}
-                <input id="search-contest" type="text" placeholder="{{ _('View user participation') }}">
-            {% endif %}
+    {% if tab == 'participation' %}
+        {% if contest.can_see_full_scoreboard(request.user) %}
+            <input id="search-contest" type="text" placeholder="{{ _('View user participation') }}">
         {% endif %}
-        <input id="show-organizations-checkbox" type="checkbox" style="vertical-align: bottom">
-        <label for="show-organizations-checkbox" style="vertical-align: bottom">{{ _('Show organizations') }}</label>
-        <input id="show-usernames-checkbox" type="checkbox" style="vertical-align: bottom">
-        <label for="show-usernames-checkbox" style="vertical-align: bottom">{{ _('Show username') }}</label>
+    {% endif %}
+    <div class="three wide column">
+        <div class="ui checkbox">
+            <input id="show-organizations-checkbox" type="checkbox" style="vertical-align: bottom">
+            <label for="show-organizations-checkbox" style="vertical-align: bottom">{{ _('Show organizations') }}</label>
+        </div>
     </div>
+    <div class="three wide column">
+        <div class="ui checkbox">
+            <input id="show-usernames-checkbox" type="checkbox" style="vertical-align: bottom">
+            <label for="show-usernames-checkbox" style="vertical-align: bottom">{{ _('Show username') }}</label>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block users_table %}

@@ -1,14 +1,14 @@
 <thead>
     <tr>
-        <th class="header rank">{{ rank_header or _("Rank") }}</th>
+        <th class="header rank one wide center aligned" style="background-color: black; color: white">{{ rank_header or _("Rank") }}</th>
         {% block after_rank_head %}{% endblock %}
-        <th class="header points">
+        <th class="header points one wide center aligned" style="background-color: black; color: white">
             {% if sort_links %}<a href="{{ sort_links.performance_points }}">{% endif %}
             {{ _('Points') }}
             {% if sort_links %}{{ sort_order.performance_points }}</a>{% endif %}
         </th>
-        <th class="header username-column">{{ _('Username') }}</th>
-        <th class="header username">{{ _('Fullname') }}</th>
+        <th class="header username-column" style="background-color: black; color: white">{{ _('Username') }}</th>
+        <th class="header username" style="background-color: black; color: white">{{ _('Fullname') }}</th>
         {% block before_point_head %}{% endblock %}
     
         {% block after_point_head %}{% endblock %}
@@ -18,10 +18,10 @@
 <tbody>
 {% for rank, user in users %}
     <tr id="user-{{ user.user.username }}" {% block row_extra scoped %}{% endblock %}>
-        <td>{{ rank }}</td>
+        <td class="center aligned">{{ rank }}</td>
         {% block after_rank scoped %}{% endblock %}
         {% block point scoped %}
-            <td title="{{ user.performance_points|floatformat(2) }}" class="user-points">
+            <td class="center aligned" title="{{ user.performance_points|floatformat(2) }}" class="user-points">
                 {{ user.performance_points|floatformat(0) }}
             </td>
         {% endblock %}
