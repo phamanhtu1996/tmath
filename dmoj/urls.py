@@ -22,7 +22,7 @@ from judge.views.problem_data import ProblemDataView, ProblemSubmissionDiff, \
 from judge.views.register import ActivationView, RegistrationView
 from judge.views.select2 import AssigneeSelect2View, CommentSelect2View, ContestSelect2View, \
     ContestUserSearchSelect2View, OrganizationSelect2View, ProblemSelect2View, TicketUserSelect2View, \
-    UserSearchSelect2View, UserSelect2View, MathProblemSelect2View, UserSearchSematicView
+    UserSearchSelect2View, UserSelect2View, MathProblemSelect2View #, UserSearchSematicView
 from judge.views.widgets import martor_image_uploader
 
 from emath.admin import emath_admin_site # name = emath_admin
@@ -307,7 +307,7 @@ urlpatterns = [
 
         url(r'^template$', problem.LanguageTemplateAjax.as_view(), name='language_template_ajax'),
 
-        url(r'^user_search2.json$', UserSearchSematicView.as_view(), name='user_search_semantic_ajax'),
+        # url(r'^user_search2.json$', UserSearchSematicView.as_view(), name='user_search_semantic_ajax'),
         url(r'^select2/', include([
             url(r'^user_search$', UserSearchSelect2View.as_view(), name='user_search_select2_ajax'),
             url(r'^contest_users/(?P<contest>\w+)$', ContestUserSearchSelect2View.as_view(),
