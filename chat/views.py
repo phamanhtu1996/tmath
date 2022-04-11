@@ -1,5 +1,6 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+
+from judge.jinja2.gravatar import gravatar
 from .models import ChatMessage, ChatParticipation
 from judge.models import Organization
 
@@ -24,4 +25,11 @@ def make_message(request):
     #                         'time': message.publish_on
     #                       })
   
-  return JsonResponse({'status': 200})
+  return JsonResponse({
+    'user': user.user.user.username,
+    'msg': msg,
+    'publish': message.publish_on,
+    'avatar': gravatar(user.user, 200),
+    'class': user.user.css_class,
+    'name': user.user.name if user.user.name is user.user.name else user.user.user.username
+  })

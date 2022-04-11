@@ -27,7 +27,25 @@
                 data    : data,
                 success : function(response) {
                     $('#message').val('')
-                    console.log(response)
+                    const user = response.user
+                    const msg = response.msg
+                    const publish = moment(response.publish).format('MMMM Do YYYY, h:mm a')
+                    const avatar = response.avatar
+                    const css_class = response.class
+                    const name = response.name
+
+                    var description = document.getElementById('messages')
+                    const message = document.getElementById('empty_comment').cloneNode(true)
+                    message.classList.remove('hidden')
+                    message.innerHTML = message.innerHTML.replace(/__user_page__/g, {{ url('user_page') + '/' }} + user)
+                    message.innerHTML = message.innerHTML.replace(/__css_class__/g, css_class)
+                    message.innerHTML = message.innerHTML.replace(/__name__/g, name)
+                    message.innerHTML = message.innerHTML.replace(/__msg__/g, msg)
+                    message.innerHTML = message.innerHTML.replace(/__publish_on__/g, publish)
+                    message.getElementsByTagName('img')[0].src = avatar
+                    description.append(message)
+                    const messages = document.getElementById('description');
+                    messages.scrollTop = messages.scrollHeight;
                 }
             })
         }
@@ -51,6 +69,9 @@
     .msg p {
         word-wrap: break-word;
         word-break: break-word;
+    }
+    .hidden {
+        display: none;
     }
 </style>
 {% endblock content_media %}
@@ -115,6 +136,23 @@
     <div class="ui bottom attached segments">
         <div class="ui segment" id="description" style="overflow-x: auto; max-height: 50em;">
             <div class="ui comments" style="max-width: unset" id="messages">
+                <div class="comment hidden" id="empty_comment">
+                    <a href="__user_page__" class="avatar"><img></a>
+                    <div class="content">
+                        <a href="__user_page__" class="author">
+                            <span class="__css_class__">
+                                __name__
+                            </span>
+                        </a>
+                        <div class="metadata">
+                            __publish_on__
+                        </div>
+                        <div class="text">
+                            __msg__
+                        </div>
+                        <div class="action"></div>
+                    </div>
+                </div>
             {% for message in msg|reverse %}
                 <div class="comment">
                     <a href="{{ url('user_page', message.user.user.user.username) }}" class="avatar">
