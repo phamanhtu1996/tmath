@@ -203,7 +203,7 @@ urlpatterns = [
     ])),
 
     url(r'^contests/', paged_list_view(contests.ContestList, 'contest_list')),
-    url(r'^contests/create', contests.ContestAdd.as_view(), name='contest_add'),
+    # url(r'^contests/create', contests.ContestAdd.as_view(), name='contest_add'),
     url(r'^contests/(?P<year>\d+)/(?P<month>\d+)/$', contests.ContestCalendar.as_view(), name='contest_calendar'),
     url(r'^contests/tag/(?P<name>[a-z-]+)', include([
         url(r'^$', contests.ContestTagDetail.as_view(), name='contest_tag'),
