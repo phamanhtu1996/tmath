@@ -13,6 +13,8 @@
                 );
             });
         });
+        
+    {% if request.user.is_authenticated and request.profile in organization %}
         function send_message() {
             const data = {
                 user                : window.user.id,
@@ -54,6 +56,7 @@
                 console.log(message)
             })
         }
+    {% endif %}
     </script>
     {% if EVENT_LAST_MSG %}
     <script type="text/javascript">
@@ -188,8 +191,10 @@
     </div>
     {% endif %}
 </div>
+{% if request.user.is_authenticated and request.profile in organization %}
 <script>
     const messages = document.getElementById('description');
     messages.scrollTop = messages.scrollHeight;
 </script>
+{% endif %}
 {% endblock %}

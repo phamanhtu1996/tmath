@@ -18,7 +18,7 @@ from judge.forms import EditOrganizationForm
 from judge.models import Organization, OrganizationRequest, Profile
 from judge.utils.ranker import ranker
 from judge.utils.views import TitleMixin, generic_message
-from chat.models import ChatMessage
+from chat.models import ChatMessage, ChatParticipation
 
 __all__ = ['OrganizationList', 'OrganizationHome', 'OrganizationUsers', 'OrganizationMembershipChange',
            'JoinOrganization', 'LeaveOrganization', 'EditOrganization', 'RequestJoinOrganization',
@@ -131,6 +131,8 @@ class JoinOrganization(OrganizationMembershipChange):
 
         profile.organizations.add(org)
         profile.save()
+        room = org.chat_room.all().first()
+        ChatParticipation.objects.get_or_create(user=profile, room=room)
         cache.delete(make_template_fragment_key('org_member_count', (org.id,)))
 
 
