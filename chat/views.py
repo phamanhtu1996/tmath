@@ -17,11 +17,11 @@ def make_message(request):
     user = ChatParticipation.objects.filter(user__user__pk=user_id, room=room).first()
     message = ChatMessage(room=user.room, msg=msg, user=user)
     message.save()
-    event.post('message', { 
-                            'org': org_id,
-                            'user': user_id, 
-                            'msg': msg,
-                            'time': message.publish_on
-                          })
+    # event.post('message', { 
+    #                         'org': org_id,
+    #                         'user': user_id, 
+    #                         'msg': msg,
+    #                         'time': message.publish_on
+    #                       })
   
   return JsonResponse({'status': 200})
