@@ -4,17 +4,56 @@
     <script type="text/javascript">
         $(function () {
             $('.leave-organization').click(function () {
-                return confirm('{{ _('Are you sure you want to leave this organization?') }}\n' +
+                return confirm('{{ _("Are you sure you want to leave this organization?") }}\n' +
                     {% if organization.is_open %}
-                        '{{ _('You will have to rejoin to show up on the organization leaderboard.') }}'
+                        '{{ _("You will have to rejoin to show up on the organization leaderboard.") }}'
                     {% else %}
-                        '{{ _('You will have to request membership in order to join again.') }}'
+                        '{{ _("You will have to request membership in order to join again.") }}'
                     {% endif %}
                 );
             });
         });
+        function send_message() {
+            const data = {
+                user                : window.user.id,
+                msg                 : document.getElementById('message').value,
+                org                 : {{ organization.pk }},
+                csrfmiddlewaretoken : $.cookie('csrftoken')
+            }
+            if (data.msg.length == 0) return
+            $.ajax({
+                type    : 'POST',
+                url     : '{{ url("chat:send_message") }}',
+                data    : data,
+                success : function(response) {
+                    $('#message').val('')
+                    console.log(response)
+                }
+            })
+        }
+        function load_dynamic_update() {
+            event_dispatcher.on('message', function(message) {
+                console.log(message)
+            })
+        }
     </script>
+    {% if EVENT_LAST_MSG %}
+    <script type="text/javascript">
+        $(function () {
+            load_dynamic_update();
+        });
+    </script>
+    {% endif %}
 {% endblock %}
+
+{% block content_media %}
+<style>
+    .msg p {
+        word-wrap: break-word;
+        word-break: break-word;
+    }
+</style>
+{% endblock content_media %}
 
 {% block info_float %}
     {% if request.user.is_authenticated %}
@@ -63,7 +102,56 @@
 {% endblock %}
 
 {% block description %}
-    {% cache 3600 'organization_html' organization.id MATH_ENGINE %}
-        {{ organization.about|markdown('organization-about', MATH_ENGINE)|reference|str|safe }}
-    {% endcache %}
+<div class="ui fluid container">
+    <div class="ui segment">
+        {% cache 3600 'organization_html' organization.id MATH_ENGINE %}
+            {{ organization.about|markdown('organization-about', MATH_ENGINE)|reference|str|safe }}
+        {% endcache %}
+    </div>
+    {% if request.user.is_authenticated and request.profile in organization %}
+    <div class="ui top attached secondary inverted black menu">
+        <h3 class="ui item header">{{ organization.room }}</h3>
+    </div>
+    <div class="ui bottom attached segments">
+        <div class="ui segment" id="description" style="overflow-x: auto; max-height: 50em;">
+            <div class="ui comments" style="max-width: unset" id="messages">
+            {% for message in msg|reverse %}
+                <div class="comment">
+                    <a href="{{ url('user_page', message.user.user.user.username) }}" class="avatar">
+                        <img src="{{ gravatar(message.user.user) }}">
+                    </a>
+                    <div class="content">
+                        {{ link_user(message.user.user) }}
+                        <div class="metadata">
+                            {{ message.publish_on|date(_("N j, Y, g:i a")) }}
+                        </div>
+                        <div class="text">
+                            {% cache 3600 'message_html' message.id %}
+                            {{ message.msg|markdown('comment') }}
+                            {% endcache %}
+                        </div>
+                        <div class="action"></div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        <div class="ui segment">
+            <form class="ui form" method="post" action="">
+                <div class="field">
+                    <label for="message">Message</label>
+                    <textarea name="msg" id="message" rows="2"></textarea>
+                </div>
+                <div class="field">
+                    <a class="ui primary button" onclick="send_message()">Send</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<script>
+    const messages = document.getElementById('description');
+    messages.scrollTop = messages.scrollHeight;
+</script>
 {% endblock %}

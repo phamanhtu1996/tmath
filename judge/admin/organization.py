@@ -23,6 +23,7 @@ class OrganizationAdmin(VersionAdmin):
               'creation_date', 'admins')
     list_display = ('name', 'short_name', 'is_open', 'slots', 'show_public')
     prepopulated_fields = {'slug': ('name',)}
+    search_fields = ['name', 'slug']
     actions_on_top = True
     actions_on_bottom = True
     form = OrganizationForm

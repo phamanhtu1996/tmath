@@ -254,7 +254,7 @@ INSTALLED_APPS += (
     'django.contrib.admin',
     'judge',
     'emath',
-    # 'chat',
+    'chat',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.flatpages',
@@ -279,11 +279,13 @@ INSTALLED_APPS += (
     'django_jinja',
     'martor',
     'adminsortable2',
+    # "corsheaders",
     # 'channels',
 )
 
 MIDDLEWARE = (
     'judge.middleware.ShortCircuitMiddleware',
+    # "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',

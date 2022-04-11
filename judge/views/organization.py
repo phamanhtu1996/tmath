@@ -18,6 +18,7 @@ from judge.forms import EditOrganizationForm
 from judge.models import Organization, OrganizationRequest, Profile
 from judge.utils.ranker import ranker
 from judge.utils.views import TitleMixin, generic_message
+from chat.models import ChatMessage
 
 __all__ = ['OrganizationList', 'OrganizationHome', 'OrganizationUsers', 'OrganizationMembershipChange',
            'JoinOrganization', 'LeaveOrganization', 'EditOrganization', 'RequestJoinOrganization',
@@ -76,11 +77,13 @@ class OrganizationList(TitleMixin, ListView):
 
 class OrganizationHome(OrganizationDetailView):
     template_name = 'organization/home.html'
+    max_message = 50
 
     def get_context_data(self, **kwargs):
         context = super(OrganizationHome, self).get_context_data(**kwargs)
         context['title'] = self.object.name
         context['can_edit'] = self.can_edit_organization()
+        context['msg'] = ChatMessage.objects.by_room(self.object.room)[:self.max_message]
         return context
 
 

@@ -73,6 +73,15 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def room(self):
+        room = self.chat_room.all().first()
+        return room
+
+    @cached_property
+    def in_organization(self, user):
+        return self.members.filter(id=user.id).exists()
+
     def get_absolute_url(self):
         return reverse('organization_home', args=(self.id, self.slug))
 

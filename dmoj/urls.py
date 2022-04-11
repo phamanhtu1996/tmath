@@ -22,7 +22,7 @@ from judge.views.problem_data import ProblemDataView, ProblemSubmissionDiff, \
 from judge.views.register import ActivationView, RegistrationView
 from judge.views.select2 import AssigneeSelect2View, CommentSelect2View, ContestSelect2View, \
     ContestUserSearchSelect2View, OrganizationSelect2View, ProblemSelect2View, TicketUserSelect2View, \
-    UserSearchSelect2View, UserSelect2View, MathProblemSelect2View
+    UserSearchSelect2View, UserSelect2View, MathProblemSelect2View, UserSearchSematicView
 from judge.views.widgets import martor_image_uploader
 
 from emath.admin import emath_admin_site # name = emath_admin
@@ -111,6 +111,7 @@ urlpatterns = [
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^accounts/', include(register_patterns)),
     url(r'^', include('social_django.urls')),
+    url(r'^chat/', include('chat.urls')),
 
     url(r'^problems/$', problem.ProblemList.as_view(), name='problem_list'),
     url(r'^problems/random/$', problem.RandomProblem.as_view(), name='problem_random'),
@@ -202,6 +203,7 @@ urlpatterns = [
     ])),
 
     url(r'^contests/', paged_list_view(contests.ContestList, 'contest_list')),
+    url(r'^contests/create', contests.ContestAdd.as_view(), name='contest_add'),
     url(r'^contests/(?P<year>\d+)/(?P<month>\d+)/$', contests.ContestCalendar.as_view(), name='contest_calendar'),
     url(r'^contests/tag/(?P<name>[a-z-]+)', include([
         url(r'^$', contests.ContestTagDetail.as_view(), name='contest_tag'),
@@ -305,6 +307,7 @@ urlpatterns = [
 
         url(r'^template$', problem.LanguageTemplateAjax.as_view(), name='language_template_ajax'),
 
+        url(r'^user_search2.json$', UserSearchSematicView.as_view(), name='user_search_semantic_ajax'),
         url(r'^select2/', include([
             url(r'^user_search$', UserSearchSelect2View.as_view(), name='user_search_select2_ajax'),
             url(r'^contest_users/(?P<contest>\w+)$', ContestUserSearchSelect2View.as_view(),
