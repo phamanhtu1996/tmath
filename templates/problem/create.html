@@ -191,6 +191,19 @@ fieldset {
                         <fieldset class="column">
                             <legend class="ui header">{{ _('Description') }}</legend>
                             <div class="equal width fields">
+                                <div class="field">
+                                    <div class="ui checkbox">
+                                        {{ form.is_full_markup }}
+                                        <label for="{{ form.is_full_markup.id_for_label }}">{{ form.is_full_markup.label }}</label>
+                                    </div>
+                                    {% if form.is_full_markup.help_text %}
+                                    <div class="help" style="margin-left: 0px; margin-top: 5px;">
+                                        {{ form.is_full_markup.help_text }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="equal width fields">
                                 <div class="required field">
                                     {{ form.description.label_tag() }}
                                     {{ form.description }}
