@@ -1,6 +1,6 @@
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import DetailView
+from django.views.generic import TemplateView
 
 from judge.jinja2.gravatar import gravatar
 from judge.models.profile import Profile
@@ -32,13 +32,14 @@ def make_message(request):
   return JsonResponse(data)
 
 
-class NewMessageAjax(LoginRequiredMixin, DetailView):
+class NewMessageAjax(LoginRequiredMixin, TemplateView):
   template_name = "organization/message-row.html"
 
   def get_context_data(self, **kwargs):
     context = super().get_context_data(**kwargs)
-    context['msg'] = self.msg
+    context['message'] = self.msg
     context['user'] = self.msg.user.user.user
+    return context
 
   def get(self, request, *args, **kwargs):
     if 'id' not in request.GET or not request.GET['id'].isdigit():
@@ -48,5 +49,5 @@ class NewMessageAjax(LoginRequiredMixin, DetailView):
     org_id = request.GET['org']
     organization = Organization.objects.get(pk=org_id)
     id = request.GET['id']
-    self.msg = ChatMessage.objects.filter(room=organization.chat_room.all().first(), pk_gt=id).first()
+    self.msg = ChatMessage.objects.filter(room=organization.chat_room.all().first(), pk__gt=id).first()
     return super().get(request, *args, **kwargs)
