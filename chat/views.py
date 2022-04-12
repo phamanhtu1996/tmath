@@ -34,6 +34,7 @@ def make_message(request):
 
 class NewMessageAjax(LoginRequiredMixin, DetailView):
   template_name = "organization/message-row.html"
+  model = ChatMessage
   slug_field = 'id'
   slug_url_kwarg = 'id'
 
