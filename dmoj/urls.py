@@ -305,7 +305,7 @@ urlpatterns = [
         url(r'^submission_testcases$', submission.SubmissionTestCaseQuery.as_view(), name='submission_testcases_query'),
         url(r'^detect_timezone$', widgets.DetectTimezone.as_view(), name='detect_timezone'),
         url(r'^status-table$', status.status_table, name='status_table'),
-        url(r'^message_query$', NewMessageAjax.as_view(), name="new_messages"),
+        url(r'^message_query/(?P<id>\d+)$', NewMessageAjax.as_view(), name="new_messages"),
         url(r'^template$', problem.LanguageTemplateAjax.as_view(), name='language_template_ajax'),
 
         # url(r'^user_search2.json$', UserSearchSematicView.as_view(), name='user_search_semantic_ajax'),

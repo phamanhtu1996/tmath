@@ -15,27 +15,6 @@
         });
         
     {% if request.user.is_authenticated and request.profile in organization %}
-        function make_message(data) {
-            const user = data.user
-            const msg = data.msg
-            const publish = moment(data.publish).format('MMMM Do YYYY, h:mm a')
-            const avatar = data.avatar
-            const css_class = data.class
-            const name = data.name
-
-            var description = document.getElementById('messages')
-            const message = document.getElementById('empty_comment').cloneNode(true)
-            message.classList.remove('hidden')
-            message.innerHTML = message.innerHTML.replace(/__user_page__/g, {{ url('user_page') + '/' }} + user)
-            message.innerHTML = message.innerHTML.replace(/__css_class__/g, css_class)
-            message.innerHTML = message.innerHTML.replace(/__name__/g, name)
-            message.innerHTML = message.innerHTML.replace(/__msg__/g, msg)
-            message.innerHTML = message.innerHTML.replace(/__publish_on__/g, publish)
-            message.getElementsByTagName('img')[0].src = avatar
-            description.append(message)
-            const messages = document.getElementById('description');
-            messages.scrollTop = messages.scrollHeight;
-        }
         function send_message() {
             const data = {
                 user                : window.user.id,
@@ -57,7 +36,7 @@
         $(function () {
             var blocked = false, request = false;
 
-            function update() {
+            function update(index) {
                 if (blocked) {
                     request = true;
                     return;
@@ -65,11 +44,7 @@
                 request = false;
                 blocked = true;
                 $.ajax({
-                    url: '{{ url('new_messages') }}',
-                    data: {
-                        id: '{{ msg[0].id }}',
-                        org: '{{ organization.id }}'
-                    }
+                    url: '/widgets/message_query/' + index,
                 }).done(function (data) {
                     $('#messages').append(data)
                     setTimeout(function () {
@@ -78,11 +53,11 @@
                             update();
                     }, 500);
                 }).fail(function (data) {
-                    console.log('Failed to update testcases!');
+                    console.log('Failed to update messages!');
                 });
             }
             event_dispatcher.on('messages_{{ organization.room.id }}', function (message) {
-                update()
+                update(message.id)
             })
         });
         {% endif %}
