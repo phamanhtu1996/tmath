@@ -46,7 +46,10 @@
                 $.ajax({
                     url: '/widgets/message_query/' + index,
                 }).done(function (data) {
+                    console.log(data)
                     $('#messages').append(data)
+                    const messages = document.getElementById('description');
+                    messages.scrollTop = messages.scrollHeight;
                     setTimeout(function () {
                         blocked = false;
                         if (request)
