@@ -1,4 +1,6 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import DetailView
 
 from judge.jinja2.gravatar import gravatar
 from judge.models.profile import Profile
@@ -20,22 +22,31 @@ def make_message(request):
       response = JsonResponse({'error': 'You not in this organization'})
       response.status_code = 403 
       return response
-    room = organization.chat_room.all().first()
+    room = organization.room
     user = ChatParticipation.objects.filter(user__user__pk=user_id, room=room).first()
     message = ChatMessage(room=user.room, msg=msg, user=user)
     message.save()
-    # event.post('message', { 
-    #                         'org': org_id,
-    #                         'user': user_id, 
-    #                         'msg': msg,
-    #                         'time': message.publish_on
-    #                       })
-  
-  return JsonResponse({
-    'user': user.user.user.username,
-    'msg': msg,
-    'publish': message.publish_on,
-    'avatar': gravatar(user.user, 200),
-    'class': user.user.css_class,
-    'name': user.user.name if user.user.name is user.user.name else user.user.user.username
-  })
+    data = {'org': org_id,}
+    if event.real:
+      event.post('messages_%s' % room.id,  data)
+  return JsonResponse(data)
+
+
+class NewMessageAjax(LoginRequiredMixin, DetailView):
+  template_name = "organization/message-row.html"
+
+  def get_context_data(self, **kwargs):
+    context = super().get_context_data(**kwargs)
+    context['msg'] = self.msg
+    context['user'] = self.msg.user.user.user
+
+  def get(self, request, *args, **kwargs):
+    if 'id' not in request.GET or not request.GET['id'].isdigit():
+      return HttpResponseBadRequest()
+    if 'org' not in request.GET or not request.GET['org'].isdigit():
+      return HttpResponseBadRequest()
+    org_id = request.GET['org']
+    organization = Organization.objects.get(pk=org_id)
+    id = request.GET['id']
+    self.msg = ChatMessage.objects.filter(room=organization.chat_room.all().first(), pk_gt=id).first()
+    return super().get(request, *args, **kwargs)

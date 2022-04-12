@@ -15,6 +15,27 @@
         });
         
     {% if request.user.is_authenticated and request.profile in organization %}
+        function make_message(data) {
+            const user = data.user
+            const msg = data.msg
+            const publish = moment(data.publish).format('MMMM Do YYYY, h:mm a')
+            const avatar = data.avatar
+            const css_class = data.class
+            const name = data.name
+
+            var description = document.getElementById('messages')
+            const message = document.getElementById('empty_comment').cloneNode(true)
+            message.classList.remove('hidden')
+            message.innerHTML = message.innerHTML.replace(/__user_page__/g, {{ url('user_page') + '/' }} + user)
+            message.innerHTML = message.innerHTML.replace(/__css_class__/g, css_class)
+            message.innerHTML = message.innerHTML.replace(/__name__/g, name)
+            message.innerHTML = message.innerHTML.replace(/__msg__/g, msg)
+            message.innerHTML = message.innerHTML.replace(/__publish_on__/g, publish)
+            message.getElementsByTagName('img')[0].src = avatar
+            description.append(message)
+            const messages = document.getElementById('description');
+            messages.scrollTop = messages.scrollHeight;
+        }
         function send_message() {
             const data = {
                 user                : window.user.id,
@@ -29,42 +50,45 @@
                 data    : data,
                 success : function(response) {
                     $('#message').val('')
-                    const user = response.user
-                    const msg = response.msg
-                    const publish = moment(response.publish).format('MMMM Do YYYY, h:mm a')
-                    const avatar = response.avatar
-                    const css_class = response.class
-                    const name = response.name
-
-                    var description = document.getElementById('messages')
-                    const message = document.getElementById('empty_comment').cloneNode(true)
-                    message.classList.remove('hidden')
-                    message.innerHTML = message.innerHTML.replace(/__user_page__/g, {{ url('user_page') + '/' }} + user)
-                    message.innerHTML = message.innerHTML.replace(/__css_class__/g, css_class)
-                    message.innerHTML = message.innerHTML.replace(/__name__/g, name)
-                    message.innerHTML = message.innerHTML.replace(/__msg__/g, msg)
-                    message.innerHTML = message.innerHTML.replace(/__publish_on__/g, publish)
-                    message.getElementsByTagName('img')[0].src = avatar
-                    description.append(message)
-                    const messages = document.getElementById('description');
-                    messages.scrollTop = messages.scrollHeight;
                 }
             })
         }
-        function load_dynamic_update() {
-            event_dispatcher.on('message', function(message) {
-                console.log(message)
-            })
-        }
-    {% endif %}
-    </script>
-    {% if EVENT_LAST_MSG %}
-    <script type="text/javascript">
+        {% if EVENT_LAST_MSG %}
         $(function () {
-            load_dynamic_update();
+            var blocked = false, request = false;
+
+            function update() {
+                if (blocked) {
+                    request = true;
+                    return;
+                }
+                request = false;
+                blocked = true;
+                $.ajax({
+                    url: '{{ url('new_messages') }}',
+                    data: {
+                        id: '{{ msg[0].id }}',
+                        org: '{{ organization.id }}'
+                    }
+                }).done(function (data) {
+                    console.log(data)
+                    setTimeout(function () {
+                        blocked = false;
+                        if (request)
+                            update();
+                    }, 500);
+                }).fail(function (data) {
+                    console.log('Failed to update testcases!');
+                });
+            }
+            event_dispatcher.on('messages_{{ organization.room.id }}', function (message) {
+                console.log(1)
+                update()
+            })
         });
-    </script>
+        {% endif %}
     {% endif %}
+    </script>
 {% endblock %}
 
 {% block content_media %}
@@ -139,6 +163,9 @@
     <div class="ui bottom attached segments">
         <div class="ui segment" id="description" style="overflow-x: auto; max-height: 50em;">
             <div class="ui comments" style="max-width: unset" id="messages">
+                <div class="ws-closed">
+                    <a href="javascript:void(0)">{{ _('You were disconnected. Refresh to show latest updates.') }}</a>
+                </div>
                 <div class="comment hidden" id="empty_comment">
                     <a href="__user_page__" class="avatar"><img></a>
                     <div class="content">
