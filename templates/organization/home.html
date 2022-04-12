@@ -71,7 +71,7 @@
                         org: '{{ organization.id }}'
                     }
                 }).done(function (data) {
-                    console.log(data)
+                    $('#messages').append(data)
                     setTimeout(function () {
                         blocked = false;
                         if (request)
@@ -82,7 +82,6 @@
                 });
             }
             event_dispatcher.on('messages_{{ organization.room.id }}', function (message) {
-                console.log(1)
                 update()
             })
         });
@@ -163,26 +162,6 @@
     <div class="ui bottom attached segments">
         <div class="ui segment" id="description" style="overflow-x: auto; max-height: 50em;">
             <div class="ui comments" style="max-width: unset" id="messages">
-                <div class="ws-closed">
-                    <a href="javascript:void(0)">{{ _('You were disconnected. Refresh to show latest updates.') }}</a>
-                </div>
-                <div class="comment hidden" id="empty_comment">
-                    <a href="__user_page__" class="avatar"><img></a>
-                    <div class="content">
-                        <a href="__user_page__" class="author">
-                            <span class="__css_class__">
-                                __name__
-                            </span>
-                        </a>
-                        <div class="metadata">
-                            __publish_on__
-                        </div>
-                        <div class="text">
-                            __msg__
-                        </div>
-                        <div class="action"></div>
-                    </div>
-                </div>
             {% for message in msg|reverse %}
                 <div class="comment">
                     <a href="{{ url('user_page', message.user.user.user.username) }}" class="avatar">
