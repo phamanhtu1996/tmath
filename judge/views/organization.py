@@ -72,7 +72,18 @@ class OrganizationList(TitleMixin, ListView):
     title = gettext_lazy('Organizations')
 
     def get_queryset(self):
-        return super(OrganizationList, self).get_queryset().annotate(member_count=Count('member'))
+        return super(OrganizationList, self).get_queryset().exclude(member=self.request.profile).annotate(member_count=Count('member'))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_org = []
+        user = self.request.user
+        if user.is_authenticated:
+            profile = self.request.profile
+            for org in Organization.objects.annotate(member_count=Count('member')).filter(member=profile):
+                my_org.append(org)
+            context['my_org'] = my_org
+        return context
 
 
 class OrganizationHome(OrganizationDetailView):
@@ -131,8 +142,6 @@ class JoinOrganization(OrganizationMembershipChange):
 
         profile.organizations.add(org)
         profile.save()
-        room = org.chat_room.all().first()
-        ChatParticipation.objects.get_or_create(user=profile, room=room)
         cache.delete(make_template_fragment_key('org_member_count', (org.id,)))
 
 

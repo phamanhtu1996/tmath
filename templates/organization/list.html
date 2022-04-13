@@ -17,6 +17,37 @@
 {% endblock %}
 
 {% block body %}
+<div class="ui one column grid">
+  <div class="column">
+    <div class="ui basic segment">
+      <h3 class="ui dividing header">
+        {{ _('My organizations') }}
+      </h3>
+      <table class="ui unstackable selectable celled table">
+        <thead>
+          <tr>
+            <th class="center aligned fourteen wide" id="name">{{ _('Name') }}</th>
+            <th class="center aligned two wide">{{ _('Members') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for org in my_org %}
+          <tr>
+            <td><a href="{{ org.get_absolute_url() }}">{{ org.name }}</a></td>
+            <td class="center aligned">
+              <a href="{{ org.get_users_url() }}">{{ org.member_count }}</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="column">
+    <div class="ui basic segment">
+    <h3 class="ui dividing header">
+      {{ _('All organizations') }}
+    </h3>
     <table id="organization-table" class="ui unstackable selectable celled table">
         <thead>
           <tr>
@@ -27,7 +58,7 @@
         <tbody>
           {% for org in organizations %}
           <tr>
-            <td class="center aligned"><a href="{{ org.get_absolute_url() }}">{{ org.name }}</a></td>
+            <td><a href="{{ org.get_absolute_url() }}">{{ org.name }}</a></td>
             <td class="center aligned">
               <a href="{{ org.get_users_url() }}">{{ org.member_count }}</a>
             </td>
@@ -35,4 +66,7 @@
           {% endfor %}
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
 {% endblock %}

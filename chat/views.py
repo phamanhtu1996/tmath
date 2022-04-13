@@ -23,7 +23,8 @@ def make_message(request):
       response.status_code = 403 
       return response
     room = organization.room
-    user = ChatParticipation.objects.filter(user__user__pk=user_id, room=room).first()
+    user = ChatParticipation.objects.get_or_create(user=profile, room=room)[0]
+    user.save()
     message = ChatMessage(room=user.room, msg=msg, user=user)
     message.save()
     data = {'id': message.id,}
