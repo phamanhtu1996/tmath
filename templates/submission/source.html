@@ -17,15 +17,22 @@
         a:active .line .highlighter {
             background: rgba(255, 212, 0, 0.48);
         }
+        .source-wrap {
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -o-user-select: none;
+            user-select: none;
+        }
     </style>
 {% endblock %}
 
 {% block body %}
     <br>
     <div><a href="{{ url('submission_status', submission.id) }}">{{ _('View status') }}</a></div>
+    {% if request.user.is_superuser or request.user.is_staff %}
     <div><a href="{{ url('submission_source_raw', submission.id) }}">{{ _('View raw source') }}</a></div>
-    {% if request.user == submission.user.user or perms.judge.resubmit_other %}
-        <div><a href="{{ url('problem_submit', submission.problem.code, submission.id) }}">{{ _('Resubmit') }}</a></div>
     {% endif %}
     {% if perms.judge.rejudge_submission and not submission.is_locked %}
         <div>
