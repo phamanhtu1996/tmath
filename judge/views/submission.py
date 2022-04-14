@@ -174,6 +174,8 @@ class SubmissionTestCaseQuery(SubmissionStatus):
 
 class SubmissionSourceRaw(SubmissionSource):
     def get(self, request, *args, **kwargs):
+        if not (self.request.user.is_authenticated and (self.request.user.is_superuser or self.request.user.is_staff)):
+            return Http404()
         submission = self.get_object()
         return HttpResponse(submission.source.source, content_type='text/plain')
 
@@ -257,8 +259,9 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
                                            Q(contest_object__isnull=True))
 
         if self.selected_languages:
-            queryset = queryset.filter(language__in=Language.objects.filter(key__in=self.selected_languages))
-        if self.selected_statuses:
+            languages = Language.objects.filter(key__in=self.selected_languages)
+            queryset = queryset.filter(language__in=languages)
+        if self.selected_statuses and len(self.selected_statuses) > 0:
             queryset = queryset.filter(result__in=self.selected_statuses)
 
         return queryset
@@ -312,10 +315,14 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         check = self.access_check(request)
         if check is not None:
             return check
-
-        self.selected_languages = set(request.GET.getlist('language'))
-        self.selected_statuses = set(request.GET.getlist('status'))
-
+        if 'language' in request.GET and request.GET.get('language'):
+            self.selected_languages = set(list(map(str, request.GET.get('language').split(','))))
+        else:
+            self.selected_languages = None
+        if 'status' in request.GET and request.GET.get('status'):
+            self.selected_statuses = set(list(map(str, request.GET.get('status').split(','))))
+        else:
+            self.selected_statuses = None
         if 'results' in request.GET:
             return JsonResponse(self.get_result_data())
 
