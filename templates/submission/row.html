@@ -1,7 +1,7 @@
 {% set can_view, can_edit = submission_layout(submission, profile_id, request.user, completed_problem_ids, editable_problem_ids, tester_problem_ids) %}
 <div class="left floated two wide computer four wide tablet column">
     <div class="ui padded grid">
-        <div class="two column centered row " style="padding: 0;">
+        <div class="two column centered row " style="padding: 0; font-size: 0.9em">
             <div class="thirteen wide column aligned center {{ submission.result_class }}" style="padding-top: 1.2em; border-radius: 15px 15px 0 0">
                 {%- if submission.is_graded -%}
                 <div class="ui tiny header">
@@ -60,8 +60,8 @@
                     </div>
                     {% endif %}
                 </div>
+                {% if can_view %}
                 <div class="row" style="padding: 0">
-                    {% if can_view %}
                     <div class="ui secondary mini compact menu" id="manage-mobile">
                         <a class="item" href="{{ url('submission_status', submission.id) }}">
                             <i class="eye icon"></i>
@@ -84,8 +84,8 @@
                         {% endif %}
                     </div>
                 </div>
+                {% endif %}
             </div>
-        {% endif %}
         </div>
         {% if submission.status == 'G' %}
         <div class="column">
