@@ -111,41 +111,39 @@
                 </div>
             </div>
             <div class="ui bottom attached segment">
-                <div class="ui raised segments">
-                    {% for post in posts %}
-                        <div class="ui segment">
-                            <h2 class="ui header">
-                                <a href="{{ url('blog_post', post.id, post.slug) }}">{{ post.title }}</a>
-                                <div class="sub header">
-                                    {%- if post.sticky %}<i class="star icon"></i>{% endif -%}
-                                    {% with authors=post.authors.all() %}
-                                    {%- if authors -%}
-                                    <span>{{ link_users(authors) }}</span>
-                                    {%- endif -%}
-                                    {% endwith %}
-                                    {{ relative_time(post.publish_on, abs=_('posted on {time}'), rel=_('posted {time}')) -}}
-                                    <span class="comment-data">
-                                        <a href="{{ url('blog_post', post.id, post.slug) }}#comments" class="comment-count-link">
-                                            <i class="comments icon"></i>
-                                            <span class="comment-count">
-                                                {{- post_comment_counts[post.id] or 0 -}}
-                                            </span>
-                                        </a>
-                                    </span>
-                                </div>
-                            </h2>
-                            <div class="summary content-description">
-                                {% cache 86400 'post_summary' post.id %}
-                                    {{ post.summary|default(post.content, true)|markdown('blog', 'svg', lazy_load=True)|reference|str|safe }}
-                                {% endcache %}
+                {% for post in posts %}
+                    <div class="ui blue segment">
+                        <h2 class="ui header">
+                            <a href="{{ url('blog_post', post.id, post.slug) }}">{{ post.title }}</a>
+                            <div class="sub header">
+                                {%- if post.sticky %}<i class="star icon"></i>{% endif -%}
+                                {% with authors=post.authors.all() %}
+                                {%- if authors -%}
+                                <span>{{ link_users(authors) }}</span>
+                                {%- endif -%}
+                                {% endwith %}
+                                {{ relative_time(post.publish_on, abs=_('posted on {time}'), rel=_('posted {time}')) -}}
+                                <span class="comment-data">
+                                    <a href="{{ url('blog_post', post.id, post.slug) }}#comments" class="comment-count-link">
+                                        <i class="comments icon"></i>
+                                        <span class="comment-count">
+                                            {{- post_comment_counts[post.id] or 0 -}}
+                                        </span>
+                                    </a>
+                                </span>
                             </div>
+                        </h2>
+                        <div class="summary content-description">
+                            {% cache 86400 'post_summary' post.id %}
+                                {{ post.summary|default(post.content, true)|markdown('blog', 'svg', lazy_load=True)|reference|str|safe }}
+                            {% endcache %}
                         </div>
-                    {% endfor %}
-                </div>
-                {% if page_obj.has_other_pages() %}
-                    <div class="bottom-pagination-bar">{% include "list-pages.html" %}</div>
-                {% endif %}
+                    </div>
+                {% endfor %}
             </div>
+            {% if page_obj.has_other_pages() %}
+                <div class="bottom-pagination-bar">{% include "list-pages.html" %}</div>
+            {% endif %}
         </div>
 
         <div id="blog-sidebar" class=" ui four wide computer sixteen wide tablet column">

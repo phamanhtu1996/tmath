@@ -1,4 +1,4 @@
-<div class="ui pagination tiny pointing black inverted menu">
+<div class="ui pagination tiny black inverted menu">
     {% if page_obj.has_previous() %}
         {% if page_obj.previous_page_number() == 1 and first_page_href != None %}
             <a class="item" href="{{ first_page_href }}">
@@ -21,7 +21,7 @@
                 <i class="ellipsis horizontal icon"></i>
             </a>
         {% else %}
-            <a{% if page == page_obj.number %} class="active item" {% else %} class="item" {% endif %} href="
+            <a{% if page == page_obj.number %} class="active blue item" {% else %} class="item" {% endif %} href="
                 {%- if page == 1 and first_page_href != None -%}
                     {{ first_page_href }}
                 {%- else -%}
