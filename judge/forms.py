@@ -51,6 +51,9 @@ class ProfileForm(ModelForm):
     if newsletter_id is not None:
         newsletter = forms.BooleanField(label=_('Subscribe to contest updates'), initial=False, required=False)
     test_site = forms.BooleanField(label=_('Enable experimental features'), initial=False, required=False)
+    name = forms.RegexField(regex=r'^(?!\s*$).+', label=_('Fullname'), max_length=50, required=True, 
+                            widget=forms.TextInput(attrs={'style': 'width:200px'}),
+                            error_messages={'invalid': _("Don't use empty string")})
 
     class Meta:
         model = Profile
@@ -60,7 +63,7 @@ class ProfileForm(ModelForm):
             'timezone': Select2Widget(attrs={'style': 'width:200px'}),
             'language': Select2Widget(attrs={'style': 'width:200px'}),
             'ace_theme': Select2Widget(attrs={'style': 'width:200px'}),
-            'name': forms.TextInput(attrs={'style': 'width:200px'}),
+            # 'name': forms.TextInput(attrs={'style': 'width:200px'}),
             'last_change_name': forms.DateTimeInput(attrs={'style': 'width:200px'}),
         }
 

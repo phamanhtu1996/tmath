@@ -272,11 +272,28 @@ You will not be able to view your scratch codes after you leave this page!') }}"
     <div class="centered-form">
         <form id="edit-form" action="" method="post" class="form-area">
             {% if form.errors %}
-                <div class="alert alert-danger alert-dismissable">
-                    <a href="#" class="close">x</a>
-                    {{ form.non_field_errors() }}
-                    {{ form.about.errors }}
+            {% if form.name.errors %}
+            <div class="ui negative message">
+                <i class="close icon"></i>
+                <div class="header">
+                    Fullname errors
                 </div>
+                {% for error in form.name.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if form.about.errors %}
+            <div class="ui negative message">
+                <i class="close icon"></i>
+                <div class="header">
+                    Description errors
+                </div>
+                {% for error in form.about.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
             {% endif %}
 
             {% csrf_token %}
@@ -449,4 +466,13 @@ You will not be able to view your scratch codes after you leave this page!') }}"
             <input type="submit" class="submit-bar" value="{{ _('Update profile') }}">
         </form>
     </div>
+    <script>
+        $('.message .close').on('click', function() {
+            $(this)
+            .closest('.message')
+            .transition('fade')
+            ;
+        })
+        ;
+    </script>
 {% endblock %}

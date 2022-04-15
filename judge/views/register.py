@@ -32,7 +32,7 @@ class CustomRegistrationForm(RegistrationForm):
     organizations = SortedMultipleChoiceField(queryset=Organization.objects.filter(is_open=True),
                                               label=_('Organizations'), required=False,
                                               widget=Select2MultipleWidget(attrs={'style': 'width:100%'}))
-    name = forms.CharField(max_length=50, required=True, label=_('Fullname'))
+    name = forms.RegexField(regex=r'^(?!\s*$).+', max_length=50, required=True, label=_('Fullname'))
     emath = forms.BooleanField(required=False, label=_('Emath'))
 
     if newsletter_id is not None:
