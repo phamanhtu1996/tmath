@@ -308,73 +308,71 @@
         <div class="top-pagination-bar">{% include "list-pages.html" %}</div>
     {% endif %}
 
-    <div id="common-content">
-        <div id="content-right" class="submission">
-            <div class="info-float">
-                <div class="sidebox">
-                    <div class="ui top attached secondary black inverted menu">
-                        <h3 class="ui item header">{{ _('Filter submissions') }}</h3>
-                        <div class="right menu">
-                            <div class="icon item">
-                                <i class="search icon"></i>
-                            </div>
+    <div class="ui computer reversed grid">
+        <div class="ui four wide computer only column">
+            <div class="sidebox">
+                <div class="ui top attached secondary black inverted menu">
+                    <h3 class="ui item header">{{ _('Filter submissions') }}</h3>
+                    <div class="right menu">
+                        <div class="icon item">
+                            <i class="search icon"></i>
                         </div>
-                    </div>
-                    <div class="ui bottom attached segment">
-                        <form name="form" class="ui form" action="" method="get">
-                            <div class="field">
-                                <label for="status">{{ _('Status') }}</label>
-                                <div class="ui fluid multiple search normal selection dropdown">
-                                    <input type="hidden" name="status" {% if selected_statuses %}value="{{ selected_statuses|join(',') }}"{% endif %}>
-                                    <div class="default text">{{ _('Filter by status...')}}</div>
-                                    <div class="menu">
-                                        {% for id, name in all_statuses %}
-                                            <div class="item" data-value="{{ id }}">{{ name }}</div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label for="language">{{ _('Language') }}</label>
-                                <div class="ui fluid multiple search normal selection dropdown">
-                                    <input type="hidden" name="language" {% if selected_languages %}value="{{ selected_languages|join(',') }}"{% endif %}>
-                                    <div class="default text">{{ _('Filter by language...') }}</div>
-                                    <div class="menu">
-                                        {% for code, name in all_languages %}
-                                            <div class="item" data-value="{{ code }}">{{ name }}</div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field">
-                                <button class="ui fluid primary button">{{ _('Go') }}</button>
-                            </div>
-                        </form>
                     </div>
                 </div>
+                <div class="ui bottom attached segment">
+                    <form name="form" class="ui form" action="" method="get">
+                        <div class="field">
+                            <label for="status">{{ _('Status') }}</label>
+                            <div class="ui fluid multiple search normal selection dropdown">
+                                <input type="hidden" name="status" {% if selected_statuses %}value="{{ selected_statuses|join(',') }}"{% endif %}>
+                                <div class="default text">{{ _('Filter by status...')}}</div>
+                                <div class="menu">
+                                    {% for id, name in all_statuses %}
+                                        <div class="item" data-value="{{ id }}">{{ name }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="language">{{ _('Language') }}</label>
+                            <div class="ui fluid multiple search normal selection dropdown">
+                                <input type="hidden" name="language" {% if selected_languages %}value="{{ selected_languages|join(',') }}"{% endif %}>
+                                <div class="default text">{{ _('Filter by language...') }}</div>
+                                <div class="menu">
+                                    {% for code, name in all_languages %}
+                                        <div class="item" data-value="{{ code }}">{{ name }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <button class="ui fluid primary button">{{ _('Go') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-                <div class="sidebox">
-                    <div class="ui top attached secondary black inverted menu">
-                        <h3 class="ui item header">{{ _('Statistics') }} </h3>
-                        <div class="right menu">
-                            <icon class="item">
-                                <i class="pie chart icon"></i>
-                            </icon>
-                        </div>
+            <div class="sidebox">
+                <div class="ui top attached secondary black inverted menu">
+                    <h3 class="ui item header">{{ _('Statistics') }} </h3>
+                    <div class="right menu">
+                        <icon class="item">
+                            <i class="pie chart icon"></i>
+                        </icon>
                     </div>
-                    <div class="ui bottom attached segment">
-                        <div id="status-graph">
-                            <canvas width="230" height="170"></canvas>
-                        </div>
-                        <div class="total">
-                            {{ _('Total:') }} <span id="total-submission-count"></span>
-                        </div>
+                </div>
+                <div class="ui bottom attached segment">
+                    <div id="status-graph">
+                        <canvas width="230" height="170"></canvas>
+                    </div>
+                    <div class="total">
+                        {{ _('Total:') }} <span id="total-submission-count"></span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="content-left" class="submission">
+        <div class="ui twelve wide computer sixteen wide tablet column">
             <div class="ws-closed">
                 <a href="javascript:void(0)">{{ _('You were disconnected. Refresh to show latest updates.') }}</a>
             </div>

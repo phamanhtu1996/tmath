@@ -1,32 +1,30 @@
 {% set can_view, can_edit = submission_layout(submission, profile_id, request.user, completed_problem_ids, editable_problem_ids, tester_problem_ids) %}
-<div class="left floated two wide computer four wide tablet column">
-    <div class="ui padded grid">
-        <div class="two column centered row " style="padding: 0; font-size: 0.9em">
-            <div class="thirteen wide column aligned center {{ submission.result_class }}" style="padding-top: 1.2em; border-radius: 15px 15px 0 0">
+<div class="left floated two wide computer three wide tablet four wide mobile column" style="padding-top: 0; padding-bottom: 0">
+    <div class="ui middle aligned two column centered grid" style="height: 100%; margin: 0">
+        <div class="row" style="font-size: 1em">
+            <div class="eleven wide computer eight wide tablet eight wide mobile column aligned center {{ submission.result_class }}" style="padding: 1.4em 0; border-radius: 15px">
+                <h5 class="ui header">
                 {%- if submission.is_graded -%}
-                <div class="ui tiny header">
                     {%- if submission.status in ('IE', 'CE', 'AB') -%}
                         ---
                     {%- else -%}
                         {{ submission.case_points|floatformat(0) }} / {{ submission.case_total|floatformat(0) }}
                     {%- endif -%}
-                </div>
-                {%- else -%}
-                    <i class="fa fa-spinner fa-pulse"></i>
-                {%- endif -%}
-            </div>
-        </div>
-        <div class="two column centered row"  style="padding: 0; font-size: 0.7em">
-            <div class="thirteen wide column aligned center {{ submission.result_class }}"  style="padding-bottom: 1.2em; border-radius: 0 0 15px 15px">
-                <span title="{{ submission.long_status }}" class="status">{{ submission.short_status }}</span> |
-                <span class="language">{{ submission.language.short_display_name }}</span>
+                    {%- else -%}
+                    <div class="ui active inline fast loader"></div>
+                    {%- endif -%}
+                    <div class="sub mini header" style="font-size: 0.7em">
+                        <span title="{{ submission.long_status }}" class="status">{{ submission.short_status }}</span> |
+                        <span class="language">{{ submission.language.short_display_name }}</span>
+                    </div>
+                </h5>
             </div>
         </div>
     </div>
 </div>
 
-<div class="twelve wide computer nine wide tablet eight wide mobile column" id="submission-info">
-    <div class="ui equal width doubling grid" style="margin: auto 0">
+<div class="twelve wide computer ten wide tablet eight wide mobile column" style="padding-top: 0; padding-bottom: 0">
+    <div class="ui equal width middle aligned grid" style="margin: auto 0; padding: 1em 0">
         <div class="column">
             <div class="ui padded grid">
                 <div class="row" style="padding: 0">
@@ -137,24 +135,30 @@
     </div>
 </div>
 
-<div class="right floated two wide computer three wide tablet four wide mobile column">
-    <div class="ui center aligned segment">
-        {% if submission.status in ('QU', 'P', 'G', 'CE', 'IE', 'AB') %}
-            <div class="ui tiny header" style="margin: auto 0;">
-                ---
-                <div class="sub header">---</div>
+<div class="right floated two wide computer three wide tablet column" style="padding-top: 0; padding-bottom: 0">
+    <div class="ui grid" style="margin-top: 0; padding: auto 0; height: 100%">
+        <div class="middle aligned row">
+            <div class="column">
+                <div class="ui center aligned segment" style="margin: auto 0">
+                    {% if submission.status in ('QU', 'P', 'G', 'CE', 'IE', 'AB') %}
+                        <div class="ui tiny header" style="margin: auto 0;">
+                            ---
+                            <div class="sub header">---</div>
+                        </div>
+                    {% else %}
+                        {% if "TLE" != submission.result %}
+                            <div title="{{ submission.time or 0 }}s" class="ui tiny header" style="margin: auto 0;">
+                                {{ (submission.time or 0)|floatformat(2) }}s
+                        {% else %}
+                            <div class="ui tiny header"  style="margin: auto 0;">
+                                ---
+                        {% endif %}
+                        {# No one actually like IEC prefixes, Jinja2. #}
+                        <div class="sub header">{{ (submission.memory_bytes|filesizeformat(True)).replace('i', '') }}</div>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-        {% else %}
-            {% if "TLE" != submission.result %}
-                <div title="{{ submission.time or 0 }}s" class="ui tiny header" style="margin: auto 0;">
-                    {{ (submission.time or 0)|floatformat(2) }}s
-            {% else %}
-                <div class="ui tiny header"  style="margin: auto 0;">
-                    ---
-            {% endif %}
-            {# No one actually like IEC prefixes, Jinja2. #}
-            <div class="sub header">{{ (submission.memory_bytes|filesizeformat(True)).replace('i', '') }}</div>
         </div>
-        {% endif %}
     </div>
 </div>
