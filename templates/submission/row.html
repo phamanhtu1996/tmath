@@ -3,7 +3,6 @@
     <div class="ui middle aligned two column centered grid">
         <div class="row">
             <div class="nine wide computer eight wide tablet eight wide mobile column aligned center {{ submission.result_class }}" style="padding: 1.4em 0; border-radius: 15px">
-
                 <h5 class="ui header">
                 {%- if submission.is_graded -%}
                     {%- if submission.status in ('IE', 'CE', 'AB') -%}
@@ -23,7 +22,6 @@
         </div>
     </div>
 </div>
-
 <div class="twelve wide computer ten wide tablet eight wide mobile column">
     <div class="ui middle aligned padded grid">
         <div class="six wide computer seven wide tablet sixteen wide mobile column">
@@ -65,7 +63,6 @@
             {%- endif -%}
         </div>
         {% endif %}
-    
         {% if can_view %}
             <div class="right floated six wide computer five wide tablet sixteen wide mobile column">
                 <div class="ui secondary tiny compact menu" id="manage">
@@ -97,7 +94,6 @@
         {% endif %}
     </div>
 </div>
-
 <div class="right floated two wide computer three wide tablet column">
     <div class="ui middle aligned grid">
         <div class="column">

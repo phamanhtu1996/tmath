@@ -360,7 +360,7 @@
                 {% for node in mptt_tree(nav_bar) recursive %}
                 {% if not node.is_admin or request.user.is_staff or request.user.is_superuser %}
                     {% if not node.is_leaf_node() %}
-                    <div class="ui item dropdown">
+                    <div class="ui item medium header dropdown" style="font-size: 1em">
                         <a href="{{ node.path }}" style="font-weight: 700; color: rgba(255,255,255,.7);">
                             {{ _(node.label) }}
                         </a>
@@ -372,7 +372,7 @@
                         </div>
                     </div>
                     {% else %}
-                    <a href="{{ node.path }}" class="item header" style="font-weight: 700 !important;"> 
+                    <a href="{{ node.path }}" class="item {% if node.key in nav_tab %} blue active{% endif %} header" style="font-weight: 700 !important;"> 
                         {{ _(node.label) }}
                     </a>
                     {% endif %}
