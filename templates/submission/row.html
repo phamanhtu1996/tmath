@@ -31,7 +31,6 @@
                 <a href="{{ url('problem_detail', submission.problem.code) }}">{{ problem_name }}</a>
                 <div class="sub header">
                     {{ link_user(submission.user) }}
-                    <br class="xs-br">
                     <span class="time">{{ relative_time(submission.date) }}</span>
                     {% if not request.in_contest and submission.contest_object_id %}
                         <a href="{{ url('contest_view', submission.contest_object.key) }}"
@@ -71,33 +70,25 @@
                 <div class="ui secondary tiny compact menu" id="manage">
                     <a class="item" href="{{ url('submission_status', submission.id) }}">
                         <i class="eye icon"></i>
-                        <div class="content">
-                            {{ _('view') }}
-                        </div>
+                        <div class="content">{{ _('view') }}</div>
                     </a>
                     {% if perms.judge.rejudge_submission and can_edit %} 
                         {% if not submission.is_locked %}
-                        <a class="item" href="#" onclick="rejudge_submission({{ submission.id }}, event);return false">
+                        <a class="item" href="javascript:void(0)" onclick="rejudge_submission({{ submission.id }}, event);return false">
                             <i class="refresh icon"></i>
-                            <div class="content">
-                                {{ _('rejudge') }}
-                            </div>
+                            <div class="content">{{ _('rejudge') }}</div>
                         </a>
                         {% else %}
                         <div class="item">
                             <i class="refresh grey icon"></i>
-                            <div class="content">
-                                {{ _('locked') }}
-                            </div>
+                            <div class="content">{{ _('locked') }}</div>
                         </div>
                         {% endif %}
                     {% endif %}
                     {% if can_edit %}
                         <a class="item" href="{{ url('admin:judge_submission_change', submission.id) }}">
                             <i class="cog icon"></i>
-                            <div class="content">
-                                {{ _('admin') }}
-                            </div>
+                            <div class="content">{{ _('admin') }}</div>
                         </a>
                     {% endif %}
                 </div>
@@ -108,27 +99,25 @@
 
 <div class="right floated two wide computer three wide tablet column">
     <div class="ui middle aligned grid">
-        <div class="middle aligned row">
-            <div class="column">
-                <div class="ui center aligned segment">
-                    {% if submission.status in ('QU', 'P', 'G', 'CE', 'IE', 'AB') %}
-                        <div class="ui tiny header" style="margin: auto 0;">
-                            ---
-                            <div class="sub header">---</div>
-                        </div>
-                    {% else %}
-                        {% if "TLE" != submission.result %}
-                            <div title="{{ submission.time or 0 }}s" class="ui tiny header" style="margin: auto 0;">
-                                {{ (submission.time or 0)|floatformat(2) }}s
-                        {% else %}
-                            <div class="ui tiny header"  style="margin: auto 0;">
-                                ---
-                        {% endif %}
-                        {# No one actually like IEC prefixes, Jinja2. #}
-                        <div class="sub header">{{ (submission.memory_bytes|filesizeformat(True)).replace('i', '') }}</div>
+        <div class="column">
+            <div class="ui center aligned segment">
+                {% if submission.status in ('QU', 'P', 'G', 'CE', 'IE', 'AB') %}
+                    <div class="ui tiny header" style="margin: auto 0;">
+                        ---
+                        <div class="sub header">---</div>
                     </div>
+                {% else %}
+                    {% if "TLE" != submission.result %}
+                        <div title="{{ submission.time or 0 }}s" class="ui tiny header" style="margin: auto 0;">
+                            {{ (submission.time or 0)|floatformat(2) }}s
+                    {% else %}
+                        <div class="ui tiny header"  style="margin: auto 0;">
+                            ---
                     {% endif %}
+                    {# No one actually like IEC prefixes, Jinja2. #}
+                    <div class="sub header">{{ (submission.memory_bytes|filesizeformat(True)).replace('i', '') }}</div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
