@@ -48,15 +48,15 @@
             font-style: italic;
             text-align: center;
         }
+        #comment-header {
+            text-overflow: ellipsis; 
+            white-space: nowrap; 
+            overflow: hidden;
+            width: 100%;
+        }
         @media (min-width: 800px) {
             #blog-sidebar {
                 display: block !important;
-            }
-            #comment-header {
-                text-overflow: ellipsis; 
-                white-space: nowrap; 
-                overflow: hidden;
-                width: 13.5em;
             }
         }
     </style>
@@ -255,7 +255,7 @@
                         {% for comment in comments %}
                             <div class="item">
                                 <img class="ui avatar image" src="{{ gravatar(comment.author.user, 80)}}" alt="{{ comment.author.user.username }}">
-                                <div class="content">
+                                <div class="content" style="width: 80%">
                                     <a class="header" id="comment-header" href="{{ comment.link }}#comment-{{ comment.id }}" >
                                         {{ comment.page_title }}
                                     </a>
