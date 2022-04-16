@@ -432,6 +432,71 @@ class Contest(models.Model):
         verbose_name_plural = _('contests')
 
 
+class SampleContest(models.Model):
+    key = models.CharField(max_length=20, verbose_name=_('contest id'), unique=True,
+                           validators=[RegexValidator('^[a-z0-9]+$', _('Contest id must be ^[a-z0-9]+$'))])
+    name = models.CharField(max_length=100, verbose_name=_('contest name'), db_index=True)
+    description = models.TextField(verbose_name=_('description'), blank=True)
+    problems = models.ManyToManyField(Problem, verbose_name=_('problems'))
+    time_limit = models.DurationField(verbose_name=_('time limit'), blank=True, null=True)
+    is_visible = models.BooleanField(verbose_name=_('publicly visible'), default=False,
+                                     help_text=_('Should be set even for organization-private contests, where it '
+                                                 'determines whether the contest is visible to members of the '
+                                                 'specified organizations.'))
+    is_rated = models.BooleanField(verbose_name=_('contest rated'), help_text=_('Whether this contest can be rated.'),
+                                   default=False)
+    scoreboard_visibility = models.CharField(verbose_name=_('scoreboard visibility'), default=Contest.SCOREBOARD_VISIBLE,
+                                             max_length=1, help_text=_('Scoreboard visibility through the duration '
+                                                                       'of the contest'), choices=Contest.SCOREBOARD_VISIBILITY)
+    use_clarifications = models.BooleanField(verbose_name=_('no comments'),
+                                             help_text=_("Use clarification system instead of comments."),
+                                             default=True)
+    rating_floor = models.IntegerField(verbose_name=('rating floor'), help_text=_('Rating floor for contest'),
+                                       null=True, blank=True)
+    rating_ceiling = models.IntegerField(verbose_name=('rating ceiling'), help_text=_('Rating ceiling for contest'),
+                                         default=NEWBIE, choices=RATE)
+    rate_all = models.BooleanField(verbose_name=_('rate all'), help_text=_('Rate all users who joined.'), default=False)
+    hide_problem_tags = models.BooleanField(verbose_name=_('hide problem tags'),
+                                            help_text=_('Whether problem tags should be hidden by default.'),
+                                            default=False)
+    hide_problem_authors = models.BooleanField(verbose_name=_('hide problem authors'),
+                                               help_text=_('Whether problem authors should be hidden by default.'),
+                                               default=False)
+    run_pretests_only = models.BooleanField(verbose_name=_('run pretests only'),
+                                            help_text=_('Whether judges should grade pretests only, versus all '
+                                                        'testcases. Commonly set during a contest, then unset '
+                                                        'prior to rejudging user submissions when the contest ends.'),
+                                            default=False)
+    logo_override_image = models.CharField(verbose_name=_('Logo override image'), default='', max_length=150,
+                                           blank=True,
+                                           help_text=_('This image will replace the default site logo for users '
+                                                       'inside the contest.'))
+    is_full_markup = models.BooleanField(_('markup full'), default=False)
+    tags = models.ManyToManyField(ContestTag, verbose_name=_('contest tags'), blank=True, related_name='samplecontests')
+    summary = models.TextField(blank=True, verbose_name=_('contest summary'),
+                               help_text=_('Plain-text, shown in meta description tag, e.g. for social media.'))
+    access_code = models.CharField(verbose_name=_('access code'), blank=True, default='', max_length=255,
+                                   help_text=_('An optional code to prompt contestants before they are allowed '
+                                               'to join the contest. Leave it blank to disable.'))
+    format_name = models.CharField(verbose_name=_('contest format'), default='default', max_length=32,
+                                   choices=contest_format.choices(), help_text=_('The contest format module to use.'))
+    format_config = JSONField(verbose_name=_('contest format configuration'), null=True, blank=True,
+                              help_text=_('A JSON object to serve as the configuration for the chosen contest format '
+                                          'module. Leave empty to use None. Exact format depends on the contest format '
+                                          'selected.'))
+    problem_label_script = models.TextField(verbose_name='contest problem label script', blank=True,
+                                            help_text='A custom Lua function to generate problem labels. Requires a '
+                                                      'single function with an integer parameter, the zero-indexed '
+                                                      'contest problem index, and returns a string, the label.')
+    points_precision = models.IntegerField(verbose_name=_('precision points'), default=3,
+                                           validators=[MinValueValidator(0), MaxValueValidator(10)],
+                                           help_text=_('Number of digits to round points to.'))
+
+    class Meta:
+        verbose_name = _('sample contest')
+        verbose_name_plural = _('sample contests')
+
+
 class ContestParticipation(models.Model):
     LIVE = 0
     SPECTATE = -1
@@ -522,6 +587,27 @@ class ContestParticipation(models.Model):
         verbose_name_plural = _('contest participations')
 
         unique_together = ('contest', 'user', 'virtual')
+
+
+class SampleContestProblem(models.Model):
+    problem = models.ForeignKey(Problem, verbose_name=_('problem'), related_name='samplecontests', on_delete=CASCADE)
+    contest = models.ForeignKey(SampleContest, verbose_name=_('contest'), related_name='contest_problems', on_delete=CASCADE)
+    points = models.IntegerField(verbose_name=_('points'))
+    partial = models.BooleanField(default=True, verbose_name=_('partial'))
+    is_pretested = models.BooleanField(default=False, verbose_name=_('is pretested'))
+    order = models.PositiveIntegerField(db_index=True, verbose_name=_('order'))
+    output_prefix_override = models.IntegerField(verbose_name=_('output prefix length override'),
+                                                 default=0, null=True, blank=True)
+    max_submissions = models.IntegerField(help_text=_('Maximum number of submissions for this problem, '
+                                                      'or leave blank for no limit.'),
+                                          default=None, null=True, blank=True,
+                                          validators=[MinValueOrNoneValidator(1, _('Why include a problem you '
+                                                                                   'can\'t submit to?'))])
+    class Meta:
+        unique_together = ('problem', 'contest')
+        verbose_name = _('sample contest problem')
+        verbose_name_plural = _('sample contest problems')
+        ordering = ('order',)
 
 
 class ContestProblem(models.Model):

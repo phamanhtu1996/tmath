@@ -1,3 +1,4 @@
+from random import randrange
 from adminsortable2.admin import SortableInlineAdminMixin
 from django.conf.urls import url
 from django.contrib import admin
@@ -14,7 +15,9 @@ from django.utils.translation import gettext_lazy as _, ungettext
 from reversion.admin import VersionAdmin
 
 from django_ace import AceWidget
-from judge.models import Contest, ContestProblem, ContestSubmission, Profile, Rating, Submission, Organization
+from judge.models import Contest, ContestProblem, ContestSubmission, Profile, Rating, Submission, Organization, SampleContest, \
+    Problem
+from judge.models.contest import SampleContestProblem
 from judge.ratings import rate_contest
 from judge.utils.views import NoBatchDeleteMixin
 from judge.widgets import AdminHeavySelect2MultipleWidget, AdminHeavySelect2Widget, AdminMartorWidget, \
@@ -323,6 +326,100 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
             Q(user__user_permissions__codename__in=perms),
         ).distinct()
         return form
+
+
+class ProblemInlineForm(ModelForm):
+    class Meta:
+        widgets = {'problem': AdminHeavySelect2Widget(data_view='problem_select2')}
+
+
+class ProblemInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = SampleContestProblem
+    verbose_name = _('Problem')
+    verbose_name_plural = 'Problems'
+    fields = ('problem', 'points', 'partial', 'is_pretested', 'max_submissions', 'output_prefix_override', 'order',
+              'rejudge_column')
+    readonly_fields = ('rejudge_column',)
+    form = ProblemInlineForm
+
+    def rejudge_column(self, obj):
+        if obj.id is None:
+            return ''
+        return format_html('<a class="button rejudge-link" href="{}">Rejudge</a>',
+                           reverse('admin:judge_contest_rejudge', args=(obj.contest.id, obj.id)))
+    rejudge_column.short_description = ''
+
+
+class SampleContestForm(ModelForm):
+    class Meta:
+        widgets = {
+            'tags': AdminSelect2MultipleWidget,
+            'description': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('contest_preview')}),
+        }
+
+
+@admin.register(SampleContest)
+class SampleContestAdmin(VersionAdmin):
+    fieldsets = (
+        (None, {'fields': ('key', 'name', )}),
+        (_('Settings'), {'fields': ('is_visible', 'use_clarifications', 'hide_problem_tags', 'hide_problem_authors',
+                                    'run_pretests_only', 'scoreboard_visibility',
+                                    'points_precision')}),
+        (_('Scheduling'), {'fields': ('time_limit', )}),
+        (_('Details'), {'fields': ('is_full_markup', 'description', 'logo_override_image', 'tags', 'summary')}),
+        (_('Format'), {'fields': ('format_name', 'format_config', 'problem_label_script')}),
+    )
+    list_display = ('key', 'name', 'is_visible', 'time_limit', 'clone_button')
+    search_fields = ('key', 'name')
+    inlines = [ProblemInline]
+    actions_on_top = True
+    actions_on_bottom = True
+    form = SampleContestForm
+
+    def get_urls(self):
+        return [
+            url(r'^(\d+)/clone/$', self.clone, name='judge_samplecontest_clone'),
+        ] + super().get_urls()
+
+    def clone(self, request, id):
+        samplecontest = get_object_or_404(SampleContest, id=id)
+        user = request.user
+        profile = Profile.objects.filter(user=user)
+        contest = Contest.objects.create(
+            key=str(samplecontest.id) + 'clone'+ str(randrange(0, 10000000, 1)),
+            name=samplecontest.name,
+            description=samplecontest.description,
+            time_limit=samplecontest.time_limit,
+            start_time=timezone.now(),
+            end_time=timezone.now(),
+            scoreboard_visibility=samplecontest.scoreboard_visibility,
+            use_clarifications=samplecontest.use_clarifications,
+            run_pretests_only=samplecontest.run_pretests_only,
+            logo_override_image=samplecontest.logo_override_image,
+            is_full_markup=samplecontest.is_full_markup,
+            format_name=samplecontest.format_name,
+            format_config=samplecontest.format_config,
+            points_precision=samplecontest.points_precision
+        )
+        contest.authors.set(profile)
+        contest.save()
+        for problem in SampleContestProblem.objects.filter(contest=samplecontest):
+            ContestProblem.objects.create(
+                contest=contest, 
+                problem=problem.problem, 
+                points=problem.points, 
+                max_submissions=problem.max_submissions,
+                is_pretested=problem.is_pretested,
+                partial=problem.partial,
+                order=problem.order
+            )
+        
+        return HttpResponseRedirect(reverse('admin:judge_contest_change', args=(contest.id,)))
+
+
+    def clone_button(self, obj):
+        return format_html('<a class="button rejudge-link" href="{}">Clone</a>',
+                           reverse('admin:judge_samplecontest_clone', args=(obj.id,)))
 
 
 class ContestParticipationForm(ModelForm):
