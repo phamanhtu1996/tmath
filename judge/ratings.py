@@ -125,7 +125,7 @@ def rate_contest(contest):
     rating_sorted = rating_subquery.order_by('-contest__end_time')
     users = contest.users.order_by('is_disqualified', '-score', 'cumtime', 'tiebreaker') \
         .annotate(submissions=Count('submission'),
-                  last_rating=Coalesce(Subquery(rating_sorted.values('rating')[:1]), 0),
+                  last_rating=Coalesce(Subquery(rating_sorted.values('rating')[:1]), 600),
                   volatility=Coalesce(Subquery(rating_sorted.values('volatility')[:1]), 535),
                   times=Coalesce(Subquery(rating_subquery.order_by().values('user_id')
                                           .annotate(count=Count('id')).values('count')), 0)) \

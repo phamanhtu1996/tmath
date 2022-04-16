@@ -5,7 +5,7 @@
                 <i class="chevron circle left icon"></i>
             </a>
         {% else %}
-            <a href="{{ page_prefix or '' }}{{ page_obj.previous_page_number() }}{{ page_suffix or '' }}">
+            <a class="item" href="{{ page_prefix or '' }}{{ page_obj.previous_page_number() }}{{ page_suffix or '' }}">
                 <i class="chevron circle left icon"></i>
             </a>
         {% endif %}
