@@ -1,8 +1,8 @@
 {% set can_view, can_edit = submission_layout(submission, profile_id, request.user, completed_problem_ids, editable_problem_ids, tester_problem_ids) %}
-<div class="left floated two wide computer three wide tablet four wide mobile column" style="padding-top: 0; padding-bottom: 0">
-    <div class="ui middle aligned two column centered grid" style="height: 100%; margin: 0">
+<div class="left floated two wide computer three wide tablet four wide mobile column">
+    <div class="ui middle aligned two column centered grid">
         <div class="row" style="font-size: 1em">
-            <div class="eleven wide computer eight wide tablet eight wide mobile column aligned center {{ submission.result_class }}" style="padding: 1.4em 0; border-radius: 15px">
+            <div class="nine wide computer eight wide tablet eight wide mobile column aligned center {{ submission.result_class }}" style="padding: 1.4em 0; border-radius: 15px">
                 <h5 class="ui header">
                 {%- if submission.is_graded -%}
                     {%- if submission.status in ('IE', 'CE', 'AB') -%}
@@ -23,70 +23,41 @@
     </div>
 </div>
 
-<div class="twelve wide computer ten wide tablet eight wide mobile column" style="padding-top: 0; padding-bottom: 0">
-    <div class="ui equal width middle aligned grid" style="margin: auto 0; padding: 1em 0">
-        <div class="column">
-            <div class="ui padded grid">
-                <div class="row" style="padding: 0">
-                    {% if show_problem %}
-                    <div class="ui header">
-                        <a href="{{ url('problem_detail', submission.problem.code) }}">{{ problem_name }}</a>
-                        <div class="sub header">
-                            {{ link_user(submission.user) }}
-                            <br class="xs-br">
-                            <span class="time">{{ relative_time(submission.date) }}</span>
-                            {% if not request.in_contest and submission.contest_object_id %}
-                                <a href="{{ url('contest_view', submission.contest_object.key) }}"
-                                    class="submission-contest">
-                                    <i title="{{ submission.contest_object.name }}" class="fa fa-dot-circle-o"></i>
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% else %}
-                    <div class="ui header">
-                        {{ link_user(submission.user) }}
-                        <div class="sub header">
-                            <span class="time">{{ relative_time(submission.date) }}</span>
-                            {% if not request.in_contest and submission.contest_object_id %}
-                                <a href="{{ url('contest_view', submission.contest_object.key) }}"
-                                   class="submission-contest">
-                                    <i title="{{ submission.contest_object.name }}" class="fa fa-dot-circle-o"></i>
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
+<div class="twelve wide computer ten wide tablet eight wide mobile column">
+    <div class="ui middle aligned padded grid">
+        <div class="six wide computer seven wide tablet sixteen wide mobile column">
+            {% if show_problem %}
+            <div class="ui header">
+                <a href="{{ url('problem_detail', submission.problem.code) }}">{{ problem_name }}</a>
+                <div class="sub header">
+                    {{ link_user(submission.user) }}
+                    <br class="xs-br">
+                    <span class="time">{{ relative_time(submission.date) }}</span>
+                    {% if not request.in_contest and submission.contest_object_id %}
+                        <a href="{{ url('contest_view', submission.contest_object.key) }}"
+                            class="submission-contest">
+                            <i title="{{ submission.contest_object.name }}" class="fa fa-dot-circle-o"></i>
+                        </a>
                     {% endif %}
                 </div>
-                {% if can_view %}
-                <div class="row" style="padding: 0">
-                    <div class="ui secondary mini compact menu" id="manage-mobile">
-                        <a class="item" href="{{ url('submission_status', submission.id) }}">
-                            <i class="eye icon"></i>
-                        </a>
-                        {% if perms.judge.rejudge_submission and can_edit %} 
-                            {% if not submission.is_locked %}
-                            <a class="item" href="#" onclick="rejudge_submission({{ submission.id }}, event);return false">
-                                <i class="refresh icon"></i>
-                            </a>
-                            {% else %}
-                            <div class="item">
-                                <i class="refresh grey icon"></i>
-                            </div>
-                            {% endif %}
-                        {% endif %}
-                        {% if can_edit %}
-                            <a class="item" href="{{ url('admin:judge_submission_change', submission.id) }}">
-                                <i class="cog icon"></i>
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
             </div>
+            {% else %}
+            <div class="ui header">
+                {{ link_user(submission.user) }}
+                <div class="sub header">
+                    <span class="time">{{ relative_time(submission.date) }}</span>
+                    {% if not request.in_contest and submission.contest_object_id %}
+                        <a href="{{ url('contest_view', submission.contest_object.key) }}"
+                            class="submission-contest">
+                            <i title="{{ submission.contest_object.name }}" class="fa fa-dot-circle-o"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
         </div>
         {% if submission.status == 'G' %}
-        <div class="column">
+        <div class="three wide computer two wide tablet sixteen wide mobile column">
             {%- if submission.current_testcase > 0 -%}
                 {{ _('Case #%(case)s', case=submission.current_testcase) }}
             {%- else -%}
@@ -96,7 +67,7 @@
         {% endif %}
     
         {% if can_view %}
-            <div class="right aligned computer only tablet only column">
+            <div class="right floated six wide computer five wide tablet sixteen wide mobile column">
                 <div class="ui secondary tiny compact menu" id="manage">
                     <a class="item" href="{{ url('submission_status', submission.id) }}">
                         <i class="eye icon"></i>
@@ -135,11 +106,11 @@
     </div>
 </div>
 
-<div class="right floated two wide computer three wide tablet column" style="padding-top: 0; padding-bottom: 0">
-    <div class="ui grid" style="margin-top: 0; padding: auto 0; height: 100%">
+<div class="right floated two wide computer three wide tablet column">
+    <div class="ui middle aligned grid">
         <div class="middle aligned row">
             <div class="column">
-                <div class="ui center aligned segment" style="margin: auto 0">
+                <div class="ui center aligned segment">
                     {% if submission.status in ('QU', 'P', 'G', 'CE', 'IE', 'AB') %}
                         <div class="ui tiny header" style="margin: auto 0;">
                             ---
