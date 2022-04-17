@@ -1,30 +1,29 @@
 {% set can_view, can_edit = submission_layout(submission, profile_id, request.user, completed_problem_ids, editable_problem_ids, tester_problem_ids) %}
-<div class="left floated two wide computer three wide tablet four wide mobile column">
-    <div class="ui middle aligned two column centered grid">
-        <div class="row">
-            <div class="nine wide computer eight wide tablet eight wide mobile column aligned center {{ submission.result_class }}" style="padding: 1.4em 0; border-radius: 10px">
-                <h5 class="ui header">
-                {%- if submission.is_graded -%}
-                    {%- if submission.status in ('IE', 'CE', 'AB') -%}
-                        -- / --
-                    {%- else -%}
+<div class="two wide computer three wide tablet four wide mobile column">
+    <div class="ui middle aligned two column grid">
+        <div class="fifteen wide column">
+            <div class="ui center aligned segment {{ submission.result_background }} inverted">
+                <div class="ui tiny secondary inverted header">
+                    {%- if submission.is_graded -%}
+                        {%- if submission.status in ('IE', 'CE', 'AB') -%}
+                            -- / --
+                        {%- else -%}
                         {{ submission.case_points|floatformat(0) }} / {{ submission.case_total|floatformat(0) }}
-                    {%- endif -%}
+                        {%- endif -%}
                     {%- else -%}
                     <div class="ui active inline fast loader"></div>
                     {%- endif -%}
-                    <div class="sub header" style="font-size: 0.7em">
-                        <span title="{{ submission.long_status }}" class="status {{ submission.result_class }}">{{ submission.short_status }}</span> |
-                        <span class="language {{ submission.result_class }}">{{ submission.language.short_display_name }}</span>
+                    <div class="sub header" style="font-size: 0.65em">
+                        <span title="{{ submission.long_status }}" class="ui inverted {{ submission.result_class }} text"><b>{{ submission.short_status }} | {{ submission.language.short_display_name }}</b></span>
                     </div>
-                </h5>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <div class="twelve wide computer ten wide tablet eight wide mobile column">
     <div class="ui middle aligned padded grid">
-        <div class="six wide computer seven wide tablet sixteen wide mobile column">
+        <div class="seven wide computer seven wide tablet sixteen wide mobile column">
             {% if show_problem %}
             <div class="ui header">
                 <a href="{{ url('problem_detail', submission.problem.code) }}">{{ problem_name }}</a>
@@ -55,7 +54,7 @@
             {% endif %}
         </div>
         {% if submission.status == 'G' %}
-        <div class="three wide computer two wide tablet sixteen wide mobile column">
+        <div class="two wide tablet sixteen wide mobile column">
             {%- if submission.current_testcase > 0 -%}
                 {{ _('Case #%(case)s', case=submission.current_testcase) }}
             {%- else -%}
@@ -99,16 +98,16 @@
         <div class="column">
             <div class="ui center aligned segment">
                 {% if submission.status in ('QU', 'P', 'G', 'CE', 'IE', 'AB') %}
-                    <div class="ui tiny header" style="margin: auto 0;">
+                    <div class="ui tiny header">
                         ---
                         <div class="sub header">---</div>
                     </div>
                 {% else %}
                     {% if "TLE" != submission.result %}
-                        <div title="{{ submission.time or 0 }}s" class="ui tiny header" style="margin: auto 0;">
+                        <div title="{{ submission.time or 0 }}s" class="ui tiny header">
                             {{ (submission.time or 0)|floatformat(2) }}s
                     {% else %}
-                        <div class="ui tiny header"  style="margin: auto 0;">
+                        <div class="ui tiny header">
                             ---
                     {% endif %}
                     {# No one actually like IEC prefixes, Jinja2. #}

@@ -32,6 +32,33 @@ SUBMISSION_RESULT = (
     ('AB', _('Aborted')),
 )
 
+SUBMISSION_RESULT_COLOR = {
+    'AC': 'white',
+    'WA': 'red',
+    'TLE': 'black',
+    'MLE': 'black',
+    'OLE': 'black',
+    'IR': 'black',
+    'RTE': 'black',
+    'CE': 'black',
+    'IE': 'black',
+    'SC': 'black',
+    'AB': 'black',
+}
+
+SUBMISSION_RESULT_BACKGROUND = {
+    'AC': 'green',
+    'WA': 'tertiary grey',
+    'TLE': 'tertiary',
+    'MLE': 'tertiary',
+    'OLE': 'orange',
+    'IR': 'secondary orange',
+    'RTE': 'secondary orange',
+    'CE': 'tertiary',
+    'IE': 'red',
+    'SC': 'tertiary',
+    'AB': 'tertiary',
+}
 
 class Submission(models.Model):
     STATUS = (
@@ -100,9 +127,15 @@ class Submission(models.Model):
     @property
     def result_class(self):
         # This exists to save all these conditionals from being executed (slowly) in each row.jade template
-        if self.status in ('IE', 'CE'):
-            return self.status
-        return Submission.result_class_from_code(self.result, self.case_points, self.case_total)
+        if not self.status in ('D', 'IE', 'CE', 'AB'):
+            return 'white'
+        return SUBMISSION_RESULT_COLOR.get(self.result, 'white')
+
+    @property
+    def result_background(self):
+        if not self.status in ('D', 'IE', 'CE', 'AB'):
+            return 'black'
+        return SUBMISSION_RESULT_BACKGROUND.get(self.result, 'black')
 
     @property
     def memory_bytes(self):

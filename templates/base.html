@@ -59,8 +59,8 @@
         <link rel="stylesheet" type="text/css" href="{{ static('libs/clipboard/tooltip.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ static('libs/select2/select2.css') }}">
         <link rel="stylesheet" href="{{ static('navbar.css') }}">
+        <link rel="stylesheet" href="{{ static('libs/semantic/semantic.min.css') }}"/>
     {% endcompress %}
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css" integrity="sha512-pbLYRiE96XJxmJgF8oWBfa9MdKwuXhlV7vgs2LLlapHLXceztfcta0bdeOgA4reIf0WH67ThWzA684JwkM3zfQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="canonical"
           href="{{ DMOJ_SCHEME }}://{{ DMOJ_CANONICAL|default(site.domain) }}{{ request.get_full_path() }}">
     <style>
@@ -94,6 +94,7 @@
         <script src="{{ static('libs/jquery.unveil.js') }}"></script>
         <script src="{{ static('libs/moment.js') }}"></script>
         <script src="{{ static('libs/select2/select2.js') }}"></script>
+        <script src="{{ static('libs/semantic/semantic.min.js')}}"></script>
         {% include "extra_js.html" %}
         <script src="{{ static('event.js') }}"></script>
         <script>
@@ -192,7 +193,6 @@
             });
         </script>
     {% endcompress %}
-    <script src="//cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.js" integrity="sha512-t5mAtfZZmR2gl5LK7WEkJoyHCfyzoy10MlerMGhxsXl3J7uSSNTAW6FK/wvGBC8ua9AFazwMaC0LxsMTMiM5gg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     {% block js_media %}{% endblock %}
     {% if request.in_contest %}
         <script>$(function () {
