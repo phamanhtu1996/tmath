@@ -202,7 +202,7 @@ def filter_submissions_by_visible_problems(queryset, user):
 
 class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
     model = Submission
-    paginate_by = 25
+    paginate_by = 30
     show_problem = True
     title = gettext_lazy('All submissions')
     content_title = gettext_lazy('All submissions')
@@ -316,11 +316,11 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         if check is not None:
             return check
         if 'language' in request.GET and request.GET.get('language'):
-            self.selected_languages = set(list(map(str, request.GET.get('language').split(','))))
+            self.selected_languages = set(request.GET.get('language').split(','))
         else:
             self.selected_languages = None
         if 'status' in request.GET and request.GET.get('status'):
-            self.selected_statuses = set(list(map(str, request.GET.get('status').split(','))))
+            self.selected_statuses = set(request.GET.get('status').split(','))
         else:
             self.selected_statuses = None
         if 'results' in request.GET:

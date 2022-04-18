@@ -130,7 +130,7 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
         self.all_sorts = set(self.all_sorts)
         if 'organizations' in request.GET:
             try:
-                self.selected_org = list(map(int, request.GET.getlist('organizations')))
+                self.selected_org = list(map(int, request.GET.get('organizations').split(',')))
             except ValueError:
                 pass
 

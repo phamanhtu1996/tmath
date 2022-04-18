@@ -154,7 +154,7 @@
                         if (id < first)
                             return;
                         first = id;
-                        row = $('<div>', {id: id, 'class': 'ui grid segment', 'style': 'padding: 0'}).hide().prependTo(table);
+                        row = $('<div>', {id: id, 'class': 'ui middle aligned grid segment'}).hide().prependTo(table);
                         if (table.find('>div').length >= {{ paginator.per_page }})
                             table.find('>div:last-child').slideUp('slow', function () {
                                 $(this).remove();
@@ -377,16 +377,14 @@
                 <a href="javascript:void(0)">{{ _('You were disconnected. Refresh to show latest updates.') }}</a>
             </div>
 
-            <div id="submissions-table">
-                {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
-                {% for submission in submissions %}
-                    <div class="ui middle aligned grid segment" style="padding: 0" id="{{ submission.id }}">
-                        {% with problem_name=show_problem and (submission.problem.i18n_name or submission.problem.name) %}
-                            {% include "submission/row.html" %}
-                        {% endwith %}
-                    </div>
-                {% endfor %}
-            </div>
+            {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
+            {% for submission in submissions %}
+                <div class="ui middle aligned grid segment" id="{{ submission.id }}">
+                    {% with problem_name=show_problem and (submission.problem.i18n_name or submission.problem.name) %}
+                        {% include "submission/row.html" %}
+                    {% endwith %}
+                </div>
+            {% endfor %}
         </div>
     </div>
     {% if page_obj.has_other_pages() %}

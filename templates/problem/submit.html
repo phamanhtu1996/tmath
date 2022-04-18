@@ -394,15 +394,15 @@
         {% endif %}
     {% endif %}
 
-    <form id="problem_submit" action="" method="post" class="form-area" enctype="multipart/form-data">
+    <form id="problem_submit" action="" method="post" class="ui form" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.non_field_errors() }}
         <div id="submit-wrapper">
-            <div id="editor" class="hidden">
+            <div id="editor" class="field hidden">
                 {{ form.source.errors }}
                 {{ form.source }}
             </div>
-            <div id="file-submit" class="hidden">
+            <div id="file-submit" class="field hidden">
                 <div class="alert alert-warning alert-dismissable">
                     <a class="close">x</a>
                     {{ _('You can only submit file for this language.')}}
@@ -412,33 +412,33 @@
                 <label for="file_upload" id="file_drag"></label>
             </div>
             {% if not no_judges %}
-                <div id="language">
-                    {{ form.language.errors }}
-                    <div id="language-select">
-                        <select id="id_language" name="language">
-                            {% for lang in form.fields.language.queryset %}
-                                <option value="{{ lang.id }}" data-id="{{ lang.id }}" data-name="{{ lang.name }}"
-                                        data-info="{{ lang.info }}" data-ace="{{ lang.ace }}" data-fileonly="{{ lang.file_only }}"
-                                        data-ext="{{ lang.extension }}" data-file-size="{{ lang.file_size_limit }}"
-                                        data-judge-info="{{ runtime_versions(lang.runtime_versions()) }}"
-                                        {% if lang.id == default_lang.id %}selected{% endif %}>{{ lang.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+            <div id="language" class="field">
+                {{ form.language.errors }}
+                <div id="language-select">
+                    <select id="id_language" name="language">
+                        {% for lang in form.fields.language.queryset %}
+                            <option value="{{ lang.id }}" data-id="{{ lang.id }}" data-name="{{ lang.name }}"
+                                    data-info="{{ lang.info }}" data-ace="{{ lang.ace }}" data-fileonly="{{ lang.file_only }}"
+                                    data-ext="{{ lang.extension }}" data-file-size="{{ lang.file_size_limit }}"
+                                    data-judge-info="{{ runtime_versions(lang.runtime_versions()) }}"
+                                    {% if lang.id == default_lang.id %}selected{% endif %}>{{ lang.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
+            </div>
             {% endif %}
         </div>
 
         <hr>
 
         {% if no_judges %}
-            <span style="color: red">{{ _('No judge is available for this problem.') }}</span>
+            <span class="ui red text">{{ _('No judge is available for this problem.') }}</span>
         {% else %}
-            <div class="submit-bar">
-                {{ form.judge }}
-                <input type="submit" value="{{ _('Submit!') }}" class="button"
-                       {% if request.in_contest and submission_limit and not submissions_left %}disabled{% endif %}>
-            </div>
+        <div class="field">
+            {{ form.judge }}
+        </div>
+        <input type="submit" value="{{ _('Submit!') }}" class="ui primary button"
+                {% if request.in_contest and submission_limit and not submissions_left %}disabled{% endif %}>
         {% endif %}
     </form>
 {% endblock %}

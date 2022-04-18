@@ -26,17 +26,19 @@
 {% endblock %}
 
 {% block body %}
-    <form id="contest-clone-panel" action="" method="post" class="form-area">
+<div class="ui segment">
+    <form action="" method="post" class="ui form">
         {% csrf_token %}
         {% if form.errors %}
             <div id="form-errors">
                 {{ form.key.errors }}
             </div>
         {% endif %}
-
-        <div><label class="inline-header grayed">{{ _('Enter a new key for the cloned contest:') }}</label></div>
-        <div id="contest-key-container"><span class="fullwidth">{{ form.key }}</span></div>
-        <hr>
-        <button style="float: right;" type="submit">{{ _('Clone!') }}</button>
+        <div class="field">
+            <label for="{{ form.key.id_for_label }}">{{ _('Enter a new key for the cloned contest:') }}</label>
+            {{ form.key }}
+        </div>
+        <button class="ui primary button" type="submit">{{ _('Clone!') }}</button>
     </form>
+</div>
 {% endblock %}

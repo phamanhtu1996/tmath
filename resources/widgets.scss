@@ -1,11 +1,11 @@
 @import "vars";
-
 .social i {
     display: inline;
     font-size: 1.9em;
 }
 
-.facebook-this, .tweet-this {
+.facebook-this,
+.tweet-this {
     display: inline;
 }
 
@@ -23,50 +23,6 @@
 }
 
 // Bootstrap-y buttons
-.button, button, input[type=submit] {
-    color: white !important;
-    text-decoration: none !important;
-    cursor: pointer;
-    vertical-align: middle;
-    white-space: nowrap;
-    font-weight: 400;
-    line-height: 1.4;
-    background: rgb(51, 122, 183) none repeat scroll 0 (0% / auto) padding-box border-box;
-    background: -webkit-linear-gradient(top, #337ab7 0, #265a88 100%) repeat-x;
-    background: linear-gradient(to bottom, #337ab7 0, #265a88 100%) repeat-x;
-    border-radius: $widget_border_radius;
-    padding: 6px 12px;
-    display: block;
-    border: 1px solid #245580;
-    text-align: center;
-
-    // 4k hack
-    font-size: $base_font_size;
-
-    &:hover {
-        background: #265a88;
-    }
-
-    &.disabled {
-        background: linear-gradient(to bottom, darkgray 0, gray 100%) repeat-x !important;
-        border-color: grey !important;
-        cursor: not-allowed;
-    }
-}
-
-.button.full, input[type=submit].full, button.full {
-    padding: 6px 0;
-}
-
-button:hover, button:hover, input[type=submit]:hover {
-    background: #265a88;
-}
-
-.button:active, button:active, input[type=submit]:hover {
-    border-color: #245580;
-    background: #265a88;
-}
-
 .inline-button {
     display: inline;
     vertical-align: top;
@@ -74,7 +30,10 @@ button:hover, button:hover, input[type=submit]:hover {
 }
 
 input {
-    &[type=text], &[type=password], &[type=email], &[type=number] {
+    &[type=text],
+    &[type=password],
+    &[type=email],
+    &[type=number] {
         padding: 4px 8px;
         color: #555;
         background: #FFF none;
@@ -83,16 +42,13 @@ input {
         box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
         transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
         box-sizing: border-box;
-
         // Need this explicitly because UA stylesheet for Chrome on 4k makes
         // everything look bad otherwise (forces it to 9.3px)
         font-size: $base_font_size;
     }
-
     &[type=number] {
         padding: 2px 0 2px 5px;
     }
-
     &[type=checkbox] {
         vertical-align: middle;
     }
@@ -115,7 +71,8 @@ textarea:hover {
 }
 
 input {
-    &[type="text"]:hover, &[type="password"]:hover {
+    &[type="text"]:hover,
+    &[type="password"]:hover {
         border-color: rgba(82, 168, 236, 0.8);
         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 4px rgba(82, 168, 236, 0.6);
     }
@@ -128,7 +85,8 @@ textarea:focus {
 }
 
 input {
-    &[type="text"]:focus, &[type="password"]:focus {
+    &[type="text"]:focus,
+    &[type="password"]:focus {
         border-color: rgba(82, 168, 236, 0.8);
         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
         outline: 0;
@@ -170,62 +128,54 @@ input {
     margin: 0 0 8px;
     width: 100%;
     display: flex;
-
     &.tabs-no-flex {
         display: block;
     }
-
     .tab {
         .tab-icon {
             padding-right: 0.3em;
             color: gray;
         }
-
-        a, span {
+        a,
+        span {
             border-top-width: 3px !important;
         }
-
         &.active {
-            a, span {
+            a,
+            span {
                 border-top-color: $highlight_blue !important;
             }
-
             .tab-icon {
                 color: black;
             }
         }
     }
-
     h2 {
         color: #393630;
     }
-
-    > ul {
+    >ul {
         margin: 0;
         padding: 0;
         list-style: outside none none;
         display: flex;
         overflow-x: auto;
         overflow-y: hidden;
-
-        > li {
+        >li {
             margin-bottom: -1px;
             position: relative;
             display: block;
-
-            &.active > a, &.active > span {
+            &.active>a,
+            &.active>span {
                 @extend .ul_tab_a_active;
-
                 &:hover {
                     @extend .ul_tab_a_active;
                 }
-
                 &:focus {
                     @extend .ul_tab_a_active;
                 }
             }
-
-            > a, > span {
+            >a,
+            >span {
                 margin-right: 2px;
                 line-height: 1.42857;
                 border: 1px solid transparent;
@@ -252,29 +202,28 @@ ul.pagination {
     padding-left: 0;
     margin: 0;
     border-radius: $widget_border_radius;
-
     > {
         li {
             display: inline;
-
-            &:first-child > {
-                a, span {
+            &:first-child> {
+                a,
+                span {
                     margin-left: 0;
                     border-top-left-radius: $widget_border_radius;
                     border-bottom-left-radius: $widget_border_radius;
                 }
             }
-
-            &:last-child > {
-                a, span {
+            &:last-child> {
+                a,
+                span {
                     margin-left: 0;
                     border-top-right-radius: $widget_border_radius;
                     border-bottom-right-radius: $widget_border_radius;
                 }
             }
-
             > {
-                a, span {
+                a,
+                span {
                     position: relative;
                     float: left;
                     padding: 4px 12px;
@@ -287,22 +236,19 @@ ul.pagination {
                 }
             }
         }
-
-        .disabled-page > {
+        .disabled-page> {
             a {
                 color: #888;
                 background-color: $widget_black;
                 border-color: #282828;
             }
-
             span {
                 color: #888;
                 background-color: $widget_black;
                 border-color: #505050;
             }
         }
-
-        .active-page > {
+        .active-page> {
             a {
                 z-index: 2;
                 color: #FFF;
@@ -310,7 +256,6 @@ ul.pagination {
                 border-color: transparent;
                 cursor: default;
             }
-
             span {
                 z-index: 2;
                 color: #FFF;
@@ -357,11 +302,13 @@ ul.pagination {
     border-color: #ebccd1;
 }
 
-.alert-dismissable, .alert-dismissible {
+.alert-dismissable,
+.alert-dismissible {
     padding-right: 35px;
 }
 
-.alert-dismissable .close, .alert-dismissible .close {
+.alert-dismissable .close,
+.alert-dismissible .close {
     position: relative;
     top: -2px;
     right: -21px;
@@ -383,14 +330,14 @@ a.close {
     text-decoration: none !important;
     font-size: 18px !important;
     line-height: 1;
-
     &:hover {
         color: black !important;
     }
 }
 
 .close {
-    &:focus, &:hover {
+    &:focus,
+    &:hover {
         color: #000;
         text-decoration: none;
         cursor: pointer;
@@ -447,11 +394,9 @@ ul.select2-selection__rendered {
     border-top: none;
     margin: 0 -5px;
     padding: 1px 0.5em 3px;
-
     &.sidebox-table {
         border: none;
         padding: 0;
-
         .table {
             margin: 0 !important;
         }
@@ -488,37 +433,31 @@ ul.select2-selection__rendered {
 .messages {
     list-style-type: none;
     padding: 0;
-
     li {
         padding: 1em 1.5em;
         margin-bottom: 1em;
         border: 1px solid transparent;
         border-radius: 5px;
-
         &.debug {
             color: #383d41;
             background-color: #e2e3e5;
             border-color: #d6d8db;
         }
-
         &.info {
             color: #0c5460;
             background-color: #d1ecf1;
             border-color: #bee5eb;
         }
-
         &.success {
             color: #155724;
             background-color: #d4edda;
             border-color: #c3e6cb;
         }
-
         &.warning {
             color: #856404;
             background-color: #fff3cd;
             border-color: #ffeeba;
         }
-
         &.error {
             color: #721c24;
             background-color: #f8d7da;

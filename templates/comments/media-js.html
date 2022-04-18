@@ -32,24 +32,29 @@
         $(document).ready(function () {
             window.reply_comment = function (parent) {
                 var $comment_reply = $('#comment-' + parent + '-reply');
+                var $header_reply = $('#header-' + parent + '-reply')
                 var reply_id = 'reply-' + parent;
                 if ($comment_reply.find('#' + reply_id).length == 0) {
                     var $reply_form = $('#new-comment').clone(true).prop('id', reply_id);
-                    $reply_form.find('h3').html('{{ _('Replying to comment') }}');
-                    $reply_form.prepend('<a class="close">x</a>');
-                    $reply_form.find('form.comment-submit-form input#id_parent').val(parent);
+                    $header_reply.find('.right.menu').prepend('<a class="icon item close"><i class="times icon"></i></a>');
+                    $reply_form.find('input#id_parent').val(parent);
+                    $reply_form.find('button#submit>.content').html("{{ _('Add new reply')}}")
                     $reply_form.appendTo($comment_reply);
                     register_dmmd_preview($('#' + reply_id + ' #id_body-preview'));
                 }
                 $comment_reply.fadeIn();
+                $header_reply.fadeIn();
 
                 $('html, body').animate({
-                    scrollTop: $comment_reply.offset().top - $('#navigation').height() - 4
+                    scrollTop: $header_reply.offset().top - $('.following.bar').height() - 4
                 }, 500);
             };
 
             $(document).on('click', '.close', function() {
-                $(this).closest('.reply-comment').fadeOut();
+                $header = $(this).closest('.header-comment');
+                $comment = $header.next();
+                $header.fadeOut();
+                $comment.fadeOut();
             });
 
             function update_math($comment) {
@@ -86,7 +91,7 @@
                 }).done(function (body) {
                     $comment.find('.previous-revision').css({visibility: show_revision == 0 ? 'hidden' : ''});
                     $comment.find('.next-revision').css({visibility: show_revision == max_revision ? 'hidden' : ''});
-                    var $content = $comment.find('.content').html(body);
+                    var $content = $comment.find('.text').html(body);
 
                     var edit_text = '{{ _('edit {edits}') }}'.replace("{edits}", show_revision);
 
@@ -133,20 +138,28 @@
             window.comment_upvote = function (id) {
                 ajax_vote('{{ url('comment_upvote') }}', id, 1, function () {
                     var $votes = get_$votes(id);
-                    if ($votes.downvote.hasClass('voted'))
-                        $votes.downvote.removeClass('voted');
-                    else
-                        $votes.upvote.addClass('voted');
+                    if ($votes.downvote.hasClass('disabled')) {
+                        $votes.downvote.removeClass('disabled');
+                        $votes.downvote.addClass('red');
+                    }
+                    else {
+                        $votes.upvote.addClass('disabled');
+                        $votes.upvote.removeClass('green');
+                    }
                 });
             };
 
             window.comment_downvote = function (id) {
                 ajax_vote('{{ url('comment_downvote') }}', id, -1, function () {
                     var $votes = get_$votes(id);
-                    if ($votes.upvote.hasClass('voted'))
-                        $votes.upvote.removeClass('voted');
-                    else
-                        $votes.downvote.addClass('voted');
+                    if ($votes.upvote.hasClass('disabled')) {
+                        $votes.upvote.removeClass('disabled');
+                        $votes.upvote.addClass('green');
+                    }
+                    else {
+                        $votes.downvote.removeClass('red');
+                        $votes.downvote.addClass('disabled');
+                    }
                 });
             };
 
@@ -212,9 +225,9 @@
             $comments.find('a.comment-link').click(function () {
                 var href = $.attr(this, 'href');
                 $root.animate({
-                    scrollTop: $(href).offset().top
+                    scrollTop: $(href).offset().top - $('.following.bar').height() - 4
                 }, 500, function () {
-                    window.location.hash = href;
+                    
                 });
                 return false;
             });

@@ -21,14 +21,14 @@
                 {# Allow users to leave the virtual exam #}
                 {% if in_exam %}
                     <form action="{{ url("emath:exam_leave", exam.key) }}" method="post"
-                          class="exam-join-pseudotab unselectable button">
+                          class="exam-join-pseudotab ui primary button">
                         {% csrf_token %}
                         <input type="submit" class="leaving-forever" value="{{ _('Leave exam') }}">
                     </form>
                 {% else %}
                     {# Allow users to virtual join #}
                     <form action="{{ url('emath:exam_join', exam.key) }}" method="post"
-                          class="exam-join-pseudotab unselectable button">
+                          class="exam-join-pseudotab ui primary button">
                         {% csrf_token %}
                         <input type="submit" value="{{ _('Virtual join') }}">
                     </form>
@@ -37,7 +37,7 @@
                 {# Allow users to leave the exam #}
                 {% if in_exam %}
                     <form action="{{ url('emath:exam_leave', exam.key) }}" method="post"
-                          class="exam-join-pseudotab unselectable button">
+                          class="exam-join-pseudotab ui primary button">
                         {% csrf_token %}
                         <input type="submit" value="
                             {% if request.examparticipation.spectate %}
@@ -48,13 +48,13 @@
                     </form>
                 {% elif is_editor or is_tester or live_participation.ended %}
                     <form action="{{ url('emath:exam_join', exam.key) }}" method="post"
-                          class="exam-join-pseudotab unselectable button">
+                          class="exam-join-pseudotab ui primary button">
                         {% csrf_token %}
                         <input type="submit" value="{{ _('Spectate exam') }}">
                     </form>
                 {% else %}
                     <form action="{{ url('emath:exam_join', exam.key) }}" method="post"
-                          class="exam-join-pseudotab unselectable button">
+                          class="exam-join-pseudotab ui primary button">
                         {% csrf_token %}
                         <input type="submit" {% if not has_joined %}class="first-join"{% endif %}
                                value="{{ _('Join exam') }}">
@@ -64,7 +64,7 @@
         {% endif %}
     {% elif exam.can_join and not request.user.is_authenticated %}
         <form action="{{ url('auth_login') }}" method="get"
-              class="exam-join-pseudotab unselectable button">
+              class="exam-join-pseudotab ui primary button">
             <input type="hidden" name="next" value="{{ LOGIN_RETURN_PATH|urlencode }}">
             <input type="submit" value="{{ _('Log in to participate') }}">
         </form>

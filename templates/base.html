@@ -48,7 +48,7 @@
         <link rel="stylesheet" href="{{ FONTAWESOME_CSS }}">
     {% endif %}
     {% compress css %}
-        <link rel="stylesheet" href="{{ static('style.css') }}">
+        <link rel="stylesheet" href="{{ static('style.css') }}?v=3">
         {% if PYGMENT_THEME %}
             <link rel="stylesheet" href="{{ static(PYGMENT_THEME) }}">
         {% endif %}
@@ -191,6 +191,12 @@
                     $("input[type='submit']").prop('disabled', true);
                 });
             });
+            function submit_language(lang) {
+                if (lang != "{{ LANGUAGE_CODE }}" ) {
+                    $("input[name=language]").val(lang)
+                    $("#set_language").submit()
+                }
+            }
         </script>
     {% endcompress %}
     {% block js_media %}{% endblock %}
@@ -351,7 +357,7 @@
     </div>
 </div>
 <div class="pusher">
-    <div class="following bar ">
+    <div class="following bar">
         <div class="ui container">
             <div class="ui secondary menu inverted">
                 <a class="ui item image" href="/index">
@@ -379,25 +385,33 @@
                 {% endif %}
                 {% endfor %}
                 {% if request.user.is_authenticated %}
-                <div class="ui right dropdown item">
-                    <img src="{{ gravatar(request.user, 80) }}" alt="{{ request.user.username }}" class="ui avatar mini image">
-                    <a href="{{ url('user_page') }}">
-                    {%- trans username=request.user.username -%}
-                        Hello, <b>{{ username }}</b>
-                    {%- endtrans %}
+                <div class="right menu inverted">
+                    <a href="javascript:void(0)" onclick="submit_language('vi')" class="icon item">
+                        <i class="vn flag"></i>
                     </a>
-                    <i class="dropdown icon"></i>
-                    <div class="menu">
-                        {% if request.user.is_staff or request.user.is_superuser %}
-                        <a href="{{ url('admin:index') }}" class="item">{{ _('Admin') }}</a>
-                        <a href="{{ url('emath_admin:index') }}" class="item">{{ _('Emath admin') }}</a>
-                        {% endif %}
-                        <a href="{{ url('user_edit_profile') }}" class="item">{{ _('Edit profile') }}</a>
-                        {% if request.user.is_impersonate %}
-                        <a href="{{ url('impersonate-stop') }}" class="item">Stop impersonating</a>
-                        {% else %}
-                        <a href="{{ url('auth_logout') }}" class="item">{{ _('Logout') }}</a>
-                        {% endif %}
+                    <a href="javascript:void(0)" onclick="submit_language('en')" class="icon item">
+                        <i class="us flag"></i>
+                    </a>
+                    <div class="ui dropdown item">
+                        <img src="{{ gravatar(request.user, 80) }}" alt="{{ request.user.username }}" class="ui avatar mini image">
+                        <a href="{{ url('user_page') }}">
+                        {%- trans username=request.user.username -%}
+                            Hello, <b>{{ username }}</b>
+                        {%- endtrans %}
+                        </a>
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            {% if request.user.is_staff or request.user.is_superuser %}
+                            <a href="{{ url('admin:index') }}" class="item">{{ _('Admin') }}</a>
+                            <a href="{{ url('emath_admin:index') }}" class="item">{{ _('Emath admin') }}</a>
+                            {% endif %}
+                            <a href="{{ url('user_edit_profile') }}" class="item">{{ _('Edit profile') }}</a>
+                            {% if request.user.is_impersonate %}
+                            <a href="{{ url('impersonate-stop') }}" class="item">Stop impersonating</a>
+                            {% else %}
+                            <a href="{{ url('auth_logout') }}" class="item">{{ _('Logout') }}</a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 {% else %}
@@ -410,12 +424,12 @@
         </div>
     </div>
     
-    <div id="page-container" style="padding-top: 4.5em; min-height: 100vh;" class="ui fluid container">
+    <div id="page-container" style="padding-top: 4.5em; min-height: 100vh; display: flex; flex-direction: column" class="ui fluid container">
         <noscript>
             <div id="noscript">{{ _('This site works best with JavaScript enabled.') }}</div>
         </noscript>
         <br>
-        <main id="content">
+        <main id="content" style="flex: 1">
             {% block title_row %}
                 <h2 style="color:#393630; display:inline">
                     {% block content_title %}
@@ -435,27 +449,38 @@
         {% endif %}
     
         {% block bodyend %}{% endblock %}
-    
-        <footer style="height: 4em">
-            <span id="footer-content">
-                <br>
-                <a style="color: #808080" href="https://dmoj.ca">proudly powered by <b>DMOJ</b></a> |
-                {% if i18n_config.footer %}
-                    {{ i18n_config.footer|safe }} |
-                {% endif %}
-                <form action="{{ url('set_language') }}" method="post" style="display: inline">
-                    {% csrf_token %}
-                <input name="next" type="hidden" value="{{ request.get_full_path() }}">
-                <select name="language" onchange="form.submit()" style="height: 1.5em">
-                    {% for language in language_info_list(LANGUAGES) %}
-                        <option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %}selected{% endif %}>
-                            {{ language.name_local }} ({{ language.code }})
-                        </option>
-                    {% endfor %}
-                </select>
-              </form>
-            </span>
-        </footer>
+        <div class="ui tertiary inverted segment" style="position: relative; bottom: 0; width: 100%; margin: 0">
+            <div class="ui two column grid" >
+                <div class="ui right aligned middle aligned column">
+                    <p style="padding: auto; height: 100%">
+                    <a style="color: #808080;" href="https://dmoj.ca">proudly powered by <b>DMOJ</b></a>
+                    {% if i18n_config.footer %}
+                        {{ i18n_config.footer|safe }} |
+                    {% endif %}
+                    </p>
+                </div>
+                <div class="ui middle aligned column">
+                    <form action="{{ url('set_language') }}" method="post" class="ui form" id="set_language">
+                        {% csrf_token %}
+                        <div class="inline field">
+                            <div class="ui floating selection dropdown labeled search icon button">
+                                <i class="world icon"></i>
+                                <input type="hidden" name="language" onchange="this.form.submit()" value="{{LANGUAGE_CODE}}">
+                                <div class="default text">{{ _('Select Language') }}</div>
+                                <div class="menu">
+                                    {% for language in language_info_list(LANGUAGES) %}
+                                    <div class="item" data-value="{{ language.code }}">
+                                        {{ language.name_local }} ({{ language.code }})
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <input name="next" type="hidden" value="{{ request.get_full_path() }}">
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script>

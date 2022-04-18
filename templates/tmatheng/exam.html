@@ -47,13 +47,13 @@
             {% if request.profile in exam.authors.all() or request.profile in exam.curators.all() or request.profile in exam.testers.all() %}
                 <form action="{{ url('emath:exam_detail', exam.key) }}" method="post">
                     {% csrf_token %}
-                    <input type="submit" class="unselectable button full participate-button"
+                    <input type="submit" class="ui primary buttonui primary"
                            value="{{ _('Spectate') }}">
                 </form>
             {% else %}
                 <form action="{{ url('emath:exam_detail', exam.key) }}" method="post">
                     {% csrf_token %}
-                    <input type="submit" class="unselectable button full participate-button join-warning"
+                    <input type="submit" class="ui primary button join-warning"
                            value="{{ _('Join') }}">
                 </form>
             {% endif %}
@@ -114,7 +114,7 @@
     <hr>
 
     {% if exam.is_in_exam(request.user) %}
-        <a class='button take_a_test' href="{{ url('emath:exam_task', exam.key) }}">{{ _('Take a test') }}</a>
+        <a class='ui primary fluid button take_a_test' href="{{ url('emath:exam_task', exam.key) }}">{{ _('Take a test') }}</a>
     {% endif %}
 
     {% include "comments/list.html" %}

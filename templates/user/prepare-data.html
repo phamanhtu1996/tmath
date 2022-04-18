@@ -78,7 +78,7 @@
             <div class="alert alert-warning">
                 {{ _('We are currently preparing your data.') }}
             </div>
-            <a class="button aux-download-action" href="{{ in_progress_url }}">{{ _('Track progress') }}</a>
+            <a class="ui primary button aux-download-action" href="{{ in_progress_url }}">{{ _('Track progress') }}</a>
         {% elif can_prepare_data %}
             <div class="alert alert-warning">
                 {{ _('You may only prepare a new data download once every %(ratelimit)s.', ratelimit=ratelimit|timedelta) }}
@@ -115,7 +115,7 @@
                     </div>
                 </div>
                 <div id="submit-bar" class="form-submit-group">
-                    <button id="prepare-download" type="submit" class="main-download-action">
+                    <button id="prepare-download" type="submit" class="ui primary button main-download-action">
                         {% if can_download_data %}
                             {{ _('Prepare new download') }}
                         {% else %}
@@ -123,7 +123,7 @@
                         {% endif %}
                     </button>
                     {% if can_download_data %}
-                        <a class="button main-download-action" href="{{ url('user_download_data') }}">{{ _('Download prepared data') }}</a>
+                        <a class="ui primary button main-download-action" href="{{ url('user_download_data') }}">{{ _('Download prepared data') }}</a>
                     {% endif %}
                 </div>
             </form>
@@ -133,7 +133,7 @@
                 <br>
                 {{ _('You will need to wait %(countdown)s to prepare a new data download.', countdown=time_until_can_prepare|as_countdown) }}
             </div>
-            <a class="button aux-download-action" href="{{ url('user_download_data') }}">{{ _('Download data') }}</a>
+            <a class="ui primary button aux-download-action" href="{{ url('user_download_data') }}">{{ _('Download data') }}</a>
         {% endif %}
     </div>
 {% endblock %}

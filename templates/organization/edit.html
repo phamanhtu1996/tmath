@@ -30,21 +30,32 @@
 {% block media %}
     {{ form.media.css }}
     <link rel="stylesheet" href="{{ static('admin/css/widgets.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ static('admin/css/pagedown.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ static('problem_edit.css') }}" type="text/css">
-    <style>
-        #id_about {
-            width: 500px;
-        }
-    </style>
 {% endblock %}
 
 {% block body %}
-    <div class="centered-form">
-        <form action="" method="post" class="form-area">
+    <div class="ui segment">
+        <form action="" method="post" class="ui form">
             {% csrf_token %}
-            <table border="0" class="django-as-table">{{ form.as_table() }}</table>
-            <button class="submit-bar" type="submit">{{ _('Update') }}</button>
+            <div class="field">
+                {{ form.about.label_tag() }}
+                {{ form.about }}
+            </div>
+            <div class="field">
+                {{ form.logo_override_image.label_tag() }}
+                {{ form.logo_override_image }}
+                <div class="help">
+                    {{ form.logo_override_image.help_text }}
+                </div>
+            </div>
+            <div class="field">
+                {{ form.admins.label_tag() }}
+                {{ form.admins }}
+                <div class="help">
+                    {{ form.admins.help_text }}
+                </div>
+            </div>
+            <button class="ui primary button" type="submit">{{ _('Update') }}</button>
         </form>
     </div>
 {% endblock %}

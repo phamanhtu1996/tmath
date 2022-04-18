@@ -135,15 +135,15 @@
     {% if not request.in_contest %}
         <td>
             {% if request.profile in contest.authors.all() or request.profile in contest.curators.all() or request.profile in contest.testers.all() %}
-                <form action="{{ url('contest_join', contest.key) }}" method="post">
+                <form action="{{ url('contest_join', contest.key) }}" method="post" class="ui form">
                     {% csrf_token %}
-                    <input type="submit" class="unselectable button full participate-button"
+                    <input type="submit" class="ui primary button"
                            value="{{ _('Spectate') }}">
                 </form>
             {% else %}
                 <form action="{{ url('contest_join', contest.key) }}" method="post">
                     {% csrf_token %}
-                    <input type="submit" class="unselectable button full participate-button join-warning"
+                    <input type="submit" class="ui primary button join-warning"
                            value="{{ _('Join') }}">
                 </form>
             {% endif %}
@@ -153,21 +153,27 @@
 
 {% block body %}
     <div class="content-description">
-        <form action="" method="get" style="display: flex">
-            <div style="width:80%; display: flex;">
-                <label for="type"><i>{{ _('Organizations') }}</i></label>
-                <select name="organizations" id="organizations" multiple style="width:100%">
-                    {% for org in list_organizations %}
-                        <option value="{{ org.id }}" {% if org.id in organizations %} selected{% endif %}>
-                            {{ org.short_name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div style="width: 20%">
-                <button style="width: 100%; margin: auto 0; height: 100%" type="submit">{{_('Search')}}</button>
-            </div>
-        </form>
+        <div class="ui inverted segment">
+            <form action="" method="get" class="ui inverted form">
+                <div class="equal width fields">
+                    <div class="field">
+                        <label for="organizations">{{ _('Organizations') }}</label>
+                        <div class="ui fluid multiple search normal selection dropdown">
+                            <input type="hidden" name="organizations" {% if organizations %}value="{{ organizations|join(',') }}"{% endif %}>
+                            <div class="default text">{{ _('Select organization') }}</div>
+                            <div class="menu">
+                                {% for org in list_organizations %}
+                                <div class="item" data-value="{{ org.id }}">
+                                    {{ org.short_name }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="ui primary button" type="submit">{{_('Search')}}</button>
+            </form>
+        </div>
         {% if active_participations %}
             <h4>{{ _('Active Contests') }}</h4>
             <table class="contest-list table striped">
@@ -409,9 +415,9 @@
                             {{ user_count(contest, request.user) }}
                         </td>
                         {% if not request.in_contest %}
-                            <td><form action="{{ url('contest_join', contest.key) }}" method="post">
+                            <td><form action="{{ url('contest_join', contest.key) }}" method="post" class="ui form">
                                     {% csrf_token %}
-                                    <input type="submit" class="unselectable button full participate-button"
+                                    <input type="submit" class="ui primary button"
                                            value="{{ _('Virtual join') }}">
                             </form></td>
                         {% endif %}

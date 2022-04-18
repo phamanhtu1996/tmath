@@ -11,7 +11,7 @@
                         {{ submission.case_points|floatformat(0) }} / {{ submission.case_total|floatformat(0) }}
                         {%- endif -%}
                     {%- else -%}
-                    <div class="ui active inline fast loader"></div>
+                    <div class="ui active small inline loader"></div>
                     {%- endif -%}
                     <div class="sub header" style="font-size: 0.65em">
                         <span title="{{ submission.long_status }}" class="ui inverted {{ submission.result_class }} text"><b>{{ submission.short_status }} | {{ submission.language.short_display_name }}</b></span>
@@ -23,38 +23,29 @@
 </div>
 <div class="twelve wide computer ten wide tablet eight wide mobile column">
     <div class="ui middle aligned padded grid">
-        <div class="seven wide computer seven wide tablet sixteen wide mobile column">
+        <div class="seven wide computer seven wide tablet sixteen wide mobile column" style="padding: 0 1em 0 1em">
             {% if show_problem %}
             <div class="ui header">
                 <a href="{{ url('problem_detail', submission.problem.code) }}">{{ problem_name }}</a>
                 <div class="sub header">
                     {{ link_user(submission.user) }}
-                    <span class="time">{{ relative_time(submission.date) }}</span>
-                    {% if not request.in_contest and submission.contest_object_id %}
-                        <a href="{{ url('contest_view', submission.contest_object.key) }}"
-                            class="submission-contest">
-                            <i title="{{ submission.contest_object.name }}" class="fa fa-dot-circle-o"></i>
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
             {% else %}
             <div class="ui header">
                 {{ link_user(submission.user) }}
                 <div class="sub header">
+            {% endif %}
                     <span class="time">{{ relative_time(submission.date) }}</span>
                     {% if not request.in_contest and submission.contest_object_id %}
                         <a href="{{ url('contest_view', submission.contest_object.key) }}"
                             class="submission-contest">
-                            <i title="{{ submission.contest_object.name }}" class="fa fa-dot-circle-o"></i>
+                            <i title="{{ submission.contest_object.name }}" class="dot circle outline icon"></i>
                         </a>
                     {% endif %}
                 </div>
             </div>
-            {% endif %}
         </div>
         {% if submission.status == 'G' %}
-        <div class="two wide tablet sixteen wide mobile column">
+        <div class="two wide computer two wide tablet sixteen wide mobile column" style="padding: 0 1em 0 1em">
             {%- if submission.current_testcase > 0 -%}
                 {{ _('Case #%(case)s', case=submission.current_testcase) }}
             {%- else -%}
@@ -63,7 +54,7 @@
         </div>
         {% endif %}
         {% if can_view %}
-            <div class="right floated six wide computer five wide tablet sixteen wide mobile column">
+            <div class="right floated left aligned six wide computer five wide tablet sixteen wide mobile column" style="padding: 0 1em 0 0.5em">
                 <div class="ui secondary tiny compact menu" id="manage">
                     <a class="item" href="{{ url('submission_status', submission.id) }}">
                         <i class="eye icon"></i>

@@ -339,7 +339,7 @@
                             </div>
                         {% endif %}
                         <div class="body-block">{{ form.body }}</div>
-                        <button type="submit" class="submit">{{ _('Post') }}</button>
+                        <button type="submit" class="ui primary button">{{ _('Post') }}</button>
                     </form>
                 </div>
             </section>
@@ -369,9 +369,9 @@
                     </div>
                 </div>
 
-                <button data-ajax="{{ url('ticket_close', ticket.id) }}" data-open="0" class="close-ticket"
+                <button data-ajax="{{ url('ticket_close', ticket.id) }}" data-open="0" class="ui fluid negative button close-ticket"
                         {% if not ticket.is_open %}style="display: none"{% endif %}>{{ _('Close ticket') }}</button>
-                <button data-ajax="{{ url('ticket_open', ticket.id) }}" data-open="1" class="open-ticket"
+                <button data-ajax="{{ url('ticket_open', ticket.id) }}" data-open="1" class="ui fluid positive button open-ticket"
                         {% if ticket.is_open %}style="display: none"{% endif %}>{{ _('Reopen ticket') }}</button>
 
                 {% if perms.judge.change_ticket or request.profile in assignees %}

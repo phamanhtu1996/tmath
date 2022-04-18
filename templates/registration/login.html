@@ -27,53 +27,71 @@
 {% endblock %}
 
 {% block body %}
-    <div class="auth-flow-form">
-        <form action="" method="post" class="form-area">
-            {% csrf_token %}
-            {% if form.errors %}
-                <div id="form-errors">
-                    <p class="error">{{ _('Invalid username or password.') }}</p>
+    <div class="ui container">
+        <div class="ui placeholder segment">
+            <div class="ui two column very relaxed stackable grid">
+                <div class="column">
+                    <form action="" method="post" class="ui form">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                        <div id="form-errors">
+                            <p class="error">{{ _('Invalid username or password.') }}</p>
+                        </div>
+                        {% endif %}
+                        <div class="field">
+                            <label for="{{ form.username.id_for_label }}">
+                                {{ _('Username') }}
+                            </label>
+                            <div class="ui left icon input">
+                                {{ form.username }}
+                                <i class="user icon"></i>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="{{ form.password.id_for_label }}">
+                                {{ _('Password') }}
+                            </label>
+                            <div class="ui left icon input">
+                                <i class="lock icon"></i>
+                                {{ form.password }}
+                            </div>
+                        </div>
+                        <button type="submit" class="ui fluid primary button">{{ _('Login!') }}</button>
+                        <input type="hidden" name="next" value="{{ next }}">
+                    </form>
+                    <a href="{{ url('password_reset') }}">{{ _('Forgot your password?') }}</a>
+            
+                    {% if form.has_google_auth or form.has_facebook_auth or form.has_github_auth %}
+                        <h4>{{ _('Or log in with...') }}</h4>
+                        <div>
+                            {% if form.has_google_auth %}
+                                <a href="{{ url('social:begin', "google-oauth2") }}?next={{ next }}" class="social google-icon">
+                                    <i class="fa fa-google-plus-square"></i>
+                                </a>
+                            {% endif %}
+                            {% if form.has_facebook_auth %}
+                                <a href="{{ url('social:begin', "facebook") }}?next={{ next }}" class="social facebook-icon">
+                                    <i class="fa fa-facebook-square"></i>
+                                </a>
+                            {% endif %}
+                            {% if form.has_github_auth %}
+                                <a href="{{ url('social:begin', "github-secure") }}?next={{ next }}" class="social github-icon">
+                                    <i class="fa fa-github-square"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </div>
-            {% endif %}
-            <table border="0" style="text-align:left">
-                <tr>
-                    <th><i class="fa fa-user fa-fw"></i>
-                    </th>
-                    <td>{{ form.username }}
-                    </td>
-                </tr>
-                <tr>
-                    <th><i class="fa fa-key fa-fw"></i>
-                    </th>
-                    <td>{{ form.password }}
-                    </td>
-                </tr>
-            </table>
-            <hr>
-            <button style="float:right;" type="submit">{{ _('Login!') }}</button>
-            <input type="hidden" name="next" value="{{ next }}">
-        </form>
-        <a href="{{ url('password_reset') }}">{{ _('Forgot your password?') }}</a>
-
-        {% if form.has_google_auth or form.has_facebook_auth or form.has_github_auth %}
-            <h4>{{ _('Or log in with...') }}</h4>
-            <div>
-                {% if form.has_google_auth %}
-                    <a href="{{ url('social:begin', "google-oauth2") }}?next={{ next }}" class="social google-icon">
-                        <i class="fa fa-google-plus-square"></i>
+                <div class="middle aligned column">
+                    <a href="{{ url('registration_register') }}" class="ui big button">
+                        <i class="signup icon"></i>
+                        Sign Up
                     </a>
-                {% endif %}
-                {% if form.has_facebook_auth %}
-                    <a href="{{ url('social:begin', "facebook") }}?next={{ next }}" class="social facebook-icon">
-                        <i class="fa fa-facebook-square"></i>
-                    </a>
-                {% endif %}
-                {% if form.has_github_auth %}
-                    <a href="{{ url('social:begin', "github-secure") }}?next={{ next }}" class="social github-icon">
-                        <i class="fa fa-github-square"></i>
-                    </a>
-                {% endif %}
+                </div>
             </div>
-        {% endif %}
+            <div class="ui vertical divider">
+                Or
+            </div>
+        </div>
     </div>
 {% endblock %}
