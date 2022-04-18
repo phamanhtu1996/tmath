@@ -46,201 +46,202 @@
         {% endif %}
 
         <script src="{{ static('libs/chart.js/Chart.js') }}"></script>
-        <script type="text/javascript">
-            $(function () {
-                var info_float = $('.info-float');
-                var container = $('#content-right');
-                if (window.bad_browser) {
-                    container.css('float', 'right');
-                } else {
-                    $(window).resize(function () {
-                        info_float.width(container.width());
-                    });
+        {% endcompress %}
+        
+    <script type="text/javascript">
+        $(function () {
+            var info_float = $('.info-float');
+            var container = $('#content-right');
+            if (window.bad_browser) {
+                container.css('float', 'right');
+            } else {
+                $(window).resize(function () {
                     info_float.width(container.width());
-                }
+                });
+                info_float.width(container.width());
+            }
 
-                function escapeRegExp(string) {
-                    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-                }
+            function escapeRegExp(string) {
+                return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+            }
 
-                function idAndTextMatcher(params, data) {
-                    if ($.trim(params.term) === '')
-                        return data;
-                    var regex = new RegExp(escapeRegExp(params.term), 'i');
-                    return data.text.search(regex) >= 0 || data.id.search(regex) >= 0 ? data : null;
-                }
+            function idAndTextMatcher(params, data) {
+                if ($.trim(params.term) === '')
+                    return data;
+                var regex = new RegExp(escapeRegExp(params.term), 'i');
+                return data.text.search(regex) >= 0 || data.id.search(regex) >= 0 ? data : null;
+            }
 
-                $('#status').select2({
-                    multiple: 1,
-                    placeholder: '{{ _('Filter by status...') }}',
-                    matcher: idAndTextMatcher,
-                }).css({'visibility': 'visible'});
+            $('#status').select2({
+                multiple: 1,
+                placeholder: '{{ _('Filter by status...') }}',
+                matcher: idAndTextMatcher,
+            }).css({'visibility': 'visible'});
 
-                $('#language').select2({
-                    multiple: 1,
-                    placeholder: '{{ _('Filter by language...') }}',
-                    matcher: idAndTextMatcher,
-                }).css({'visibility': 'visible'});
-            });
+            $('#language').select2({
+                multiple: 1,
+                placeholder: '{{ _('Filter by language...') }}',
+                matcher: idAndTextMatcher,
+            }).css({'visibility': 'visible'});
+        });
 
-            // Draw the statistics graph.
-            var chart = null;
-            function stats_graph(raw_data) {
-                var colors = {{ results_colors_json }};
+        // Draw the statistics graph.
+        var chart = null;
+        function stats_graph(raw_data) {
+            var colors = {{ results_colors_json }};
 
-                var ctx = $('#status-graph').find('canvas')[0].getContext('2d');
-                var font = $('body').css('font-family');
-                if (chart !== null) {
-                    chart.destroy();
-                }
-                chart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        datasets: [{
-                            data: raw_data.categories.map(function(entry) {
-                                return entry.count;
-                            }),
-                            backgroundColor: raw_data.categories.map(function(entry) {
-                                return colors[entry.code];
-                            }),
-                        }],
-                        labels: raw_data.categories.map(function(entry) {
-                            return entry.name;
+            var ctx = $('#status-graph').find('canvas')[0].getContext('2d');
+            var font = $('body').css('font-family');
+            if (chart !== null) {
+                chart.destroy();
+            }
+            chart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    datasets: [{
+                        data: raw_data.categories.map(function(entry) {
+                            return entry.count;
                         }),
+                        backgroundColor: raw_data.categories.map(function(entry) {
+                            return colors[entry.code];
+                        }),
+                    }],
+                    labels: raw_data.categories.map(function(entry) {
+                        return entry.name;
+                    }),
+                },
+                options: {
+                    animation: false,
+                    scaleFontFamily: font,
+                    tooltips: {
+                        titleFontFamily: font,
+                        bodyFontFamily: font,
                     },
-                    options: {
-                        animation: false,
-                        scaleFontFamily: font,
-                        tooltips: {
-                            titleFontFamily: font,
-                            bodyFontFamily: font,
-                        },
-                        legend: {
-                            display: false,
-                        },
+                    legend: {
+                        display: false,
                     },
-                });
-
-                $('#total-submission-count').text(raw_data.total);
-            }
-
-            $(function () {
-                stats_graph(window.results_json);
+                },
             });
 
-            function load_dynamic_update() {
-                var _collect = function (e) {
-                    return e.value;
-                };
-                var language_filter = $.map($('select#language option[selected]'), _collect);
-                var status_filter = $.map($('select#status option[selected]'), _collect);
+            $('#total-submission-count').text(raw_data.total);
+        }
 
-                var table = $('#submissions-table');
-                var statistics = $("#statistics-table");
-                var doing_ajax = false;
-                var first = parseInt(table.find('>div:first-child').attr('id'));
+        $(function () {
+            stats_graph(window.results_json);
+        });
 
-                var update_submission = function (message, force) {
-                    if (language_filter.length && 'language' in message &&
-                        language_filter.indexOf(message.language) == -1)
+        function load_dynamic_update() {
+            var _collect = function (e) {
+                return e.value;
+            };
+            var language_filter = $('input[name=language]').val().split(',');
+            var status_filter = $('input[name=status]').val().split(',');
+            if ($('input[name=language]').val() === "")
+                language_filter = []
+            if ($('input[name=status]').val() === "")
+                status_filter = []
+            var table = $('#submissions-table');
+            var statistics = $("#statistics-table");
+            var doing_ajax = false;
+            var first = parseInt(table.find('>div:first-child').attr('id'));
+
+            var update_submission = function (message, force) {
+                if (language_filter.length && 'language' in message &&
+                    language_filter.indexOf(message.language) == -1)
+                    return;
+                if (status_filter.length && 'status' in message &&
+                    status_filter.indexOf(message.status) == -1)
+                    return;
+                var id = message.id;
+                var row = table.find('div#' + id);
+                if (row.length < 1) {
+                    if (id < first)
                         return;
-                    if (status_filter.length && 'status' in message &&
-                        status_filter.indexOf(message.status) == -1)
-                        return;
-
-                    var id = message.id;
-                    var row = table.find('div#' + id);
-                    if (row.length < 1) {
-                        if (id < first)
-                            return;
-                        first = id;
-                        row = $('<div>', {id: id, 'class': 'ui middle aligned grid segment'}).hide().prependTo(table);
-                        if (table.find('>div').length >= {{ paginator.per_page }})
-                            table.find('>div:last-child').slideUp('slow', function () {
-                                $(this).remove();
-                            });
-                    }
-                    if (force || !doing_ajax) {
-                        if (!force) doing_ajax = true;
-                        $.ajax({
-                            url: '{{ url('submission_single_query') }}',
-                            data: {id: id, show_problem: show_problem}
-                        }).done(function (data) {
-                            var was_shown = row.is(':visible');
-                            row.html(data);
-                            register_time(row.find('.time-with-rel'));
-                            if (!was_shown) {
-                                row.slideDown('slow');
-                            }
-                            if (!force)
-                                setTimeout(function () {
-                                    doing_ajax = false;
-                                }, 1000);
-                        }).fail(function () {
-                            console.log('Failed to update submission: ' + id);
-                            if (!force) doing_ajax = false;
+                    first = id;
+                    row = $('<div>', {id: id, 'class': 'ui middle aligned grid segment'}).hide().prependTo(table);
+                    if (table.find('>div').length >= {{ paginator.per_page }})
+                        table.find('>div:last-child').slideUp('slow', function () {
+                            $(this).remove();
                         });
-                    }
-                };
-
-                var stats_outdated = false;
-                var last_stat_update = Date.now();
-                var stats_update_interval = {{ stats_update_interval|default(0) * 1000 }};
-
-                function update_stats() {
-                    if (Date.now() - last_stat_update < stats_update_interval)
-                        return;
+                }
+                if (force || !doing_ajax) {
+                    if (!force) doing_ajax = true;
                     $.ajax({
-                        url: '?results'
+                        url: '{{ url('submission_single_query') }}',
+                        data: {id: id, show_problem: show_problem}
                     }).done(function (data) {
-                        last_stat_update = Date.now();
-                        stats_graph(data);
+                        var was_shown = row.is(':visible');
+                        register_time(row.find('.time-with-rel'));
+                        if (!was_shown) {
+                            row.slideDown('slow');
+                        }
+                        if (!force)
+                            setTimeout(function () {
+                                doing_ajax = false;
+                            }, 1000);
                     }).fail(function () {
-                        console.log('Failed to update statistics table!' + id);
-                    }).always(function () {
-                        stats_outdated = false;
+                        console.log('Failed to update submission: ' + id);
+                        if (!force) doing_ajax = false;
                     });
                 }
+            };
 
-                $(window).on('dmoj:window-visible', function () {
-                    if (stats_outdated)
-                        update_stats();
+            var stats_outdated = false;
+            var last_stat_update = Date.now();
+            var stats_update_interval = {{ stats_update_interval|default(0) * 1000 }};
+
+            function update_stats() {
+                if (Date.now() - last_stat_update < stats_update_interval)
+                    return;
+                $.ajax({
+                    url: '?results'
+                }).done(function (data) {
+                    last_stat_update = Date.now();
+                    stats_graph(data);
+                }).fail(function () {
+                    console.log('Failed to update statistics table!' + id);
+                }).always(function () {
+                    stats_outdated = false;
                 });
-
-                var $body = $(document.body);
-                event_dispatcher.on('submissions', function (message) {
-                        if (dynamic_user_id && message.user != dynamic_user_id ||
-                            dynamic_problem_id && message.problem != dynamic_problem_id ||
-                            dynamic_contest_id && message.contest != dynamic_contest_id)
-                            return;
-                        if (message.type == 'update-submission') {
-                            if (message.state == 'test-case' && $body.hasClass('window-hidden'))
-                                return;
-                            update_submission(message);
-                        } else if (message.type == 'done-submission') {
-                            update_submission(message, true);
-
-                            if (!statistics.length) return;
-                            if ($('body').hasClass('window-hidden'))
-                                return stats_outdated = true;
-                            update_stats();
-                        }
-                    }
-                );
-                event_dispatcher.onwsclose = function (event) {
-                    if (event.code == 1001) {
-                        console.log('Navigated away');
-                        return;
-                    }
-                    console.log('You probably should refresh?');
-                    $('.ws-closed').show().find('a').click(function () {
-                        window.location.reload();
-                    });
-                };
             }
-        </script>
-    {% endcompress %}
 
+            $(window).on('dmoj:window-visible', function () {
+                if (stats_outdated)
+                    update_stats();
+            });
+
+            var $body = $(document.body);
+            event_dispatcher.on('submissions', function (message) {
+                    if (dynamic_user_id && message.user != dynamic_user_id ||
+                        dynamic_problem_id && message.problem != dynamic_problem_id ||
+                        dynamic_contest_id && message.contest != dynamic_contest_id)
+                        return;
+                    if (message.type == 'update-submission') {
+                        if (message.state == 'test-case' && $body.hasClass('window-hidden'))
+                            return;
+                        update_submission(message);
+                    } else if (message.type == 'done-submission') {
+                        update_submission(message, true);
+
+                        if (!statistics.length) return;
+                        if ($('body').hasClass('window-hidden'))
+                            return stats_outdated = true;
+                        update_stats();
+                    }
+                }
+            );
+            event_dispatcher.onwsclose = function (event) {
+                if (event.code == 1001) {
+                    console.log('Navigated away');
+                    return;
+                }
+                console.log('You probably should refresh?');
+                $('.ws-closed').show().find('a').click(function () {
+                    window.location.reload();
+                });
+            };
+        }
+    </script>
     {% if dynamic_update and EVENT_LAST_MSG %}
         <script type="text/javascript">
             $(function () {
@@ -352,7 +353,7 @@
                 </div>
             </div>
 
-            <div class="sidebox">
+            <div class="sidebox" id="statistics-table">
                 <div class="ui top attached secondary black inverted menu">
                     <h3 class="ui item header">{{ _('Statistics') }} </h3>
                     <div class="right menu">
@@ -377,14 +378,16 @@
                 <a href="javascript:void(0)">{{ _('You were disconnected. Refresh to show latest updates.') }}</a>
             </div>
 
-            {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
-            {% for submission in submissions %}
-                <div class="ui middle aligned grid segment" id="{{ submission.id }}">
-                    {% with problem_name=show_problem and (submission.problem.i18n_name or submission.problem.name) %}
-                        {% include "submission/row.html" %}
-                    {% endwith %}
-                </div>
-            {% endfor %}
+            <div id="submissions-table">
+                {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
+                {% for submission in submissions %}
+                    <div class="ui middle aligned grid segment" id="{{ submission.id }}">
+                        {% with problem_name=show_problem and (submission.problem.i18n_name or submission.problem.name) %}
+                            {% include "submission/row.html" %}
+                        {% endwith %}
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
     {% if page_obj.has_other_pages() %}
