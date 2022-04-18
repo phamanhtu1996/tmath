@@ -144,7 +144,7 @@ class ProblemSubmitForm(ModelForm):
         label=_('Source file'),
         required=False,
     )
-    judge = ChoiceField(choices=(), widget=forms.HiddenInput(), required=False)
+    judge = ChoiceField(choices=(), widget=forms.HiddenInput(), required=False, label=_('Judge'))
 
     def clean(self):
         cleaned_data = super(ProblemSubmitForm, self).clean()
@@ -182,7 +182,7 @@ class ProblemSubmitForm(ModelForm):
 
         if judge_choices:
             self.fields['judge'].widget = Select2Widget(
-                attrs={'style': 'width: 150px', 'data-placeholder': _('Any judge')},
+                attrs={'data-placeholder': _('Any judge')},
             )
             self.fields['judge'].choices = judge_choices
 

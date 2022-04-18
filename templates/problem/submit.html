@@ -136,11 +136,11 @@
                     $('#ace_source').height(Math.max($(window).height() - 353, 100));
                 }).resize();
 
-                $('#problem_submit').submit(function (event) {
+                $('.problem_submit').submit(function (event) {
                     if ($('#id_source').val().length > 65536) {
                         alert("{{ _('Your source code must contain at most 65536 characters.') }}");
                         event.preventDefault();
-                        $('#problem_submit').find(':submit').attr('disabled', false);
+                        $('.problem_submit').find(':submit').attr('disabled', false);
                     }
                 });
 
@@ -394,51 +394,50 @@
         {% endif %}
     {% endif %}
 
-    <form id="problem_submit" action="" method="post" class="ui form" enctype="multipart/form-data">
+    <form action="" method="post" class="ui form problem_submit" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.non_field_errors() }}
-        <div id="submit-wrapper">
-            <div id="editor" class="field hidden">
-                {{ form.source.errors }}
-                {{ form.source }}
-            </div>
-            <div id="file-submit" class="field hidden">
-                <div class="alert alert-warning alert-dismissable">
-                    <a class="close">x</a>
-                    {{ _('You can only submit file for this language.')}}
-                </div>
-                {{ form.submission_file.errors }}
-                <input id="file_upload" type="file" name="submission_file" style="display: none;" onchange="handleFileChange()">
-                <label for="file_upload" id="file_drag"></label>
-            </div>
-            {% if not no_judges %}
-            <div id="language" class="field">
-                {{ form.language.errors }}
-                <div id="language-select">
-                    <select id="id_language" name="language">
-                        {% for lang in form.fields.language.queryset %}
-                            <option value="{{ lang.id }}" data-id="{{ lang.id }}" data-name="{{ lang.name }}"
-                                    data-info="{{ lang.info }}" data-ace="{{ lang.ace }}" data-fileonly="{{ lang.file_only }}"
-                                    data-ext="{{ lang.extension }}" data-file-size="{{ lang.file_size_limit }}"
-                                    data-judge-info="{{ runtime_versions(lang.runtime_versions()) }}"
-                                    {% if lang.id == default_lang.id %}selected{% endif %}>{{ lang.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            {% endif %}
+        <div id="editor" class="field hidden">
+            {{ form.source.errors }}
+            {{ form.source }}
         </div>
-
-        <hr>
+        <div id="file-submit" class="field hidden">
+            <div class="alert alert-warning alert-dismissable">
+                <a class="close">x</a>
+                {{ _('You can only submit file for this language.')}}
+            </div>
+            {{ form.submission_file.errors }}
+            <input id="file_upload" type="file" name="submission_file" style="display: none;" onchange="handleFileChange()">
+            <label for="file_upload" id="file_drag"></label>
+        </div>
+        {% if not no_judges %}
+        
+        {% endif %}
 
         {% if no_judges %}
             <span class="ui red text">{{ _('No judge is available for this problem.') }}</span>
         {% else %}
-        <div class="field">
-            {{ form.judge }}
+        <div class="two fields">
+            <div id="language-select" class="field">
+                {{ form.language.errors }}
+                {{ form.language.label_tag() }}
+                <select id="id_language" name="language">
+                    {% for lang in form.fields.language.queryset %}
+                        <option value="{{ lang.id }}" data-id="{{ lang.id }}" data-name="{{ lang.name }}"
+                                data-info="{{ lang.info }}" data-ace="{{ lang.ace }}" data-fileonly="{{ lang.file_only }}"
+                                data-ext="{{ lang.extension }}" data-file-size="{{ lang.file_size_limit }}"
+                                data-judge-info="{{ runtime_versions(lang.runtime_versions()) }}"
+                                {% if lang.id == default_lang.id %}selected{% endif %}>{{ lang.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
+                {{ form.judge.label_tag() }}
+                {{ form.judge }}
+            </div>
         </div>
-        <input type="submit" value="{{ _('Submit!') }}" class="ui primary button"
-                {% if request.in_contest and submission_limit and not submissions_left %}disabled{% endif %}>
+        <input type="submit" value="{{ _('Submit!') }}" class="ui primary fluid button"
+        {% if request.in_contest and submission_limit and not submissions_left %}disabled{% endif %}>
         {% endif %}
     </form>
 {% endblock %}
