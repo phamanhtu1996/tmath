@@ -368,6 +368,8 @@ class ContestJoin(LoginRequiredMixin, ContestMixin, BaseDetailView):
         else:
             SPECTATE = ContestParticipation.SPECTATE
             LIVE = ContestParticipation.LIVE
+            if not self.is_editor and requires_access_code:
+                raise ContestAccessDenied()
             try:
                 participation = ContestParticipation.objects.get(
                     contest=contest, user=profile, virtual=(SPECTATE if self.is_editor or self.is_tester else LIVE),
