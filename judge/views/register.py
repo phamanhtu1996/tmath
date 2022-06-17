@@ -1,4 +1,5 @@
 # coding=utf-8
+from audioop import reverse
 import re
 
 from django import forms
@@ -7,6 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import get_default_password_validators
 from django.forms import ChoiceField, ModelChoiceField
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.utils.translation import gettext, gettext_lazy as _
 from registration.backends.default.views import (ActivationView as OldActivationView,
                                                  RegistrationView as OldRegistrationView)
@@ -33,7 +35,6 @@ class CustomRegistrationForm(RegistrationForm):
                                               label=_('Organizations'), required=False,
                                               widget=Select2MultipleWidget(attrs={'style': 'width:100%'}))
     name = forms.RegexField(regex=r'^(?!\s*$).+', max_length=50, required=True, label=_('Fullname'))
-    emath = forms.BooleanField(required=False, label=_('Emath'))
 
     if newsletter_id is not None:
         newsletter = forms.BooleanField(label=_('Subscribe to newsletter?'), initial=True, required=False)
@@ -59,6 +60,9 @@ class RegistrationView(OldRegistrationView):
     form_class = CustomRegistrationForm
     template_name = 'registration/registration_form.html'
 
+    def get_success_url(self, user=None):
+        return reverse_lazy('auth_login')
+
     def get_context_data(self, **kwargs):
         if 'title' not in kwargs:
             kwargs['title'] = self.title
@@ -71,13 +75,14 @@ class RegistrationView(OldRegistrationView):
 
     def register(self, form):
         user = super(RegistrationView, self).register(form)
+        user.is_active = True
+        user.save()
         profile, _ = Profile.objects.get_or_create(user=user, defaults={
             'language': Language.get_default_language(),
         })
 
         cleaned_data = form.cleaned_data
         profile.timezone = cleaned_data['timezone']
-        profile.emath = cleaned_data['emath']
         profile.name = cleaned_data['name']
         profile.language = cleaned_data['language']
         profile.organizations.add(*cleaned_data['organizations'])

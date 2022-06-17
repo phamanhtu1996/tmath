@@ -22,11 +22,9 @@ from judge.views.problem_data import ProblemDataView, ProblemSubmissionDiff, \
 from judge.views.register import ActivationView, RegistrationView
 from judge.views.select2 import AssigneeSelect2View, CommentSelect2View, ContestSelect2View, \
     ContestUserSearchSelect2View, OrganizationSelect2View, ProblemSelect2View, TicketUserSelect2View, \
-    UserSearchSelect2View, UserSelect2View, MathProblemSelect2View #, UserSearchSematicView
+    UserSearchSelect2View, UserSelect2View#, UserSearchSematicView
 from judge.views.widgets import martor_image_uploader
 from chat.views import NewMessageAjax
-
-from emath.admin import emath_admin_site # name = emath_admin
 
 admin.autodiscover()
 
@@ -108,7 +106,6 @@ urlpatterns = [
     url(r'^index/$', blog.PostList.as_view(template_name='home.html', title=_('Home')), kwargs={'page': 1}, name='home'),
     url(r'^500/$', exception),
     url(r'^admin/', admin.site.urls),
-    url(r'^emath_admin/', emath_admin_site.urls, name='emathadmin'),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^accounts/', include(register_patterns)),
     url(r'^', include('social_django.urls')),
@@ -385,7 +382,6 @@ urlpatterns = [
     url(r'^judge-select2/', include([
         url(r'^profile/$', UserSelect2View.as_view(), name='profile_select2'),
         url(r'^organization/$', OrganizationSelect2View.as_view(), name='organization_select2'),
-        url(r'^mathproblem/$', MathProblemSelect2View.as_view(), name='mathproblem_select2'),
         url(r'^problem/$', ProblemSelect2View.as_view(), name='problem_select2'),
         url(r'^contest/$', ContestSelect2View.as_view(), name='contest_select2'),
         url(r'^comment/$', CommentSelect2View.as_view(), name='comment_select2'),
@@ -426,7 +422,3 @@ if 'newsletter' in settings.INSTALLED_APPS:
     urlpatterns.append(url(r'^newsletter/', include('newsletter.urls')))
 if 'impersonate' in settings.INSTALLED_APPS:
     urlpatterns.append(url(r'^impersonate/', include('impersonate.urls')))
-
-urlpatterns += [
-    url(r'^emath/', include('emath.urls')),
-]

@@ -133,10 +133,7 @@ class CustomLoginView(LoginView):
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        if self.request.user.profile.emath:
-            return reverse_lazy('emath:exam_list')
-        else:
-            return reverse_lazy('home')
+        return reverse_lazy('home')
 
     def form_valid(self, form):
         password = form.cleaned_data['password']

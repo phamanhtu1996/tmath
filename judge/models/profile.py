@@ -131,8 +131,6 @@ class Profile(models.Model):
                                    help_text=_('User-defined JavaScript for site customization.'))
     current_contest = models.OneToOneField('ContestParticipation', verbose_name=_('current contest'),
                                            null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
-    current_exam = models.OneToOneField('emath.ExamParticipation', verbose_name=_('current exam'),
-                                           null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
     math_engine = models.CharField(verbose_name=_('math engine'), choices=MATH_ENGINES_CHOICES, max_length=4,
                                    default=settings.MATHOID_DEFAULT_TYPE,
                                    help_text=_('the rendering engine used to render math'))
@@ -161,8 +159,6 @@ class Profile(models.Model):
     data_last_downloaded = models.DateTimeField(verbose_name=_('last data download time'), null=True, blank=True)
 
     last_change_name = models.DateTimeField(_("last change fullname"), default=get_default_time())
-
-    emath = models.BooleanField(verbose_name=_('Emath'), default=False)
 
     last_name = models.CharField(_("prev name"), max_length=255, null=True, default=None)
 

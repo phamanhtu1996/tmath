@@ -229,32 +229,11 @@ else:
             },
             # 'custom_style': 'statics/' + 'wpadmin/css/themes/sunrise.css'
         },
-        'emath_admin': {
-            'title': 'EMath Admin',
-            'menu': {
-                'top': 'wpadmin.menu.menus.BasicTopMenu',
-                'left': 'wpadmin.menu.custom.CustomModelLeftMenuWithDashboard',
-            },
-            'custom_menu': [
-                {
-                    'model': 'emath.Problem',
-                    'icon': 'fa-question-circle',
-                    'children': [
-                        'emath.MathGroup',
-                        # 'judge.ProblemType',
-                    ],
-                },
-            ],
-            'dashboard': {
-                'breadcrumbs': True,
-            },
-        },
     }
 
 INSTALLED_APPS += (
     'django.contrib.admin',
     'judge',
-    'emath',
     'chat',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -301,7 +280,6 @@ MIDDLEWARE = (
     'impersonate.middleware.ImpersonateMiddleware',
     'judge.middleware.DMOJImpersonationMiddleware',
     'judge.middleware.ContestMiddleware',
-    'judge.middleware.ExamMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'judge.social_auth.SocialAuthExceptionMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
