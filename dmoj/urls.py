@@ -102,8 +102,8 @@ def paged_list_view(view, name):
 
 
 urlpatterns = [
-    url(r'^$', blog.IndexView.as_view()),
-    url(r'^index/$', blog.PostList.as_view(template_name='home.html', title=_('Home')), kwargs={'page': 1}, name='home'),
+    # url(r'^$', blog.IndexView.as_view()),
+    url(r'^$', blog.PostList.as_view(template_name='home.html', title=_('Home')), kwargs={'page': 1}, name='home'),
     url(r'^500/$', exception),
     url(r'^admin/', admin.site.urls),
     url(r'^i18n/', include('django.conf.urls.i18n')),
