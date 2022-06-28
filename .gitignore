@@ -14,7 +14,6 @@ resources/table.css
 resources/martor-description.css
 sass_processed
 venv
-0*.py
 <desired*
 martor/*
 submission_file
