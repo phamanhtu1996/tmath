@@ -158,7 +158,7 @@ class Profile(models.Model):
                              help_text=_('Notes for administrators regarding this user.'))
     data_last_downloaded = models.DateTimeField(verbose_name=_('last data download time'), null=True, blank=True)
 
-    last_change_name = models.DateTimeField(_("last change fullname"), default=get_default_time())
+    last_change_name = models.DateTimeField(_("last change fullname"), default=get_default_time)
 
     last_name = models.CharField(_("prev name"), max_length=255, null=True, default=None)
 

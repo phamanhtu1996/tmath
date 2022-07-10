@@ -15,7 +15,7 @@ from judge.admin.ticket import TicketAdmin
 # from judge.admin.tmatheng import ExamAdmin, MathProblemAdmin, MathProblemGroupAdmin
 from judge.models import BlogPost, Comment, CommentLock, Contest, ContestParticipation, \
     ContestTag, Judge, Language, License, MiscConfig, NavigationBar, Organization, \
-    OrganizationRequest, Problem, ProblemGroup, ProblemType, Profile, Submission, Ticket, CourseModel, ProblemClass
+    OrganizationRequest, Problem, ProblemGroup, ProblemType, Profile, Submission, Ticket, CourseModel, ProblemClass, ContestLevel
 # from judge.models import ExamProblem, Exam, MathProblem
 # from judge.models.tmatheng import MathGroup
 
@@ -23,6 +23,7 @@ admin.site.register(BlogPost, BlogPostAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(CommentLock)
 admin.site.register(Contest, ContestAdmin)
+admin.site.register(ContestLevel)
 admin.site.register(ContestParticipation, ContestParticipationAdmin)
 admin.site.register(ContestTag, ContestTagAdmin)
 admin.site.unregister(FlatPage)

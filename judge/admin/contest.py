@@ -1,5 +1,6 @@
 from random import randrange
 from adminsortable2.admin import SortableInlineAdminMixin
+from django import forms
 from django.conf.urls import url
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
@@ -329,25 +330,50 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
 
 
 class ProblemInlineForm(ModelForm):
+    
+    def has_changed(self) -> bool:
+        return True
+
     class Meta:
         widgets = {'problem': AdminHeavySelect2Widget(data_view='problem_select2')}
 
+
+class ProblemInlineFormset(forms.BaseInlineFormSet):
+
+    def clean(self):
+        super().clean()
+        level = self.instance.level
+        if level is None:
+            return
+        delete_forms = self.deleted_forms
+        form_valid = [form for form in self.forms if form.is_valid() and form not in delete_forms]
+        for form in form_valid:
+            problem = form.cleaned_data['problem']
+            if SampleContestProblem.objects.filter(problem=problem, level=level).exclude(contest=self.instance).exists():
+                raise forms.ValidationError('Problem %(problem)s appeared in another level %(level)s sample contest!' % {
+                    'problem': problem,
+                    'level': level
+                })
+    
+    def save(self, commit: bool = True):
+        level = self.instance.level
+        instances = super().save(commit=False)
+        for obj in self.deleted_objects:
+            obj.delete()
+        for instance in instances:
+            instance.level = level
+            instance.save()
+        self.save_m2m()
+        
 
 class ProblemInline(SortableInlineAdminMixin, admin.TabularInline):
     model = SampleContestProblem
     verbose_name = _('Problem')
     verbose_name_plural = 'Problems'
-    fields = ('problem', 'points', 'partial', 'is_pretested', 'max_submissions', 'output_prefix_override', 'order',
-              'rejudge_column')
-    readonly_fields = ('rejudge_column',)
+    fields = ( 'order', 'problem', 'points', 'partial', 'is_pretested', 'max_submissions', 'output_prefix_override',)
     form = ProblemInlineForm
-
-    def rejudge_column(self, obj):
-        if obj.id is None:
-            return ''
-        return format_html('<a class="button rejudge-link" href="{}">Rejudge</a>',
-                           reverse('admin:judge_contest_rejudge', args=(obj.contest.id, obj.id)))
-    rejudge_column.short_description = ''
+    formset = ProblemInlineFormset
+    extra: int = 0
 
 
 class SampleContestForm(ModelForm):
@@ -364,12 +390,12 @@ class SampleContestAdmin(VersionAdmin):
         (None, {'fields': ('key', 'name', )}),
         (_('Settings'), {'fields': ('is_visible', 'use_clarifications', 'hide_problem_tags', 'hide_problem_authors',
                                     'run_pretests_only', 'scoreboard_visibility',
-                                    'points_precision')}),
+                                    'points_precision', 'level')}),
         (_('Scheduling'), {'fields': ('time_limit', )}),
         (_('Details'), {'fields': ('is_full_markup', 'description', 'logo_override_image', 'tags', 'summary')}),
         (_('Format'), {'fields': ('format_name', 'format_config', 'problem_label_script')}),
     )
-    list_display = ('key', 'name', 'is_visible', 'time_limit', 'clone_button')
+    list_display = ('key', 'name', 'is_visible', 'level', 'clone_button')
     search_fields = ('key', 'name')
     inlines = [ProblemInline]
     actions_on_top = True

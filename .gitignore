@@ -6,6 +6,8 @@
 *.mo
 *~
 *.swp
+node_modules
+static
 dmoj/local_settings.py
 resources/style.css
 resources/content-description.css

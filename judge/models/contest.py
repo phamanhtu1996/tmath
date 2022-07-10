@@ -55,6 +55,19 @@ class ContestTag(models.Model):
         verbose_name_plural = _('contest tags')
 
 
+class ContestLevel(models.Model):
+    code = models.CharField(_("code"), max_length=50, unique=True, blank=False,
+                            help_text=_('code for this contest level'))
+    about = models.CharField(_("description"), max_length=255, blank=False,
+                            help_text=_('detail for this contest level'))
+    
+    def __str__(self) -> str:
+        return self.code
+
+    class Meta:
+        verbose_name = _('contest level')
+        verbose_name_plural = _('contest levels')
+
 
 class Contest(models.Model):
     SCOREBOARD_VISIBLE = 'V'
@@ -491,6 +504,7 @@ class SampleContest(models.Model):
     points_precision = models.IntegerField(verbose_name=_('precision points'), default=3,
                                            validators=[MinValueValidator(0), MaxValueValidator(10)],
                                            help_text=_('Number of digits to round points to.'))
+    level = models.ForeignKey(ContestLevel, verbose_name=_("contest level"), on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         verbose_name = _('sample contest')
@@ -603,6 +617,8 @@ class SampleContestProblem(models.Model):
                                           default=None, null=True, blank=True,
                                           validators=[MinValueOrNoneValidator(1, _('Why include a problem you '
                                                                                    'can\'t submit to?'))])
+    level = models.ForeignKey(ContestLevel, verbose_name=_("level"), on_delete=models.SET_NULL, null=True, blank=True)
+
     class Meta:
         unique_together = ('problem', 'contest')
         verbose_name = _('sample contest problem')
