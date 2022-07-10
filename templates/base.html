@@ -310,7 +310,7 @@
 </svg>
 
 <div class="ui vertical inverted sidebar menu left" id="mobile-nav">
-    <a class="ui item image" href="/index">
+    <a class="ui item image" href="/">
         {% include 'site-logo-fragment.html' %}
     </a>
     {% for node in mptt_tree(nav_bar) recursive %}
@@ -344,7 +344,6 @@
         <div class="menu">
             {% if request.user.is_staff or request.user.is_superuser %}
             <a href="{{ url('admin:index') }}" class="item">{{ _('Admin') }}</a>
-            <a href="{{ url('emath_admin:index') }}" class="item">{{ _('Emath admin') }}</a>
             {% endif %}
             <a href="{{ url('user_edit_profile') }}" class="item">{{ _('Edit profile') }}</a>
             {% if request.user.is_impersonate %}
@@ -370,7 +369,7 @@
     <div class="following bar">
         <div class="ui container">
             <div class="ui secondary menu inverted">
-                <a class="ui item image" href="/index">
+                <a class="ui item image" href="/">
                     {% include 'site-logo-fragment.html' %}
                 </a>
                 {% for node in mptt_tree(nav_bar) recursive %}
@@ -413,7 +412,6 @@
                         <div class="menu">
                             {% if request.user.is_staff or request.user.is_superuser %}
                             <a href="{{ url('admin:index') }}" class="item">{{ _('Admin') }}</a>
-                            <a href="{{ url('emath_admin:index') }}" class="item">{{ _('Emath admin') }}</a>
                             {% endif %}
                             <a href="{{ url('user_edit_profile') }}" class="item">{{ _('Edit profile') }}</a>
                             {% if request.user.is_impersonate %}

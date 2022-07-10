@@ -235,6 +235,7 @@ INSTALLED_APPS += (
     'django.contrib.admin',
     'judge',
     'chat',
+    'emath',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.flatpages',
