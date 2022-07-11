@@ -18,7 +18,7 @@ from reversion.admin import VersionAdmin
 from django_ace import AceWidget
 from judge.models import Contest, ContestProblem, ContestSubmission, Profile, Rating, Submission, Organization, SampleContest, \
     Problem
-from judge.models.contest import SampleContestProblem
+from judge.models.contest import ContestLevel, SampleContestProblem
 from judge.ratings import rate_contest
 from judge.utils.views import NoBatchDeleteMixin
 from judge.widgets import AdminHeavySelect2MultipleWidget, AdminHeavySelect2Widget, AdminMartorWidget, \
@@ -383,6 +383,18 @@ class SampleContestForm(ModelForm):
             'description': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('contest_preview')}),
         }
 
+class ContestLevelFilter(admin.SimpleListFilter):
+    title = parameter_name = 'level'
+
+    def lookups(self, request, model_admin):
+        queryset = ContestLevel.objects.values_list('code', flat=True)
+        return [(name, name) for name in queryset]
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+        return queryset.filter(level__code=self.value())
+
 
 @admin.register(SampleContest)
 class SampleContestAdmin(VersionAdmin):
@@ -396,6 +408,7 @@ class SampleContestAdmin(VersionAdmin):
         (_('Format'), {'fields': ('format_name', 'format_config', 'problem_label_script')}),
     )
     list_display = ('key', 'name', 'is_visible', 'level', 'clone_button')
+    list_filter = (ContestLevelFilter, )
     search_fields = ('key', 'name')
     inlines = [ProblemInline]
     actions_on_top = True
