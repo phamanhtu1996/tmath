@@ -18,6 +18,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_ace import AceWidget
 from judge.models import Contest, Language, Organization, Problem, Profile, Submission, WebAuthnCredential
+from judge.models.contest import SampleContest, SampleContestProblem
 from judge.models.problem import LanguageLimit, Solution
 from judge.utils.subscription import newsletter_id
 from judge.widgets import HeavyPreviewPageDownWidget, Select2MultipleWidget, Select2Widget, CheckboxSelectMultipleWithSelectAll
@@ -423,3 +424,39 @@ SolutionInlineFormset = inlineformset_factory(
     can_delete=True,
     max_num=1
 )
+
+
+class SampleProblemForm(ModelForm):
+    class Meta:
+        model = SampleContestProblem
+        fields = '__all__'
+
+
+from .admin.contest import ProblemInlineFormset
+
+
+SampleProblemInlineFormset = inlineformset_factory(
+    SampleContest,
+    SampleContestProblem,
+    form=SampleProblemForm,
+    formset=ProblemInlineFormset,
+    extra=0,
+    can_delete=True,
+)
+
+
+class SampleContestForm(ModelForm):
+    class Meta:
+        model = SampleContest
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def clean_key(self):
+        key = self.cleaned_data['key']
+        qs = SampleContest.objects.filter(key=key)
+        print(self.instance)
+        if qs.count() > 0:
+            raise forms.ValidationError(_('Sample contest with key already exists.'))
+        
