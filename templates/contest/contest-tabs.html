@@ -21,6 +21,7 @@
             {{ make_tab('moss', 'fa-gavel', url('contest_moss', contest.key), _('MOSS')) }}
         {% endif %}
         {{ make_tab('edit', 'fa-edit', url('admin:judge_contest_change', contest.id), _('Edit')) }}
+        {{ make_tab('pdf', 'fa-file-pdf', url('contest_pdf', contest.key), _('PDF')) }}
     {% endif %}
     {% if perms.judge.clone_contest %}
         {{ make_tab('clone', 'fa-copy', url('contest_clone', contest.key), _('Clone')) }}

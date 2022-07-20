@@ -4,7 +4,10 @@ from collections import defaultdict, namedtuple
 from datetime import date, datetime, time, timedelta
 from functools import partial
 from itertools import chain
+import logging
 from operator import attrgetter, itemgetter
+import os
+import shutil
 
 from django import forms
 from django.conf import settings
@@ -18,21 +21,25 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpRespo
 from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import date as date_filter
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext as _, gettext_lazy
-from django.views.generic import ListView, TemplateView
+from django.views.generic import ListView, TemplateView, CreateView
+from django.template.loader import get_template
 from django.views.generic.detail import BaseDetailView, DetailView, SingleObjectMixin, View
 from reversion import revisions
 
 from judge import event_poster as event
 from judge.comments import CommentedDetailView
-from judge.forms import ContestCloneForm
+from judge.forms import ContestCloneForm, SampleContestForm
 from judge.models import Contest, ContestMoss, ContestParticipation, ContestProblem, ContestTag, \
     Problem, Profile, Submission
+from judge.models.contest import SampleContest
+from judge.models.problem import ProblemTranslation
+from judge.pdf_problems import DefaultPdfMaker, HAS_PDF
 from judge.models.profile import Organization
 from judge.tasks import run_moss
 from judge.utils.celery import redirect_to_task_status
@@ -40,7 +47,7 @@ from judge.utils.opengraph import generate_opengraph
 from judge.utils.problems import _get_result_data
 from judge.utils.ranker import ranker
 from judge.utils.stats import get_bar_chart, get_pie_chart
-from judge.utils.views import DiggPaginatorMixin, QueryStringSortMixin, SingleObjectFormView, TitleMixin, \
+from judge.utils.views import DiggPaginatorMixin, QueryStringSortMixin, SingleObjectFormView, TitleMixin, add_file_response, \
     generic_message
 
 __all__ = ['ContestList', 'ContestDetail', 'ContestRanking', 'ContestJoin', 'ContestLeave', 'ContestCalendar',
@@ -841,3 +848,77 @@ class ContestTagDetail(TitleMixin, ContestTagDetailAjax):
 
     def get_title(self):
         return _('Contest tag: %s') % self.object.name
+
+
+# class SampleContestCreateView(TitleMixin, CreateView):
+#     title = _('Create Sample Contest')
+#     model = SampleContest
+#     template_name = "contest/createSampleContest.html"
+#     context_object_name = 'contest'
+#     slug_url_kwarg: str = 'contest'
+#     slug_field: str = 'key'
+#     form_class = SampleContestForm
+
+
+class ContestPdfView(ContestMixin, SingleObjectMixin, View):
+    logger = logging.getLogger('judge.problem.pdf')
+    languages = set(map(itemgetter(0), settings.LANGUAGES))
+
+    def get(self, request, *args, **kwargs):
+        if not HAS_PDF:
+            raise Http404()
+
+        language = kwargs.get('language', self.request.LANGUAGE_CODE)
+
+        if language not in self.languages:
+            raise Http404()
+
+        contest = self.get_object()
+        
+        problems = contest.problems.all()
+
+        list_trans = ()
+
+        for problem in problems:
+            try:
+                trans = problem.translations.get(language=language)
+            except ProblemTranslation.DoesNotExist:
+                trans = None
+            list_trans += ((problem, trans),)
+
+        cache = os.path.join(settings.DMOJ_PDF_CONTEST_CACHE, '%s.%s.pdf' % (contest.key, language))
+
+        if not os.path.exists(cache):
+            self.logger.info('Rendering: %s.%s.pdf', contest.key, language)
+            with DefaultPdfMaker() as maker, translation.override(language):
+                maker.html = get_template('contest/raw.html').render({
+                    'contest': contest,
+                    'problems': [(problem, problem.name if trans is None else trans.name, problem.description if trans is None else trans.description) for problem, trans in list_trans],
+                    'url': request.build_absolute_uri(),
+                    'math_engine': maker.math_engine,
+                }).replace('"//', '"https://').replace("'//", "'https://")
+                maker.title = contest.name
+
+                assets = ['style.css', 'pygment-github.css']
+                if maker.math_engine == 'jax':
+                    assets.append('mathjax_config.js')
+                for file in assets:
+                    maker.load(file, os.path.join(settings.DMOJ_RESOURCES, file))
+                maker.make()
+                if not maker.success:
+                    self.logger.error('Failed to render PDF for %s', contest.key)
+                    return HttpResponse(maker.log, status=500, content_type='text/plain')
+                shutil.move(maker.pdffile, cache)
+
+        response = HttpResponse()
+
+        if hasattr(settings, 'DMOJ_PDF_CONTEST_INTERNAL'):
+            url_path = '%s/%s.%s.pdf' % (settings.DMOJ_PDF_CONTEST_INTERNAL, contest.key, language)
+        else:
+            url_path = None
+
+        add_file_response(request, response, url_path, cache)
+
+        response['Content-Type'] = 'application/pdf'
+        response['Content-Disposition'] = 'inline; filename=%s.%s.pdf' % (contest.key, language)
+        return response

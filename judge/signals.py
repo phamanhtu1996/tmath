@@ -16,6 +16,8 @@ from .models import BlogPost, Comment, Contest, ContestSubmission, EFFECTIVE_MAT
 def get_pdf_path(basename):
     return os.path.join(settings.DMOJ_PDF_PROBLEM_CACHE, basename)
 
+def get_pdf_contest_path(basename):
+    return os.path.join(settings.DMOJ_PDF_CONTEST_CACHE, basename)
 
 def unlink_if_exists(file):
     try:
@@ -68,6 +70,9 @@ def webauthn_delete(sender, instance, **kwargs):
 def contest_update(sender, instance, **kwargs):
     if hasattr(instance, '_updating_stats_only'):
         return
+
+    for lang, _ in settings.LANGUAGES:
+        unlink_if_exists(get_pdf_contest_path('%s.%s.pdf' % (instance.key, lang)))
 
     cache.delete_many(['generated-meta-contest:%d' % instance.id] +
                       [make_template_fragment_key('contest_html', (instance.id, engine))

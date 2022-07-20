@@ -1,4 +1,5 @@
 from functools import partial
+import random
 
 from django.conf import settings
 from django.contrib.auth.context_processors import PermWrapper
@@ -9,7 +10,7 @@ from django.utils.functional import SimpleLazyObject, new_method_proxy
 from judge import event_poster as event
 from judge.utils.caniuse import CanIUse, SUPPORT
 from .models import MiscConfig, NavigationBar, Profile
-from emath.models.interface import Navigation
+# from emath.models.interface import Navigation
 
 
 class FixedSimpleLazyObject(SimpleLazyObject):
@@ -62,12 +63,14 @@ def __nav_tab(path):
 
 def general_info(request):
     path = request.get_full_path()
+    version = random.randint(1, 1000000000)
     return {
         'nav_tab': FixedSimpleLazyObject(partial(__nav_tab, request.path)),
-        'nav_bar': Navigation.objects.all() if path.startswith('/emath/') else NavigationBar.objects.all(),
+        'nav_bar': NavigationBar.objects.all(),
         'LOGIN_RETURN_PATH': '' if path.startswith('/accounts/') else path,
         'perms': PermWrapper(request.user),
         'HAS_WEBAUTHN': bool(settings.WEBAUTHN_RP_ID),
+        'version': version,
     }
 
 

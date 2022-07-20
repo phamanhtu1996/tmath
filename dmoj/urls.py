@@ -234,7 +234,10 @@ urlpatterns = [
             name='contest_participation_disqualify'),
 
         url(r'^/$', lambda _, contest: HttpResponsePermanentRedirect(reverse('contest_view', args=[contest]))),
+        url(r'^/pdf$', contests.ContestPdfView.as_view(), name="contest_pdf"),
     ])),
+
+    # url(r'^scontest/$', contests.SampleContestCreateView.as_view(), name='create_sample_contest'),
 
     url(r'^organizations/$', organization.OrganizationList.as_view(), name='organization_list'),
     url(r'^organization/(?P<pk>\d+)-(?P<slug>[\w-]*)', include([
