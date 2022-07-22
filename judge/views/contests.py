@@ -860,6 +860,37 @@ class ContestTagDetail(TitleMixin, ContestTagDetailAjax):
 #     form_class = SampleContestForm
 
 
+class ContestRawView(ContestMixin, DetailView):
+    languages = set(map(itemgetter(0), settings.LANGUAGES))
+    template_name: str = 'contest/raw.html'
+
+    def get_context_data(self, **kwargs):
+        language = kwargs.get('language', self.request.LANGUAGE_CODE)
+
+        if language not in self.languages:
+            raise Http404()
+
+        contest = self.get_object()
+        
+        cproblems = contest.contest_problems.order_by('order')
+
+        problems = [c.problem for c in cproblems]
+
+        list_trans = ()
+
+        for problem in problems:
+            try:
+                trans = problem.translations.get(language=language)
+            except ProblemTranslation.DoesNotExist:
+                trans = None
+            list_trans += ((problem, trans),)
+        context = super().get_context_data(**kwargs)
+        context['problems'] = [(problem, problem.name if trans is None else trans.name, problem.description if trans is None else trans.description) for problem, trans in list_trans]
+        context['url'] = self.request.build_absolute_uri()
+        context['math_engine'] = 'jax'
+        return context
+
+
 class ContestPdfView(ContestMixin, SingleObjectMixin, View):
     logger = logging.getLogger('judge.problem.pdf')
     languages = set(map(itemgetter(0), settings.LANGUAGES))
@@ -875,7 +906,9 @@ class ContestPdfView(ContestMixin, SingleObjectMixin, View):
 
         contest = self.get_object()
         
-        problems = contest.problems.all()
+        cproblems = contest.contest_problems.order_by('order')
+
+        problems = [c.problem for c in cproblems]
 
         list_trans = ()
 

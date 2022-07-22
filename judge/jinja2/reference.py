@@ -172,6 +172,10 @@ def absolute_links(text, url):
         href = anchor.get('href')
         if href:
             anchor.set('href', urljoin(url, href))
+    for anchor in tree.xpath('.//img'):
+        href = anchor.get('src')
+        if href:
+            anchor.set('src', urljoin(url, href))
     return tree
 
 
