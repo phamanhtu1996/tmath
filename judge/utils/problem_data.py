@@ -51,10 +51,10 @@ class ProblemDataError(Exception):
 
 
 def get_visible_content(archive, filename):
-    if archive.getinfo(filename).file_size <= settings.VNOJ_TESTCASE_VISIBLE_LENGTH:
+    if archive.getinfo(filename).file_size <= settings.TMATH_TESTCASE_VISIBLE_LENGTH:
         data = archive.read(filename)
     else:
-        data = archive.open(filename).read(settings.VNOJ_TESTCASE_VISIBLE_LENGTH) + b'...'
+        data = archive.open(filename).read(settings.TMATH_TESTCASE_VISIBLE_LENGTH) + b'...'
     return data.decode('utf-8', errors='ignore')
 
 
@@ -92,7 +92,7 @@ def get_problem_testcases_data(problem):
         return {}
 
     testcases_data = {}
-
+    print('testcase')
     # TODO:
     # - Support manually managed problems
     # - Support pretest
@@ -105,7 +105,7 @@ def get_problem_testcases_data(problem):
             testcases_data[order] = get_testcase_data(archive, case)
         except Exception:
             return {}
-
+    print(testcases_data)
     return testcases_data
 
 

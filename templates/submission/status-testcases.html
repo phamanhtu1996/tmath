@@ -134,10 +134,10 @@
                         {% endif %}
                         {% if case.extended_feedback %}
                         <div class="ui {% if case.status == "AC" %}positive{% else %}negative{% endif %} message">
-                            {{ curr_data }}
                             {% if can_view_test and curr_data %}
                                 <strong>{{ _('Input:') }}</strong>
                                 <pre class="case-output">{{ curr_data['input']|linebreaksbr }}</pre>
+                                </br>
                                 <strong>{{ _('Answer:') }}</strong>
                                 <pre class="case-output">{{ curr_data['answer']|linebreaksbr }}</pre>
                             {% endif %}
