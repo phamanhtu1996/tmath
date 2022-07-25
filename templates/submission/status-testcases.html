@@ -99,7 +99,7 @@
                                     <b>#{{ test_case_id() }}</b>
                                 {%- endif -%}
                             </div>
-                            <div class="one wide computer two wide tablet column">
+                            <div class="three wide computer two wide tablet column">
                                 <span title="{{ case.long_status }}" class="case-{{ case.status }}">
                                     {%- if case.status == 'SC' %}&mdash;{% else %}{{ case.status }}{% endif -%}
                                 </span>
@@ -134,6 +134,7 @@
                         {% endif %}
                         {% if case.extended_feedback %}
                         <div class="ui {% if case.status == "AC" %}positive{% else %}negative{% endif %} message">
+                            {{ curr_data }}
                             {% if can_view_test and curr_data %}
                                 <strong>{{ _('Input:') }}</strong>
                                 <pre class="case-output">{{ curr_data['input']|linebreaksbr }}</pre>

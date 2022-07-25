@@ -185,6 +185,17 @@ fieldset {
                                     {% endif %}
                                 </div>
                             </div>
+                            <div class="equal width fields">
+                                <div class="field">
+                                    {{ form.testcase_visibility_mode.label_tag() }}
+                                    {{ form.testcase_visibility_mode }}
+                                    {% if form.testcase_visibility_mode.help_text %}
+                                    <div class="help" style="margin-left: 0px; margin-top: 5px;">
+                                        {{ form.testcase_visibility_mode.help_text }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </fieldset>
                     </div>
                     <div class="row">
