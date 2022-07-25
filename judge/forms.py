@@ -348,7 +348,7 @@ class ProblemUpdateForm(ModelForm):
     class Meta:
         model = Problem
         fields = ['code', 'name', 'is_public', 'is_manually_managed', 'authors', 'curators', 'testers', 
-                'banned_users', 'is_organization_private', 'organizations', 
+                'banned_users', 'is_organization_private', 'organizations', 'testcase_visibility_mode',
                 'submission_source_visibility_mode', 'is_full_markup', 'description', 'license', 'og_image', 'summary',
                 'types', 'group', 'classes', 
                 'time_limit', 'memory_limit', 'points', 'partial', 'allowed_languages']
@@ -364,6 +364,7 @@ class ProblemUpdateForm(ModelForm):
             'group': SemanticSelect,
             'classes': SemanticSelect,
             'submission_source_visibility_mode': SemanticSelect,
+            'testcase_visibility_mode': SemanticSelect,
             # 'summary': MartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
             'license': SemanticSelect,
             'description': MartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
