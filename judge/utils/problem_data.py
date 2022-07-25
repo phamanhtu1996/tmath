@@ -92,7 +92,6 @@ def get_problem_testcases_data(problem):
         return {}
 
     testcases_data = {}
-    print('testcase')
     # TODO:
     # - Support manually managed problems
     # - Support pretest
@@ -105,7 +104,6 @@ def get_problem_testcases_data(problem):
             testcases_data[order] = get_testcase_data(archive, case)
         except Exception:
             return {}
-    print(testcases_data)
     return testcases_data
 
 
