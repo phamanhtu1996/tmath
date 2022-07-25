@@ -119,6 +119,11 @@ class SubmissionSourceAccess:
     ONLY_OWN = 'O'
     FOLLOW = 'F'
 
+class ProblemTestcaseAccess:
+    ALWAYS = 'A'
+    OUT_CONTEST = 'C'
+    AUTHOR_ONLY = 'O'
+
 
 class Problem(models.Model):
     SUBMISSION_SOURCE_ACCESS = (
@@ -126,6 +131,12 @@ class Problem(models.Model):
         (SubmissionSourceAccess.ALWAYS, _('Always visible')),
         (SubmissionSourceAccess.SOLVED, _('Visible if problem solved')),
         (SubmissionSourceAccess.ONLY_OWN, _('Only own submissions')),
+    )
+
+    PROBLEM_TESTCASE_ACCESS = (
+        (ProblemTestcaseAccess.AUTHOR_ONLY, _('Visible for authors')),
+        (ProblemTestcaseAccess.OUT_CONTEST, _('Visible if user is not in a contest')),
+        (ProblemTestcaseAccess.ALWAYS, _('Always visible')),
     )
 
     code = models.CharField(max_length=20, verbose_name=_('problem code'), unique=True,
@@ -190,6 +201,9 @@ class Problem(models.Model):
     submission_source_visibility_mode = models.CharField(verbose_name=_('submission source visibility'), max_length=1,
                                                          default=SubmissionSourceAccess.FOLLOW,
                                                          choices=SUBMISSION_SOURCE_ACCESS)
+    testcase_visibility_mode = models.CharField(verbose_name=_('Testcase visibility'), max_length=1,
+                                                default=ProblemTestcaseAccess.AUTHOR_ONLY,
+                                                choices=PROBLEM_TESTCASE_ACCESS)
 
     objects = TranslatedProblemQuerySet.as_manager()
     tickets = GenericRelation('Ticket')
@@ -222,6 +236,22 @@ class Problem(models.Model):
         return user.has_perm('judge.edit_own_problem') and \
             (user.profile.id in self.editor_ids or
                 self.is_organization_private and self.organizations.filter(admins=user.profile).exists())
+
+    def is_testcase_accessible_by(self, user):
+        if self.testcase_visibility_mode == ProblemTestcaseAccess.ALWAYS:
+            return True
+
+        if not user.is_authenticated:
+            return False
+
+        if self.is_editable_by(user):
+            return True
+
+        if self.testcase_visibility_mode == ProblemTestcaseAccess.OUT_CONTEST:
+            return user.profile.current_contest is None
+
+        # Don't need to check for ProblemTestcaseAccess.AUTHOR_ONLY
+        return False
 
     def is_accessible_by(self, user, skip_contest_problem_check=False):
         # If we don't want to check if the user is in a contest containing that problem.

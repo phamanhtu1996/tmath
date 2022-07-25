@@ -78,6 +78,7 @@
                     <div class="accordion">
                 {% endif %}
                     {% for case in batch.cases %}
+                    {% set curr_data = cases_data.get(case.case, None) %}
                     <div class="title">
                         <div class="ui grid">
                             <div class="{% if batch.id %}one{% else %}two{% endif %} wide computer four wide tablet column">
@@ -133,6 +134,20 @@
                         {% endif %}
                         {% if case.extended_feedback %}
                         <div class="ui {% if case.status == "AC" %}positive{% else %}negative{% endif %} message">
+                            {% if can_view_test and curr_data %}
+                                <strong>{{ _('Input:') }}</strong>
+                                <pre class="case-output">{{ curr_data['input']|linebreaksbr }}</pre>
+                                <strong>{{ _('Answer:') }}</strong>
+                                <pre class="case-output">{{ curr_data['answer']|linebreaksbr }}</pre>
+                            {% endif %}
+                            {% if print_case_output %}
+                                <strong>{{ _('Your output (clipped)') }}</strong>
+                                {% if prefix_length is none %}
+                                    <pre class="case-output">{{ case.output|linebreaksbr }}</pre>
+                                {% else %}
+                                    <pre class="case-output">{{ case.output[:prefix_length]|linebreaksbr }}</pre>
+                                {% endif %}
+                            {% endif %}
                             <div class="header">{{ _('Judge feedback') }}</div>
                             <pre class="case-output">{{ case.extended_feedback|linebreaksbr }}</pre>
                         </div>
