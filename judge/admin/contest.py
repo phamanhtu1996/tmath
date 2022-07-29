@@ -407,7 +407,7 @@ class SampleContestAdmin(VersionAdmin):
         (_('Details'), {'fields': ('is_full_markup', 'description', 'logo_override_image', 'tags', 'summary')}),
         (_('Format'), {'fields': ('format_name', 'format_config', 'problem_label_script')}),
     )
-    list_display = ('key', 'name', 'is_visible', 'level', 'clone_button')
+    list_display = ('key', 'name', 'is_visible', 'level', 'clone_button', 'pdf_button')
     list_filter = (ContestLevelFilter, )
     search_fields = ('key', 'name')
     inlines = [ProblemInline]
@@ -418,7 +418,12 @@ class SampleContestAdmin(VersionAdmin):
     def get_urls(self):
         return [
             url(r'^(\d+)/clone/$', self.clone, name='judge_samplecontest_clone'),
+            url(r'^(\d+)/pdf$', self.pdf, name='judge_samplecontest_pdf'),
         ] + super().get_urls()
+    
+    def pdf(self, request, id):
+        samplecontest = get_object_or_404(SampleContest, id=id)
+        return HttpResponseRedirect(reverse('sample_contest_pdf', args=(id,)))
 
     def clone(self, request, id):
         samplecontest = get_object_or_404(SampleContest, id=id)
@@ -459,6 +464,10 @@ class SampleContestAdmin(VersionAdmin):
     def clone_button(self, obj):
         return format_html('<a class="button rejudge-link" href="{}">Clone</a>',
                            reverse('admin:judge_samplecontest_clone', args=(obj.id,)))
+
+    def pdf_button(self, obj):
+        return format_html('<a class="button rejudge-link" href="{}">PDF</a>',
+                           reverse('admin:judge_samplecontest_pdf', args=(obj.id,)))
 
 
 class ContestParticipationForm(ModelForm):

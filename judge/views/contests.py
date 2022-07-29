@@ -955,3 +955,76 @@ class ContestPdfView(ContestMixin, SingleObjectMixin, View):
         response['Content-Type'] = 'application/pdf'
         response['Content-Disposition'] = 'inline; filename=%s.%s.pdf' % (contest.key, language)
         return response
+
+
+class SampleContestPDF(SingleObjectMixin, View):
+    slug_field: str = 'pk'
+    slug_url_kwarg: str = 'pk'
+    context_object_name = 'contest'
+    model = SampleContest
+    logger = logging.getLogger('judge.problem.pdf')
+    languages = set(map(itemgetter(0), settings.LANGUAGES))
+
+    def get(self, request, *args, **kwargs):
+        if not HAS_PDF:
+            raise Http404()
+
+        language = kwargs.get('language', self.request.LANGUAGE_CODE)
+
+        if language not in self.languages:
+            raise Http404()
+
+        contest: SampleContest = self.get_object()
+        
+        cproblems = contest.contest_problems.all().order_by('order')
+        problems = [problem.problem for problem in cproblems]
+
+        list_trans = ()
+
+        for problem in problems:
+            try:
+                trans = problem.translations.get(language=language)
+            except ProblemTranslation.DoesNotExist:
+                trans = None
+            list_trans += ((problem, trans),)
+
+        cache = os.path.join(settings.DMOJ_PDF_CONTEST_CACHE, '%s.%s.pdf' % (contest.key, language))
+
+        from judge.signals import unlink_if_exists
+        if os.path.exists(cache):
+            unlink_if_exists(cache)
+
+        if not os.path.exists(cache):
+            self.logger.info('Rendering: %s.%s.pdf', contest.key, language)
+            with DefaultPdfMaker() as maker, translation.override(language):
+                maker.html = get_template('contest/raw.html').render({
+                    'contest': contest,
+                    'problems': [(problem, problem.name if trans is None else trans.name, problem.description if trans is None else trans.description) for problem, trans in list_trans],
+                    'url': request.build_absolute_uri(),
+                    'math_engine': maker.math_engine,
+                }).replace('"//', '"https://').replace("'//", "'https://")
+                maker.title = contest.name
+
+                assets = ['style.css', 'pygment-github.css']
+                if maker.math_engine == 'jax':
+                    assets.append('mathjax_config.js')
+                for file in assets:
+                    maker.load(file, os.path.join(settings.DMOJ_RESOURCES, file))
+                maker.make()
+                if not maker.success:
+                    self.logger.error('Failed to render PDF for %s', contest.key)
+                    return HttpResponse(maker.log, status=500, content_type='text/plain')
+                shutil.move(maker.pdffile, cache)
+
+        response = HttpResponse()
+
+        if hasattr(settings, 'DMOJ_PDF_CONTEST_INTERNAL'):
+            url_path = '%s/%s.%s.pdf' % (settings.DMOJ_PDF_CONTEST_INTERNAL, contest.key, language)
+        else:
+            url_path = None
+
+        add_file_response(request, response, url_path, cache)
+
+        response['Content-Type'] = 'application/pdf'
+        response['Content-Disposition'] = 'inline; filename=%s.%s.pdf' % (contest.key, language)
+        return response

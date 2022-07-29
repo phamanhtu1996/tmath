@@ -506,6 +506,24 @@ class SampleContest(models.Model):
                                            help_text=_('Number of digits to round points to.'))
     level = models.ForeignKey(ContestLevel, verbose_name=_("contest level"), on_delete=models.SET_NULL, null=True, blank=True)
 
+    @cached_property
+    def format_class(self):
+        return contest_format.formats[self.format_name]
+
+    @cached_property
+    def format(self):
+        return self.format_class(self, self.format_config)
+
+    @cached_property
+    def get_label_for_problem(self):
+        if not self.problem_label_script:
+            return self.format.get_label_for_problem
+
+        def DENY_ALL(obj, attr_name, is_setting):
+            raise AttributeError()
+        lua = LuaRuntime(attribute_filter=DENY_ALL, register_eval=False, register_builtins=False)
+        return lua.eval(self.problem_label_script)
+
     class Meta:
         verbose_name = _('sample contest')
         verbose_name_plural = _('sample contests')

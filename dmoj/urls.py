@@ -238,7 +238,9 @@ urlpatterns = [
         url(r'^/pdf$', contests.ContestPdfView.as_view(), name="contest_pdf"),
     ])),
 
-    # url(r'^scontest/$', contests.SampleContestCreateView.as_view(), name='create_sample_contest'),
+    url(r'^scontest/(?P<pk>\d+)', include([
+        url(r'^/pdf$', contests.SampleContestPDF.as_view(), name='sample_contest_pdf'),
+    ])),
 
     url(r'^organizations/$', organization.OrganizationList.as_view(), name='organization_list'),
     url(r'^organization/(?P<pk>\d+)-(?P<slug>[\w-]*)', include([
