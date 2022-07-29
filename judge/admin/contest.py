@@ -407,13 +407,18 @@ class SampleContestAdmin(VersionAdmin):
         (_('Details'), {'fields': ('is_full_markup', 'description', 'logo_override_image', 'tags', 'summary')}),
         (_('Format'), {'fields': ('format_name', 'format_config', 'problem_label_script')}),
     )
-    list_display = ('key', 'name', 'is_visible', 'level', 'clone_button', 'pdf_button')
+    list_display = ('key', 'name', 'get_number_problems', 'level', 'clone_button', 'pdf_button')
     list_filter = (ContestLevelFilter, )
     search_fields = ('key', 'name')
     inlines = [ProblemInline]
     actions_on_top = True
     actions_on_bottom = True
     form = SampleContestForm
+    
+    def get_number_problems(self, obj):
+        return obj.contest_problems.count()
+    
+    get_number_problems.short_description = 'Problems'
 
     def get_urls(self):
         return [
