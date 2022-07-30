@@ -96,7 +96,7 @@
 </table>
 <div class="page-break" style="page-break-before: always;"></div>
 <div class="content-description printing">
-    {{ contest.description|markdown(problem.markdown_style, 'tex' if math_engine == 'jax' else math_engine)|reference|absolutify(url)|str|safe }}
+    {{ contest.description|markdown(contest.markdown_style, 'tex' if math_engine == 'jax' else math_engine)|reference|absolutify(url)|str|safe }}
 </div>
 <div class="page-break" style="page-break-before: always;"></div>
 

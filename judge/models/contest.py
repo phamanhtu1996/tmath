@@ -506,6 +506,10 @@ class SampleContest(models.Model):
                                            help_text=_('Number of digits to round points to.'))
     level = models.ForeignKey(ContestLevel, verbose_name=_("contest level"), on_delete=models.SET_NULL, null=True, blank=True)
 
+    @property
+    def markdown_style(self):
+        return 'contest-full' if self.is_full_markup else 'contest'
+
     @cached_property
     def format_class(self):
         return contest_format.formats[self.format_name]
