@@ -48,12 +48,6 @@
             font-style: italic;
             text-align: center;
         }
-        #comment-header {
-            text-overflow: ellipsis; 
-            white-space: nowrap; 
-            overflow: hidden;
-            width: 100%;
-        }
         @media (min-width: 800px) {
             #blog-sidebar {
                 display: block !important;
@@ -99,24 +93,22 @@
         </ul>
     </div>
     
-    <div id="blog-container" class="ui grid">
-        <div id="blog-content" class="ui twelve wide computer sixteen wide tablet column">
-            <div class="ui top attached secondary black inverted menu">
-                <div class="ui header item">
+    <div id="blog-container" class="flex flex-col lg:flex-row lg:space-x-4">
+        <div id="blog-content" class="lg:basis-3/4">
+            <div class="flex items-center p-4 text-white bg-black rounded-md">
+                <div class="flex-1 text-2xl font-bold">
                     {{ _('News') }} 
                 </div>
-                <div class="right menu">
-                    <div class="icon item">
-                        <i class="terminal icon"></i>
-                    </div>
+                <div class="">
+                    <i class="fa-solid fa-terminal"></i>
                 </div>
             </div>
-            <div class="ui bottom attached segment">
+            <div class="flex flex-col gap-6 mt-4">
                 {% for post in posts %}
-                    <div class="ui blue segment">
-                        <h2 class="ui header">
+                    <div class="p-4 border rounded-lg">
+                        <div class="flex flex-col text-3xl font-bold">
                             <a href="{{ url('blog_post', post.id, post.slug) }}">{{ post.title }}</a>
-                            <div class="sub header">
+                            <div class="inline-flex items-center gap-1 text-base">
                                 {%- if post.sticky %}<i class="star icon"></i>{% endif -%}
                                 {% with authors=post.authors.all() %}
                                 {%- if authors -%}
@@ -126,15 +118,15 @@
                                 {{ relative_time(post.publish_on, abs=_('posted on {time}'), rel=_('posted {time}')) -}}
                                 <span class="comment-data">
                                     <a href="{{ url('blog_post', post.id, post.slug) }}#comments" class="comment-count-link">
-                                        <i class="comments icon"></i>
+                                        <i class="fa-solid fa-comments"></i>
                                         <span class="comment-count">
                                             {{- post_comment_counts[post.id] or 0 -}}
                                         </span>
                                     </a>
                                 </span>
                             </div>
-                        </h2>
-                        <div class="summary content-description">
+                        </div>
+                        <div class="p-2 prose max-w-none">
                             {% cache 86400 'post_summary' post.id %}
                                 {{ post.summary|default(post.content, true)|markdown('blog', 'svg', lazy_load=True)|reference|str|safe }}
                             {% endcache %}
@@ -147,20 +139,18 @@
             {% endif %}
         </div>
 
-        <div id="blog-sidebar" class=" ui four wide computer sixteen wide tablet column">
+        <div id="blog-sidebar" class="lg:basis-1/4">
             {% if request.in_contest and request.participation.contest.use_clarifications %}
                 <div class="blog-sidebox sidebox">
-                    <div class="ui top attached secondary black inverted menu">
-                        <div class="ui header item">
+                    <div class="flex items-center p-4 text-white bg-black rounded-t-md">
+                        <div class="flex-1 text-2xl font-bold">
                             {{ _('Clarifications') }}
                         </div>
-                        <div class="right menu">
-                            <div class="icon item">
-                                <i class="question circle icon"></i>
-                            </div>
+                        <div class="">
+                            <i class="fa-solid fa-circle-question"></i>
                         </div>
                     </div>
-                    <div class="ui bottom attached segment">
+                    <div class="border border-black rounded-b-md">
                         {% if has_clarifications %}
                             <div class="ui relaxed divided list">
                                 {% for clarification in clarifications %}
@@ -187,17 +177,15 @@
             {% endif %}
             {% if current_contests %}
                 <div class="blog-sidebox sidebox">
-                    <div class="ui top attached secondary black inverted menu">
-                        <div class="ui header item">
+                    <div class="flex items-center p-4 text-white bg-black rounded-t-md">
+                        <div class="flex-1 text-2xl font-bold">
                             {{ _('Ongoing contests') }}
                         </div>
-                        <div class="right menu">
-                            <div class="icon item">
-                                <i class="trophy icon"></i>
-                            </div>
+                        <div class="">
+                            <i class="fa-solid fa-trophy"></i>
                         </div>
                     </div>
-                    <div class="ui bottom attached segment sidebox-ongoing-contest">
+                    <div class="border border-black rounded-b-md sidebox-ongoing-contest">
                         {% for contest in current_contests %}
                             <div class="contest">
                                 <div class="contest-list-title">
@@ -214,17 +202,15 @@
 
             {% if future_contests %}
                 <div class="blog-sidebox sidebox">
-                    <div class="ui top attached secondary black inverted menu">
-                        <div class="ui header item">
+                    <div class="flex items-center p-4 text-white bg-black rounded-t-md">
+                        <div class="flex-1 text-2xl font-bold">
                             {{ _('Upcomming contests') }}
                         </div>
-                        <div class="right menu">
-                            <div class="icon item">
-                                <i class="trophy icon"></i>
-                            </div>
+                        <div class="">
+                            <i class="fa-solid fa-trophy"></i>
                         </div>
                     </div>
-                    <div class="ui bottom attached segment">
+                    <div class="border border-black rounded-b-md">
                         {% for contest in future_contests %}
                             <div class="contest">
                                 <div class="contest-list-title">
@@ -240,26 +226,24 @@
             {% endif %}
 
             <div class="blog-sidebox sidebox">
-                <div class="ui top attached secondary black inverted menu">
-                    <div class="ui header item">
+                <div class="flex items-center p-4 text-white bg-black rounded-t-md">
+                    <div class="flex-1 text-2xl font-bold">
                         {{ _('Comment stream') }}
                     </div>
-                    <div class="right menu">
-                        <div class="icon item">
-                            <i class="comments icon"></i>
-                        </div>
+                    <div class="">
+                        <i class="fa-solid fa-comments"></i>
                     </div>
                 </div>
-                <div class="ui bottom attached segment">
-                    <div class="ui relaxed divided list">
+                <div class="p-2 border border-black rounded-b-md">
+                    <div class="flex flex-col divide-y">
                         {% for comment in comments %}
-                            <div class="item">
-                                <img class="ui avatar image" src="{{ gravatar(comment.author.user, 80)}}" alt="{{ comment.author.user.username }}">
-                                <div class="content" style="width: 80%">
-                                    <a class="header" id="comment-header" href="{{ comment.link }}#comment-{{ comment.id }}" >
+                            <div class="flex items-center gap-2">
+                                <img class="w-10 h-10" src="{{ gravatar(comment.author.user, 80)}}" alt="{{ comment.author.user.username }}">
+                                <div class="flex flex-col flex-1">
+                                    <a class="w-full font-semibold line-clamp-1" href="{{ comment.link }}#comment-{{ comment.id }}" >
                                         {{ comment.page_title }}
                                     </a>
-                                    <div class="description">
+                                    <div class="text-sm">
                                         {{ link_user(comment.author) }}
                                     </div>
                                 </div>
@@ -274,20 +258,18 @@
                 </div>
             </div>
             <div class="blog-sidebox sidebox">
-                <div class="ui top attached secondary black inverted menu">
-                    <div class="ui header item">
+                <div class="flex items-center p-4 text-white bg-black rounded-t-md">
+                    <div class="flex-1 text-2xl font-bold">
                         {{ _('New problems') }}
                     </div>
-                    <div class="right menu">
-                        <div class="icon item">
-                            <i class="puzzle piece icon"></i>
-                        </div>
+                    <div class="">
+                        <i class="fa-solid fa-puzzle-piece"></i>
                     </div>
                 </div>
-                <div class="ui bottom attached segment">
-                    <div class="ui secondary vertical fluid menu">
+                <div class="p-2 border border-black rounded-b-md">
+                    <div class="flex flex-col divide-y">
                         {% for problem in new_problems %}
-                            <a class="item" style="font-weight: 700" href="{{ url('problem_detail', problem.code) }}">{{ problem.name }}</a>
+                            <a class="pt-2 mb-2 font-bold line-clamp-1" href="{{ url('problem_detail', problem.code) }}" title="{{ problem.name }}">{{ problem.name }}</a>
                         {% endfor %}
                     </div>
                     <span class="rssatom">
@@ -299,25 +281,23 @@
             </div>
             {% if perms.judge.test_site and own_open_tickets %}
                 <div class="blog-sidebox sidebox">
-                    <div class="ui top attached secondary black inverted menu">
-                        <div class="ui header item">
+                    <div class="flex items-center p-4 text-white bg-black rounded-t-md">
+                        <div class="flex-1 text-2xl font-bold">
                             {{ _('My open tickets') }}
                         </div>
-                        <div class="right menu">
-                            <div class="icon item">
-                                <i class="question circle icon"></i>
-                            </div>
+                        <div class="">
+                            <i class="fa-solid fa-circle-question"></i>
                         </div>
                     </div>
-                    <div class="ui bottom attached segment">
-                        <ul class="own-open-tickets">
+                    <div class="p-2 border border-black rounded-b-md">
+                        <ul class="flex flex-col !pl-2">
                             {% for ticket in own_open_tickets %}
                                 <li>
-                                    <div class="title">
-                                        <a href="{{ url('ticket', ticket.id) }}">{{ ticket.title }}</a>
+                                    <div class="font-bold text-indigo-500 hover:text-indigo-600">
+                                        <a class="italic line-clamp-2" href="{{ url('ticket', ticket.id) }}" title="{{ ticket.title }}">{{ ticket.title }}</a>
                                     </div>
-                                    <div class="object">
-                                        <a href="{{ ticket.linked_item.get_absolute_url() }}">
+                                    <div class="ml-4">
+                                        <a class="font-semibold line-clamp-1" title="{{ ticket.linked_item|item_title }}" href="{{ ticket.linked_item.get_absolute_url() }}">
                                             {{ ticket.linked_item|item_title }}</a>
                                     </div>
                                 </li>
@@ -329,28 +309,26 @@
 
             {% if perms.judge.test_site and open_tickets %}
                 <div class="blog-sidebox sidebox">
-                    <div class="ui top attached secondary black inverted menu">
-                        <div class="ui header item">
+                    <div class="flex items-center p-4 text-white bg-black rounded-t-md">
+                        <div class="flex-1 text-2xl font-bold">
                             {{ _('New tickets') }}
                         </div>
-                        <div class="right menu">
-                            <div class="icon item">
-                                <i class="exclamation circle icon"></i>
-                            </div>
+                        <div class="">
+                            <i class="fa-solid fa-circle-exclamation"></i>
                         </div>
                     </div>
-                    <div class="ui bottom attached segment">
-                        <ul class="open-tickets">
+                    <div class="p-2 border border-black rounded-b-md">
+                        <ul class="flex flex-col !pl-2">
                             {% for ticket in open_tickets %}
                                 <li>
-                                    <div class="title">
-                                        <a href="{{ url('ticket', ticket.id) }}">{{ ticket.title }}</a>
+                                    <div class="font-bold text-indigo-500 hover:text-indigo-600">
+                                        <a class="italic line-clamp-2" href="{{ url('ticket', ticket.id) }}" title="{{ ticket.title }}">{{ ticket.title }}</a>
                                     </div>
-                                    <div class="object">
-                                        <a href="{{ ticket.linked_item.get_absolute_url() }}">
+                                    <div class="ml-4">
+                                        <a class="font-semibold line-clamp-1" title="{{ ticket.linked_item|item_title }}" href="{{ ticket.linked_item.get_absolute_url() }}">
                                             {{ ticket.linked_item|item_title }}</a>
                                     </div>
-                                    <div class="author">{{ link_user(ticket.user) }}</div>
+                                    <div class="ml-4 text-sm">{{ link_user(ticket.user) }}</div>
                                 </li>
                             {% endfor %}
                         </ul>

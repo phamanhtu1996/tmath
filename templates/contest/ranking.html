@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block users_media %}
+    <link rel="stylesheet" href="{{ static('semantic/components/checkbox.min.css') }}">
     <style>
         #users-table, .h-scrollable-table {
             transform:rotateX(180deg);
@@ -178,6 +179,7 @@
 {% endblock %}
 
 {% block users_js_media %}
+<script src="{{ static('semantic/components/checkbox.min.js') }}"></script>
     {% if can_edit %}
         <script type="text/javascript">
             $(function () {
@@ -198,7 +200,7 @@
         <script type="text/javascript">
             $(function () {
                 window.install_tooltips = function () {
-                    $('td.user-name').find('> span:first-child').each(function () {
+                    $('.user-name').find('> span:first-child').each(function () {
                         var link = $(this);
                         link.mouseenter(function (e) {
                             var start_time = link.siblings('.start-time').text().trim();
@@ -268,12 +270,10 @@
 
 {% block before_users_table %}
 
-<div class="ui grid fluid container">
+<div class="flex flex-row-reverse items-center">
 {% if request.user.is_superuser %}
-<div class="row">
-    <div class="column">
-        <button class="ui primary button" onclick="exportData()">Export to CSV</button>
-    </div>
+<div class="flex flex-col items-center justify-start">
+    <button class="p-3 font-semibold text-white bg-indigo-500 rounded-md hover:bg-indigo-600" onclick="exportData()">Export to CSV</button>
 </div>
 
 <script>
@@ -348,16 +348,18 @@ function exportData() {
             <input id="search-contest" type="text" placeholder="{{ _('View user participation') }}">
         {% endif %}
     {% endif %}
-    <div class="three wide column">
-        <div class="ui checkbox">
-            <input id="show-organizations-checkbox" type="checkbox" style="vertical-align: bottom">
-            <label for="show-organizations-checkbox" style="vertical-align: bottom">{{ _('Show organizations') }}</label>
+    <div class="flex-1 space-x-4">
+        <div class="inline-flex items-center">
+            <div class="ui checkbox">
+                <input id="show-organizations-checkbox" type="checkbox">
+                <label for="show-organizations-checkbox">{{ _('Show organizations') }}</label>
+            </div>
         </div>
-    </div>
-    <div class="three wide column">
-        <div class="ui checkbox">
-            <input id="show-usernames-checkbox" type="checkbox" style="vertical-align: bottom">
-            <label for="show-usernames-checkbox" style="vertical-align: bottom">{{ _('Show username') }}</label>
+        <div class="inline-flex items-center">
+            <div class="ui checkbox">
+                <input id="show-usernames-checkbox" type="checkbox">
+                <label for="show-usernames-checkbox">{{ _('Show username') }}</label>
+            </div>
         </div>
     </div>
 </div>

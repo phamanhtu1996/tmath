@@ -1,6 +1,9 @@
 {% extends "submission/info-base.html" %}
 {% block js_media %}
     <script type="text/javascript" src="{{ static('event.js') }}?1"></script>
+    <script src="{{ static('semantic/components/accordion.min.js') }}"></script>
+    <script src="{{ static('semantic/components/dropdown.min.js') }}"></script>
+    <script src="{{ static('semantic/components/transition.min.js') }}"></script>
     {% if not submission.is_graded and EVENT_LAST_MSG %}
         <script type="text/javascript">
             $(function () {
@@ -64,7 +67,7 @@
 {% endblock %}
 
 {% block body %}
-    <br>
+    <div class="flex flex-col gap-1 mt-6 text-lg font-bold">
     <div><a 
     {% if not submission.language.file_only %}
         href="{{ url('submission_source', submission.id) }}"
@@ -84,11 +87,10 @@
                 <input type="hidden" name="path" value="{{ url('submission_status', submission.id) }}">
             </form>
         </div>
-    {% endif %}
+    {% endif %}    
+    </div>
 
-    <div class="ui divider"></div>
-
-    <div id="test-cases">{% include "submission/status-testcases.html" %}</div>
+    <div id="test-cases" class="flex flex-col">{% include "submission/status-testcases.html" %}</div>
 
     {% if not submission.is_graded %}
         {% if request.user == submission.user.user or perms.judge.abort_any_submission %}

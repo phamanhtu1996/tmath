@@ -1,12 +1,12 @@
 {% extends "user/base-users-table.html" %}
 
 {% block after_rank_head %}
-    <th class="header rank" style="background-color: black; color: white">
+    <th class="!px-4 w-20">
         {% if sort_links %}<a href="{{ sort_links.rating }}">{% endif %}
-        <span class="rate-group">
+        <span class="mt-2 rate-group">
             <svg class="rate-box" viewBox="0 0 16 16">
-                <circle cx="8" cy="8" r="7" stroke="white"></circle>
-                <path clip-path="url(#rating-clip)" d="M0 16v-4.8h16 0v16z" fill="white"></path>
+                <circle cx="8" cy="8" r="7" stroke="black"></circle>
+                <path clip-path="url(#rating-clip)" d="M0 16v-4.8h16 0v16z" fill="black"></path>
             </svg>
         </span>
         {%- if sort_links %}{{ sort_order.rating }}</a>{% endif %}
@@ -14,11 +14,11 @@
 {% endblock %}
 
 {% block after_rank %}
-    <td class="center aligned">{% if user.rating %}{{ rating_number(user) }}{% endif %}</td>
+    <td class="!px-4 text-left">{% if user.rating %}{{ rating_number(user) }}{% endif %}</td>
 {% endblock %}
 
 {% block after_point_head %}
-    <th class="problems center aligned"  style="background-color: black; color: white">
+    <th class="w-24 problems">
         {% if sort_links %}<a href="{{ sort_links.problem_count }}">{% endif %}
         {{ _('Problems') }}
         {%- if sort_links %}{{ sort_order.problem_count }}</a>{% endif %}
@@ -26,5 +26,5 @@
 {% endblock %}
 
 {% block after_point %}
-    <td class="center aligned">{{ user.problem_count }}</td>
+    <td class="text-lg font-semibold">{{ user.problem_count }}</td>
 {% endblock %}

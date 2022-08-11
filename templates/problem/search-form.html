@@ -1,16 +1,14 @@
-<div class="ui container">
-    <div class="ui top attached secondary black inverted menu">
-        <div class="ui header item">
+<div class="grid w-full grid-cols-1 gap-4">
+    <div class="flex items-center p-3 text-lg text-white bg-black rounded-t-md">
+        <div class="flex-1 font-bold">
             {{ _('Problem search') }}
         </div>
-        <div class="right menu">
-            <div class="icon item">
-                <i class="search icon"></i>
-            </div>
+        <div class="">
+            <i class="fa-solid fa-search"></i>
         </div>
     </div>
-    <div class="ui bottom attached segment">
-        <form action="" method="get" class="ui form">
+    <div class="p-2 shadow-md rounded-b-md">
+        <form action="" method="get" class="ui form" id="filter-form">
             <div class="field">
                 <input id="search" type="text" name="search" value="{{ search_query or '' }}"
                        placeholder="{{ _('Search problems...') }}">
@@ -48,55 +46,44 @@
                     </div>
                 </div>
             </div>
-            <div class="field">
-                <label for="type">{{ _('Problem types') }}</label>
-                <div class="ui fluid multiple search normal selection dropdown">
-                    <input type="hidden" name="type" {% if selected_types %}value="{{ selected_types|join(',') }}"{% endif %}>
-                    <div class="default text">{{ _('Select type') }}</div>
-                    <div class="menu">
-                        {% for type in problem_types %}
-                        <div class="item" data-value="{{ type.id }}">
-                            {{ type.full_name }}
-                        </div>
-                        {% endfor %}
-                    </div>
+            <div class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-1 field">
+                {% for type in problem_types %}
+                <div class="ui checkbox">
+                    <input type="checkbox" id="id_type_{{ loop.index }}" onchange="this.form.submit()" name="type" value="{{ type.id }}" {% if type.id in selected_types %}checked=checked{% endif %}>
+                    <label for="id_type_{{ loop.index }}" label="{{ type.full_name }}">{{ type.full_name }}</label>
                 </div>
+                {% endfor %}
             </div>
             {% if point_values %}
-            <div class="ui range slider" id="point-range"></div>
-            <div class="field">
-                <label>Min point</label>
-                <input type="text" name="start" id="point_start" disabled value="{% if point_start and point_start > point_values.min %}{{ point_start|floatformat(0) }}{% else %}{{ point_values.min|floatformat(0) }}{% endif %}">
-                <input type="hidden" name="point_start" value="{% if point_start and point_start > point_values.min %}{{ point_start|floatformat(0) }}{% else %}{{ point_values.min|floatformat(0) }}{% endif %}">
-            </div>
-            <div class="field">
-                <label>Max point</label>
-                <input type="text" name="end" id="point_end" disabled value="{% if point_end and point_end < point_values.max %}{{ point_end|floatformat(0) }}{% else %}{{ point_values.max|floatformat(0) }}{% endif %}">
-                <input type="hidden" name="point_end" value="{% if point_end and point_end < point_values.max %}{{ point_end|floatformat(0) }}{% else %}{{ point_values.max|floatformat(0) }}{% endif %}">
-            </div>
+            <div class="mx-4 mt-12 uislider" id="point-range"></div>
+            <input type="hidden" name="point_start" value="{% if point_start and point_start > point_values.min %}{{ point_start|floatformat(0) }}{% else %}{{ point_values.min|floatformat(0) }}{% endif %}">
+            <input type="hidden" name="point_end" value="{% if point_end and point_end < point_values.max %}{{ point_end|floatformat(0) }}{% else %}{{ point_values.max|floatformat(0) }}{% endif %}">
             <script>
-                $('.ui.slider')
-                .slider({
-                    min             : {{ point_values.min }},
-                    max             : {{ point_values.max }},
-                    start           : {% if point_start and point_start > point_values.min %}{{ point_start }}{% else %}{{ point_values.min }}{% endif %},
-                    end             : {% if point_end and point_end < point_values.max %}{{ point_end }}{% else %}{{ point_values.max }}{% endif %},
-                    labelDistance   : {{ point_values.max - point_values.min }},
-                    onChange        : function(range, firstVal, secondVal) {
-                        if (firstVal > secondVal) {
-                            swap(firstVal, secondVal)
-                        }
-                        $('#point_start').val(firstVal)
-                        $('input[name=point_start]').val(firstVal)
-                        $('#point_end').val(secondVal)
-                        $('input[name=point_end]').val(secondVal)
+                var slider = document.getElementById('point-range')
+                noUiSlider.create(slider, {
+                    start: [{% if point_start and point_start > point_values.min %}{{ point_start }}{% else %}{{ point_values.min }}{% endif %}, {% if point_end and point_end < point_values.max %}{{ point_end }}{% else %}{{ point_values.max }}{% endif %}],
+                    step: 1,
+                    range: {
+                        'min': {{ point_values.min }},
+                        'max': {{ point_values.max }}
+                    },
+                    connect: [false, true, false],
+                    tooltips: [
+                        wNumb({decimals: 0}),
+                        wNumb({decimals: 0})
+                    ]
+                });
+                slider.noUiSlider.on('update', function(values, handle) {
+                    if (handle) {
+                        $('input[name=point_end]').val(values[handle])
+                    } else {
+                        $('input[name=point_start]').val(values[handle])
                     }
                 });
+                $('.selection.dropdown').dropdown();
             </script>
             {% endif %}
-            <div class="field">
-                <button id="go" type="submit" class="ui primary button">{{ _('Go') }}</button>
-            </div>
+            <button id="go" type="submit" class="w-full p-2 mt-4 font-bold text-white bg-blue-500 rounded-md">{{ _('Go') }}</button>
         </form>
     </div>
 </div>

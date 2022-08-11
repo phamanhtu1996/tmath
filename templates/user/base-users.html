@@ -63,8 +63,9 @@
 {% endblock %}
 
 {% block body %}
+    {% block before_body %}{% endblock before_body %}
     {% if page_obj and page_obj.has_other_pages() %}
-        <div class="top-pagination-bar user-pagination">
+        <div class="flex flex-col space-y-2 md:justify-between md:items-center md:flex-row">
             {% include "list-pages.html" %}
             <form id="search-form" name="form" action="{{ url('user_ranking_redirect') }}" method="get">
                 <input id="search-handle" type="text" name="search"
@@ -73,16 +74,12 @@
         </div>
     {% endif %}
 
-    <div id="common-content" class="ui fluid container">
-        <div id="content-left" class="ui grid">
-            <div class="row">
-                {% block before_users_table %}{% endblock %}
-            </div>
-            <div class="h-scrollable-table ui row fluid container">
-                <table id="users-table" class="ui unstackable compact table">
-                    {% block users_table %}{% endblock %}
-                </table>
-            </div>
+    <div class="flex flex-col">
+        {% block before_users_table %}{% endblock %}
+        <div class="w-full my-4 overflow-x-auto">
+            <table class="w-full border border-separate border-transparent border-spacing-y-4">
+                {% block users_table %}{% endblock %}
+            </table>
         </div>
     </div>
     {% if page_obj and page_obj.has_other_pages() %}

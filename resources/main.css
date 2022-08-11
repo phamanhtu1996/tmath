@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bg-gray-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(107 114 128 / var(--tw-bg-opacity));
+}
+.bg-orange-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(249 115 22 / var(--tw-bg-opacity));
+}
+.bg-red-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(239 68 68 / var(--tw-bg-opacity));
+}
+.bg-green-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(34 197 94 / var(--tw-bg-opacity));
+}
+.text-green-700 {
+  --tw-text-opacity: 1;
+  color: rgb(21 128 61 / var(--tw-text-opacity));
+}
+.text-red-500 {
+  --tw-text-opacity: 1;
+  color: rgb(239 68 68 / var(--tw-text-opacity));
+}
+
+.py-1 {
+  padding-top: 0.25rem/* 4px */;
+  padding-bottom: 0.25rem/* 4px */;
+}
+
+.atcoder_format {
+  @apply border-l min-w-[5rem] w-24 py-1 text-center 
+}
+
+.default_format {
+  @apply border-l min-w-[5rem] w-24 py-1 text-center
+}
+
+.ecoo_format {
+  @apply border-l min-w-[5rem] w-24 py-1 text-center
+}
+
+.icpc_format {
+  @apply border-l min-w-[5rem] w-24 py-1 text-center
+}
+
+.ioi_format {
+  @apply border-l min-w-[5rem] w-24 py-1 text-center
+}
+
+.prose .table {
+  @apply table-fixed
+}
+
+.prose .table thead th:nth-child(1) {
+  @apply !rounded-tl-none
+}
+
+.prose .table thead th:nth-last-child(1) {
+  @apply !rounded-tr-none
+}
+

@@ -1,11 +1,11 @@
 <thead>
-<tr>
-    <th class="header rank one wide center aligned"  style="background-color: black; color: white">{{ rank_header or _("Rank") }}</th>
+<tr class="[&>*]:p-3 [&>*]:whitespace-nowrap [&>*]:text-left [&>*]:text-lg [&>*]:align-middle">
+    <th class="w-20 whitespace-nowrap">{{ rank_header or _("Rank") }}</th>
     {% block after_rank_head %}{% endblock %}
-    <th class="header username center aligned" style="background-color: black; color: white">{{ _('Username') }}</th>
+    <th class="whitespace-nowrap !pl-16">{{ _('Username') }}</th>
     {% block before_point_head %}{% endblock %}
 
-    <th class="header points one wide center aligned" style="background-color: black; color: white">
+    <th class="w-24">
         {% if sort_links %}<a href="{{ sort_links.performance_points }}">{% endif %}
         {{ _('Points') }}
         {%- if sort_links %}{{ sort_order.performance_points }}</a>{% endif %}
@@ -16,13 +16,24 @@
 
 <tbody>
 {% for rank, user in users %}
-    <tr id="user-{{ user.user.username }}" {% block row_extra scoped %}{% endblock %}>
-        <td class="center aligned">{{ rank }}</td>
+    <tr id="user-{{ user.user.username }}" class="[&>*]:p-3 [&>td:nth-last-child(1)]:rounded-r-md [&>td:nth-child(1)]:rounded-l-md shadow-md rounded-md [&>*]:bg-white {% block row_extra scoped %}{% endblock %}">
+        <td class="text-center">{{ rank }}</td>
         {% block after_rank scoped %}{% endblock %}
-        <td class="user-name">{{ link_user(user) }} {% block user_data scoped %}{% endblock %}</td>
+        <td>
+            <div class="flex items-center space-x-2">
+                <img src="{{ gravatar(user.user, 200) }}" class="rounded-full h-11 w-11" alt="">
+                <div class="whitespace-nowrap">
+                    {{ link_user(user) }}
+                    <div class="text-sm font-medium text-gray-500">
+                        @{{ user.user.username }}
+                    </div>
+                </div>
+            </div>
+            {% block user_data scoped %}{% endblock %}
+        </td>
         {% block before_point scoped %}{% endblock %}
         {% block point scoped %}
-            <td title="{{ user.performance_points|floatformat(2) }}" class="user-points center aligned">
+            <td class="text-lg font-semibold" title="{{ user.performance_points|floatformat(2) }}">
                 {{ user.performance_points|floatformat(0) }}
             </td>
         {% endblock %}

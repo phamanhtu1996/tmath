@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block js_media %}
-    <script type="text/javascript" src="{{ ACE_URL }}/ace.js"></script>
+    <script type="text/javascript" src="{{ static('ace.js') }}"></script>
     {{ form.media.js }}
     {% compress js %}
         <script type="text/javascript">
@@ -237,6 +237,7 @@
 {% endblock %}
 
 {% block media %}
+<link rel="stylesheet" href="{{ static('semantic/components/form.min.css') }}">
     {{ form.media.css }}
     {% compress css %}
         <style media="screen">
@@ -397,26 +398,6 @@
     <form action="" method="post" class="ui form problem_submit" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.non_field_errors() }}
-        <div id="editor" class="field hidden">
-            {{ form.source.errors }}
-            {{ form.source }}
-        </div>
-        <div id="file-submit" class="field hidden">
-            <div class="alert alert-warning alert-dismissable">
-                <a class="close">x</a>
-                {{ _('You can only submit file for this language.')}}
-            </div>
-            {{ form.submission_file.errors }}
-            <input id="file_upload" type="file" name="submission_file" style="display: none;" onchange="handleFileChange()">
-            <label for="file_upload" id="file_drag"></label>
-        </div>
-        {% if not no_judges %}
-        
-        {% endif %}
-
-        {% if no_judges %}
-            <span class="ui red text">{{ _('No judge is available for this problem.') }}</span>
-        {% else %}
         <div class="two fields">
             <div id="language-select" class="field">
                 {{ form.language.errors }}
@@ -436,7 +417,28 @@
                 {{ form.judge }}
             </div>
         </div>
-        <input type="submit" value="{{ _('Submit!') }}" class="ui primary fluid button"
+        <div id="editor" class="hidden field">
+            {{ form.source.errors }}
+            {{ form.source }}
+        </div>
+        <div id="file-submit" class="hidden field">
+            <div class="alert alert-warning alert-dismissable">
+                <a class="close">x</a>
+                {{ _('You can only submit file for this language.')}}
+            </div>
+            {{ form.submission_file.errors }}
+            <input id="file_upload" type="file" name="submission_file" style="display: none;" onchange="handleFileChange()">
+            <label for="file_upload" id="file_drag"></label>
+        </div>
+        {% if not no_judges %}
+        
+        {% endif %}
+
+        {% if no_judges %}
+            <span class="ui red text">{{ _('No judge is available for this problem.') }}</span>
+        {% else %}
+        
+        <input type="submit" value="{{ _('Submit!') }}" class="w-full p-2 text-lg font-bold text-white bg-blue-500 rounded-md cursor-pointer hover:bg-blue-600"
         {% if request.in_contest and submission_limit and not submissions_left %}disabled{% endif %}>
         {% endif %}
     </form>

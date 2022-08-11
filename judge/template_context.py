@@ -32,7 +32,7 @@ def get_resource(request):
         'INLINE_FONTAWESOME': settings.INLINE_FONTAWESOME,
         'JQUERY_JS': settings.JQUERY_JS,
         'FONTAWESOME_CSS': settings.FONTAWESOME_CSS,
-        'MATERIAL_ICONS': settings.MATERIAL_ICONS,
+        # 'MATERIAL_ICONS': settings.MATERIAL_ICONS,
         'DMOJ_SCHEME': scheme,
         'DMOJ_CANONICAL': settings.DMOJ_CANONICAL,
     }

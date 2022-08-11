@@ -6,3 +6,9 @@
 	path = resources/libs
 	url = https://github.com/patpro28/site-assets.git
 	branch = master
+[submodule "resources/semantic"]
+	path = resources/semantic
+	url = https://github.com/fomantic/Fomantic-UI-CSS
+[submodule "resources/fontawesome"]
+	path = resources/fontawesome
+	url = https://github.com/FortAwesome/Font-Awesome

@@ -1,36 +1,38 @@
 <thead>
-    <tr>
-        <th class="header rank one wide center aligned" style="background-color: black; color: white">{{ rank_header or _("Rank") }}</th>
+    <tr class="[&>*]:bg-black [&>*]:text-white [&>*]:text-center [&>*]:p-1 divide-x divide-white">
+        <th class="min-w-[5rem] w-20 text-center">{{ rank_header or _("Rank") }}</th>
         {% block after_rank_head %}{% endblock %}
-        <th class="header points one wide center aligned" style="background-color: black; color: white">
+        <th class="min-w-[5rem] w-24 text-center">
             {% if sort_links %}<a href="{{ sort_links.performance_points }}">{% endif %}
             {{ _('Points') }}
             {% if sort_links %}{{ sort_order.performance_points }}</a>{% endif %}
         </th>
-        <th class="header username-column" style="background-color: black; color: white">{{ _('Username') }}</th>
-        <th class="header username" style="background-color: black; color: white">{{ _('Fullname') }}</th>
+        <th class="w-44 username-column">{{ _('Username') }}</th>
+        <th class="username">{{ _('Fullname') }}</th>
         {% block before_point_head %}{% endblock %}
     
         {% block after_point_head %}{% endblock %}
     </tr>
 </thead>
 
-<tbody>
+<tbody class="divide-y divide-slate-300">
 {% for rank, user in users %}
-    <tr id="user-{{ user.user.username }}" {% block row_extra scoped %}{% endblock %}>
-        <td class="center aligned">{{ rank }}</td>
+    <tr id="user-{{ user.user.username }}" class="[&>*]:p-3 [&>td:nth-last-child(1)]:rounded-r-md [&>td:nth-child(1)]:rounded-l-md bg-white shadow-md {% block row_extra scoped %}{% endblock %}">
+        <td class="text-center">{{ rank }}</td>
         {% block after_rank scoped %}{% endblock %}
         {% block point scoped %}
-            <td class="center aligned" title="{{ user.performance_points|floatformat(2) }}" class="user-points">
+            <td class="text-center" title="{{ user.performance_points|floatformat(2) }}">
                 {{ user.performance_points|floatformat(0) }}
             </td>
         {% endblock %}
-        <td class="username-column">
+        <td class="max-w-xs p-2 username-column">
             {{ link_user(user.user, noname=True) }}
         </td>
-        <td class="user-name">
-            {{ link_user(user.user) }}
-            {% block user_data scoped %}{% endblock %}
+        <td class="min-w-[16rem]">
+            <div class="flex items-center justify-between p-2 whitespace-nowrap user-name">
+                {{ link_user(user.user) }}
+                {% block user_data scoped %}{% endblock %}
+            </div>
         </td>
         {% block before_point scoped %}{% endblock %}
         {% block after_point scoped %}{% endblock %}

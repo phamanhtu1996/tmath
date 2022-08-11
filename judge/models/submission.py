@@ -33,31 +33,31 @@ SUBMISSION_RESULT = (
 )
 
 SUBMISSION_RESULT_COLOR = {
-    'AC': 'white',
-    'WA': 'red',
-    'TLE': 'black',
-    'MLE': 'black',
-    'OLE': 'black',
-    'IR': 'black',
-    'RTE': 'black',
-    'CE': 'black',
-    'IE': 'black',
-    'SC': 'black',
-    'AB': 'black',
+    'AC': 'text-green-700',
+    'WA': 'text-red-500',
+    'TLE': 'text-black',
+    'MLE': 'text-black',
+    'OLE': 'text-black',
+    'IR': 'text-black',
+    'RTE': 'text-black',
+    'CE': 'text-black',
+    'IE': 'text-black',
+    'SC': 'text-black',
+    'AB': 'text-black',
 }
 
 SUBMISSION_RESULT_BACKGROUND = {
-    'AC': 'green',
-    'WA': 'tertiary grey',
-    'TLE': 'tertiary',
-    'MLE': 'tertiary',
-    'OLE': 'orange',
-    'IR': 'secondary orange',
-    'RTE': 'secondary orange',
-    'CE': 'tertiary',
-    'IE': 'red',
-    'SC': 'tertiary',
-    'AB': 'tertiary',
+    'AC': 'bg-green-500',
+    'WA': 'bg-gray-500',
+    'TLE': 'bg-gray-500',
+    'MLE': 'bg-gray-500',
+    'OLE': 'bg-orange-500',
+    'IR': 'bg-orange-500',
+    'RTE': 'bg-orange-500',
+    'CE': 'bg-gray-500',
+    'IE': 'bg-red-500',
+    'SC': 'bg-gray-500',
+    'AB': 'bg-gray-500',
 }
 
 class Submission(models.Model):
@@ -128,14 +128,14 @@ class Submission(models.Model):
     def result_class(self):
         # This exists to save all these conditionals from being executed (slowly) in each row.jade template
         if not self.status in ('D', 'IE', 'CE', 'AB'):
-            return 'white'
-        return SUBMISSION_RESULT_COLOR.get(self.result, 'white')
+            return 'text-white'
+        return SUBMISSION_RESULT_COLOR.get(self.result, 'text-white')
 
     @property
     def result_background(self):
         if not self.status in ('D', 'IE', 'CE', 'AB'):
-            return 'black'
-        return SUBMISSION_RESULT_BACKGROUND.get(self.result, 'black')
+            return 'bg-black'
+        return SUBMISSION_RESULT_BACKGROUND.get(self.result, 'bg-black')
 
     @property
     def memory_bytes(self):
