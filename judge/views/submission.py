@@ -61,10 +61,10 @@ class SubmissionDetailBase(LoginRequiredMixin, TitleMixin, SubmissionMixin, Deta
     def get_content_title(self):
         submission = self.object
         return mark_safe(escape(_('Submission of %(problem)s by %(user)s')) % {
-            'problem': format_html('<a href="{0}">{1}</a>',
+            'problem': format_html('<a href="{0}" class="text-blue-500">{1}</a>',
                                    reverse('problem_detail', args=[submission.problem.code]),
                                    submission.problem.translated_name(self.request.LANGUAGE_CODE)),
-            'user': format_html('<a href="{0}">{1}</a>',
+            'user': format_html('<a href="{0}" class="text-blue-500">{1}</a>',
                                 reverse('user_page', args=[submission.user.user.username]),
                                 submission.user.user.username),
         })
