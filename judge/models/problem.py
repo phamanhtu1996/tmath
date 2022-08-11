@@ -36,7 +36,7 @@ class ProblemType(models.Model):
     full_name = models.CharField(max_length=100, verbose_name=_('problem category name'))
 
     def __str__(self):
-        return self.full_name
+        return user_gettext(self.full_name)
 
     class Meta:
         ordering = ['full_name']

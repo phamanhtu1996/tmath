@@ -13,7 +13,7 @@
     <tr>
         <td>
             {% if perms.judge.change_judge %}
-                <a href="{{ url('admin:judge_judge_change', judge.id) }}">{{ judge.name }}</a>
+                <a class="font-bold" href="{{ url('admin:judge_judge_change', judge.id) }}">{{ judge.name }}</a>
             {% else %}
                 {{ judge.name }}
             {% endif %}
@@ -51,7 +51,7 @@
         <td>
             {% if judge.online %}
                 {% for key, info in runtime_version_data[judge.name] -%}
-                    <a href="javascript:void(0)" data-judge="{{ judge.id }}" data-lang="{{ key }}"
+                    <a href="javascript:void(0)" class="font-bold" data-judge="{{ judge.id }}" data-lang="{{ key }}"
                        data-runtime-info="{{ runtime_versions(info.runtime) }}"
                        class="runtime-label">{{ info.name }}</a>
                     {%- if not loop.last %}, {% endif %}

@@ -20,3 +20,5 @@ venv
 martor/*
 submission_file
 statics
+node_modules
+resources/mathjax

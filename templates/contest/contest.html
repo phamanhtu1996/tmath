@@ -66,7 +66,7 @@
             {% endif %}
         </div>
         {% if contest.is_rated and contest.rating_ceiling %}
-        <div id="rate-contest" style="text-align:center; padding: 20px; color: red"> 
+        <div id="rate-contest" class="p-5 text-center text-red-500"> 
             {% trans trimmed ceiling=contest.rating_ceiling|floatformat(0) %}
                 <h4>The contest will be rated for participants with rating lower than {{ ceiling }}</h4>
             {% endtrans %}
@@ -74,7 +74,7 @@
         {% endif %}
     </div>
 
-    <div class="content-description">
+    <div class="py-4 prose max-w-none">
         {% cache 3600 'contest_html' contest.id MATH_ENGINE %}
             {{ contest.description|markdown(contest.markdown_style, MATH_ENGINE)|reference|str|safe }}
         {% endcache %}
@@ -83,16 +83,19 @@
     {% if contest.ended or request.user.is_superuser or is_editor or is_tester %}
         <hr>
         <div class="contest-problems">
-            <h2 style="margin-bottom: 0.2em"><i class="fa fa-fw fa-question-circle"></i>{{ _('Problems') }} </h2>
+            <div class="flex items-center my-3 space-x-4 text-3xl">
+                <i class="fa-solid fa-question-circle"></i>
+                <span class="font-bold">{{ _('Problems') }}</span>
+            </div>
             <table id="contest-problems" class="table">
                 <thead>
                 <tr>
                     <th>{{ _('Problem') }}</th>
-                    <th>{{ _('Points') }}</th>
-                    <th>{{ _('AC Rate') }}</th>
-                    <th>{{ _('Users') }}</th>
+                    <th class="w-32">{{ _('Points') }}</th>
+                    <th class="w-32">{{ _('AC Rate') }}</th>
+                    <th class="w-32">{{ _('Users') }}</th>
                     {% if contest_has_public_editorials %}
-                        <th>{{ _('Editorials') }}</th>
+                        <th class="w-32">{{ _('Editorials') }}</th>
                     {% endif %}
                 </tr>
                 </thead>
@@ -100,8 +103,8 @@
                 {% for problem in contest_problems %}
                     <tr>
                         <td>
-                            {% if problem.is_public %}
-                                <a href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
+                            {% if problem.is_public or request.user.is_superuser %}
+                                <a class="font-bold text-blue-500 hover:text-blue-600" href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
                             {% else %}
                                 {{ problem.i18n_name or problem.name }}
                             {% endif %}
@@ -109,8 +112,8 @@
                         <td>{{ problem.points|floatformat }}{% if problem.partial %}p{% endif %}</td>
                         <td>{{ problem.ac_rate|floatformat(1) }}%</td>
                         <td>
-                            {% if problem.is_public %}
-                                <a href="{{ url('ranked_submissions', problem.code) }}">{{ problem.user_count }}</a>
+                            {% if problem.is_public or request.user.is_superuser %}
+                                <a class="font-bold text-blue-500 hover:text-blue-600" href="{{ url('ranked_submissions', problem.code) }}">{{ problem.user_count }}</a>
                             {% else %}
                                 {{ problem.user_count }}
                             {% endif %}
@@ -118,7 +121,7 @@
                         {% if contest_has_public_editorials %}
                             <td>
                                 {% if problem.is_public and problem.has_public_editorial %}
-                                    <a href="{{ url('problem_editorial', problem.code) }}">{{ _('Editorial') }}</a>
+                                    <a class="font-bold text-red-500 hover:text-red-600" href="{{ url('problem_editorial', problem.code) }}">{{ _('Editorial') }}</a>
                                 {% endif %}
                             </td>
                         {% endif %}
@@ -129,10 +132,10 @@
         </div>
     {% endif %}
 
-    <hr>
+    <hr class="pb-1">
     <span class="social">
-        {{ post_to_facebook(request, contest, '<i class="fa fa-facebook-official"></i>') }}
-        {{ post_to_twitter(request, SITE_NAME + ':', contest, '<i class="fa fa-twitter"></i>') }}
+        {{ post_to_facebook(request, contest, '<i class="fa-brands fa-square-facebook"></i>') }}
+        {{ post_to_twitter(request, SITE_NAME + ':', contest, '<i class="fa-brands fa-twitter"></i>') }}
     </span>
 
     {% include "comments/list.html" %}

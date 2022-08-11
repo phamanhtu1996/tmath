@@ -1,5 +1,9 @@
 {% extends "common-content.html" %}
 {% block js_media %}
+<script src="{{ static('semantic/components/form.min.js') }}"></script>
+<script src="{{ static('semantic/components/dropdown.min.js') }}"></script>
+<script src="{{ static('semantic/components/transition.min.js') }}"></script>
+<script src="{{ static('semantic/components/search.min.js') }}"></script>
     <script type="text/javascript">
         {% if dynamic_update and EVENT_LAST_MSG %}
             {% if dynamic_contest_id %}
@@ -27,7 +31,7 @@
     </script>
 
     {% compress js %}
-        <script type="text/javascript" src="{{ static('event.js') }}?1"></script>
+        <script type="text/javascript" src="{{ static('event.js') }}"></script>
         {% if request.user.is_authenticated and perms.judge.rejudge_submission %}
             <script type="text/javascript">
                 window.rejudge_submission = function (id, e) {
@@ -50,17 +54,6 @@
         
     <script type="text/javascript">
         $(function () {
-            var info_float = $('.info-float');
-            var container = $('#content-right');
-            if (window.bad_browser) {
-                container.css('float', 'right');
-            } else {
-                $(window).resize(function () {
-                    info_float.width(container.width());
-                });
-                info_float.width(container.width());
-            }
-
             function escapeRegExp(string) {
                 return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
             }
@@ -143,7 +136,7 @@
             var table = $('#submissions-table');
             var statistics = $("#statistics-table");
             var doing_ajax = false;
-            var first = parseInt(table.find('>div:first-child').attr('id'));
+            var first = parseInt(table.find('>tr:first-child').attr('id'));
 
             var update_submission = function (message, force) {
                 if (language_filter.length && 'language' in message &&
@@ -153,14 +146,14 @@
                     status_filter.indexOf(message.status) == -1)
                     return;
                 var id = message.id;
-                var row = table.find('div#' + id);
+                var row = table.find('tr#' + id);
                 if (row.length < 1) {
                     if (id < first)
                         return;
                     first = id;
-                    row = $('<div>', {id: id, 'class': 'ui middle aligned grid segment'}).hide().prependTo(table);
-                    if (table.find('>div').length >= {{ paginator.per_page }})
-                        table.find('>div:last-child').slideUp('slow', function () {
+                    row = $('<tr>', {id: id, 'class': 'bg-white shadow-md [&>td:nth-child(1)]:rounded-l-md [&>td:nth-last-child(1)]:rounded-r-md'}).hide().prependTo(table);
+                    if (table.find('>tr').length >= {{ paginator.per_page }})
+                        table.find('>tr:last-child').slideUp('slow', function () {
                             $(this).remove();
                         });
                 }
@@ -259,6 +252,10 @@
 {% endblock %}
 
 {% block media %}
+<link rel="stylesheet" href="{{ static('semantic/components/form.min.css') }}">
+<link rel="stylesheet" href="{{ static('semantic/components/dropdown.min.css') }}">
+<link rel="stylesheet" href="{{ static('semantic/components/search.min.css') }}">
+<link rel="stylesheet" href="{{ static('semantic/components/transition.min.css') }}">
     {% if perms.judge.change_submission and perms.judge.rejudge_submission %}
         <style>
             td.sub-prop, col.sub-prop {
@@ -276,11 +273,6 @@
     {% endif %}
 
     <style>
-        .total {
-            text-align: center;
-            margin-bottom: 0.5em;
-        }
-
         #status-graph {
             padding: 1em 0em;
         }
@@ -288,19 +280,6 @@
         #status-graph canvas {
             display: block;
             margin: 0 auto;
-        }
-        @media only screen and (max-width: 1023px) {
-            #manage>.item>.content {
-                display: none;
-            }
-            #submission-info {
-                padding: 0 !important;
-            }
-        }
-        @media only screen and (min-width: 768px) {
-            #manage-mobile {
-                display: none;
-            }
         }
     </style>
 {% endblock %}
@@ -310,85 +289,80 @@
         <div class="top-pagination-bar">{% include "list-pages.html" %}</div>
     {% endif %}
 
-    <div class="ui computer reversed grid">
-        <div class="ui four wide computer only column">
-            <div class="sidebox">
-                <div class="ui top attached secondary black inverted menu">
-                    <h3 class="ui item header">{{ _('Filter submissions') }}</h3>
-                    <div class="right menu">
-                        <div class="icon item">
-                            <i class="search icon"></i>
-                        </div>
+    <div class="flex flex-col lg:space-x-reverse lg:space-x-8 lg:flex-row-reverse">
+        <div class="flex flex-col mb-8 space-y-6 lg:basis-1/4">
+            <div class="flex flex-col border rounded-t-md">
+                <div class="flex items-center p-4 -m-px text-white bg-black rounded-t-md">
+                    <div class="flex-1 text-xl font-bold">{{ _('Filter submissions') }}</div>
+                    <div class="">
+                        <i class="search icon"></i>
                     </div>
                 </div>
-                <div class="ui bottom attached segment">
-                    <form name="form" class="ui form" action="" method="get">
-                        <div class="field">
-                            <label for="status">{{ _('Status') }}</label>
-                            <div class="ui fluid multiple search normal selection dropdown">
-                                <input type="hidden" name="status" {% if selected_statuses %}value="{{ selected_statuses|join(',') }}"{% endif %}>
-                                <div class="default text">{{ _('Filter by status...')}}</div>
-                                <div class="menu">
-                                    {% for id, name in all_statuses %}
-                                        <div class="item" data-value="{{ id }}">{{ name }}</div>
-                                    {% endfor %}
-                                </div>
+                <form name="form" class="p-2 ui form" action="" method="get">
+                    <div class="field">
+                        <label for="status">{{ _('Status') }}</label>
+                        <div class="ui fluid multiple search normal selection dropdown">
+                            <input type="hidden" name="status" {% if selected_statuses %}value="{{ selected_statuses|join(',') }}"{% endif %}>
+                            <div class="default text">{{ _('Filter by status...')}}</div>
+                            <div class="menu">
+                                {% for id, name in all_statuses %}
+                                    <div class="item" data-value="{{ id }}">{{ name }}</div>
+                                {% endfor %}
                             </div>
                         </div>
-                        <div class="field">
-                            <label for="language">{{ _('Language') }}</label>
-                            <div class="ui fluid multiple search normal selection dropdown">
-                                <input type="hidden" name="language" {% if selected_languages %}value="{{ selected_languages|join(',') }}"{% endif %}>
-                                <div class="default text">{{ _('Filter by language...') }}</div>
-                                <div class="menu">
-                                    {% for code, name in all_languages %}
-                                        <div class="item" data-value="{{ code }}">{{ name }}</div>
-                                    {% endfor %}
-                                </div>
+                    </div>
+                    <div class="field">
+                        <label for="language">{{ _('Language') }}</label>
+                        <div class="ui fluid multiple search normal selection dropdown">
+                            <input type="hidden" name="language" {% if selected_languages %}value="{{ selected_languages|join(',') }}"{% endif %}>
+                            <div class="default text">{{ _('Filter by language...') }}</div>
+                            <div class="menu">
+                                {% for code, name in all_languages %}
+                                    <div class="item" data-value="{{ code }}">{{ name }}</div>
+                                {% endfor %}
                             </div>
                         </div>
-                        <div class="field">
-                            <button class="ui fluid primary button">{{ _('Go') }}</button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    <button class="w-full p-2 font-bold text-white bg-blue-500 rounded-md">{{ _('Go') }}</button>
+                    <script>
+                        $('.selection.dropdown').dropdown();
+                    </script>
+                </form>
             </div>
 
-            <div class="sidebox" id="statistics-table">
-                <div class="ui top attached secondary black inverted menu">
-                    <h3 class="ui item header">{{ _('Statistics') }} </h3>
-                    <div class="right menu">
-                        <icon class="item">
-                            <i class="pie chart icon"></i>
-                        </icon>
+            <div class="flex flex-col border rounded-t-md" id="statistics-table">
+                <div class="flex items-center p-4 -m-px text-white bg-black rounded-t-md">
+                    <div class="flex-1 text-xl font-bold">{{ _('Statistics') }} </div>
+                    <div class="">
+                        <i class="pie chart icon"></i>
                     </div>
                 </div>
-                <div class="ui bottom attached segment">
+                <div class="p-2">
                     <div id="status-graph">
                         <canvas width="230" height="170"></canvas>
                     </div>
-                    <div class="total">
+                    <div class="mb-8 font-semibold text-center">
                         {{ _('Total:') }} <span id="total-submission-count"></span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="ui twelve wide computer sixteen wide tablet column">
+        <div class="lg:basis-3/4">
             <div class="ws-closed">
                 <a href="javascript:void(0)">{{ _('You were disconnected. Refresh to show latest updates.') }}</a>
             </div>
 
-            <div id="submissions-table">
+            <table id="submissions-table" class="w-full -mt-2 border border-separate border-transparent border-spacing-y-2">
                 {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
                 {% for submission in submissions %}
-                    <div class="ui middle aligned grid segment" id="{{ submission.id }}">
+                    <tr class="bg-white shadow-md [&>td:nth-child(1)]:rounded-l-md [&>td:nth-last-child(1)]:rounded-r-md" id="{{ submission.id }}">
                         {% with problem_name=show_problem and (submission.problem.i18n_name or submission.problem.name) %}
                             {% include "submission/row.html" %}
                         {% endwith %}
-                    </div>
+                    </tr>
                 {% endfor %}
-            </div>
+            </table>
         </div>
     </div>
     {% if page_obj.has_other_pages() %}

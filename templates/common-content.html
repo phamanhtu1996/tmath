@@ -10,18 +10,6 @@
         <script src="{{ static('libs/clipboard/tooltip.js') }}"></script>
         <script type="text/javascript">
             $(function () {
-                var info_float = $('.info-float');
-                if (info_float.length) {
-                    var container = $('#content-right');
-                    if (window.bad_browser) {
-                        container.css('float', 'right');
-                    } else {
-                        $(window).resize(function () {
-                            info_float.width(container.width());
-                        });
-                        info_float.width(container.width());
-                    }
-                }
 
                 window.add_code_copy_buttons = function ($container) {
                     $container.find('pre code').each(function () {
@@ -58,12 +46,12 @@
 {% endblock %}
 
 {% block body %}
-    <div id="common-content">
-        <div id="content-right">
-            <div class="info-float">{% block info_float %}{% endblock %}</div>
+    <div class="flex flex-col items-stretch lg:flex-row-reverse">
+        <div class="lg:pl-6 lg:basis-1/5">
+            <div class="sticky flex flex-col w-full pt-4 top-12">{% block info_float %}{% endblock %}</div>
         </div>
-        <div id="content-left" class="split-common-content">
-            <div class="content-description screen">
+        <div class="flex-1 py-2">
+            <div class="flex flex-col">
                 {% block description %}{% endblock %}
                 {% block description_end %}
                     <hr>

@@ -1,4 +1,6 @@
 {% compress css %}
+    <link rel="stylesheet" href="{{ static('semantic/components/comment.min.css') }}">
+    <link rel="stylesheet" href="{{ static('semantic/components/form.min.css') }}">
     {{ comment_form.media.css }}
     <style media="all">
         .featherlight {
@@ -10,7 +12,7 @@
         }
 
         .revision-text p:last-child {
-            margin-bottom: 0;
+            margin-bottom: 0;ty
         }
 
         .featherlight-edit .featherlight-content {

@@ -1,51 +1,48 @@
 {% set can_view, can_edit = submission_layout(submission, profile_id, request.user, completed_problem_ids, editable_problem_ids, tester_problem_ids) %}
-<div class="two wide computer three wide tablet four wide mobile column">
-    <div class="ui middle aligned two column grid">
-        <div class="fifteen wide column">
-            <div class="ui center aligned segment {{ submission.result_background }} inverted">
-                <div class="ui tiny secondary inverted header">
-                    {%- if submission.is_graded -%}
-                        {%- if submission.status in ('IE', 'CE', 'AB') -%}
-                            -- / --
-                        {%- else -%}
-                        {{ submission.case_points|floatformat(0) }} / {{ submission.case_total|floatformat(0) }}
-                        {%- endif -%}
-                    {%- else -%}
-                    <div class="ui active small inline loader"></div>
-                    {%- endif -%}
-                    <div class="sub header" style="font-size: 0.65em">
-                        <span title="{{ submission.long_status }}" class="ui inverted {{ submission.result_class }} text"><b>{{ submission.short_status }} | {{ submission.language.short_display_name }}</b></span>
-                    </div>
-                </div>
-            </div>
+<td class=" w-28 {{ submission.result_background }}">
+    <div class="flex flex-col items-center justify-center h-full text-lg ">
+        {%- if submission.is_graded -%}
+        <div class="font-semibold text-white">
+            {%- if submission.status in ('IE', 'CE', 'AB') -%}
+                -- / --
+            {%- else -%}
+            {{ submission.case_points|floatformat(0) }} / {{ submission.case_total|floatformat(0) }}
+            {%- endif -%}
+        </div>
+        {%- else -%}
+        <div class="inline ui active small loader"></div>
+        {%- endif -%}
+        <div class="text-xs">
+            <span title="{{ submission.long_status }}" class="{{ submission.result_class }}"><b>{{ submission.short_status }} | {{ submission.language.short_display_name }}</b></span>
         </div>
     </div>
-</div>
-<div class="twelve wide computer ten wide tablet eight wide mobile column">
-    <div class="ui middle aligned padded grid">
-        <div class="seven wide computer seven wide tablet sixteen wide mobile column" style="padding: 0 1em 0 1em">
+</td>
+<td class="">
+    <div class="flex flex-col items-start flex-1 p-3 space-y-1 lg:items-center lg:flex-row">
+        <div class="flex flex-col flex-1">
             {% if show_problem %}
-            <div class="ui header">
+            <div class="text-lg font-bold">
                 <a href="{{ url('problem_detail', submission.problem.code) }}">{{ problem_name }}</a>
-                <div class="sub header">
-                    {{ link_user(submission.user) }}
-            {% else %}
-            <div class="ui header">
+            </div>
+            <div class="text-base">
                 {{ link_user(submission.user) }}
-                <div class="sub header">
+            {% else %}
+            <div class="text-lg font-bold">
+                {{ link_user(submission.user) }}
+            </div>
+            <div class="text-base">
             {% endif %}
-                    <span class="time">{{ relative_time(submission.date) }}</span>
-                    {% if not request.in_contest and submission.contest_object_id %}
-                        <a href="{{ url('contest_view', submission.contest_object.key) }}"
-                            class="submission-contest">
-                            <i title="{{ submission.contest_object.name }}" class="dot circle outline icon"></i>
-                        </a>
-                    {% endif %}
-                </div>
+                <span class="time">{{ relative_time(submission.date) }}</span>
+                {% if not request.in_contest and submission.contest_object_id %}
+                    <a href="{{ url('contest_view', submission.contest_object.key) }}"
+                        class="submission-contest">
+                        <i title="{{ submission.contest_object.name }}" class="fa-solid fa-circle-dot"></i>
+                    </a>
+                {% endif %}
             </div>
         </div>
         {% if submission.status == 'G' %}
-        <div class="two wide computer two wide tablet sixteen wide mobile column" style="padding: 0 1em 0 1em">
+        <div class="w-20">
             {%- if submission.current_testcase > 0 -%}
                 {{ _('Case #%(case)s', case=submission.current_testcase) }}
             {%- else -%}
@@ -54,58 +51,60 @@
         </div>
         {% endif %}
         {% if can_view %}
-            <div class="right floated left aligned six wide computer five wide tablet sixteen wide mobile column" style="padding: 0 1em 0 0.5em">
-                <div class="ui secondary tiny compact menu" id="manage">
-                    <a class="item" href="{{ url('submission_status', submission.id) }}">
-                        <i class="eye icon"></i>
-                        <div class="content">{{ _('view') }}</div>
+            <div class="flex items-center justify-start py-1 space-x-4 lg:justify-end w-80 min-h-[1rem]" id="manage">
+                <a class="relative pl-5" href="{{ url('submission_status', submission.id) }}">
+                    <span class="absolute top-0.5 left-0 flex flex-col items-center justify-center w-4 h-full text-sm">
+                        <i class="fa-solid fa-eye"></i>
+                    </span>
+                    <div class="hidden text-base md:block">{{ _('view') }}</div>
+                </a>
+                {% if perms.judge.rejudge_submission and can_edit %} 
+                    {% if not submission.is_locked %}
+                    <a class="relative pl-5" items-center href="javascript:void(0)" onclick="rejudge_submission({{ submission.id }}, event);return false">
+                        <span class="absolute top-0.5 left-0 flex flex-col items-center justify-center w-4 h-full text-sm">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </span>
+                        <div class="hidden text-base md:block">{{ _('rejudge') }}</div>
                     </a>
-                    {% if perms.judge.rejudge_submission and can_edit %} 
-                        {% if not submission.is_locked %}
-                        <a class="item" href="javascript:void(0)" onclick="rejudge_submission({{ submission.id }}, event);return false">
-                            <i class="refresh icon"></i>
-                            <div class="content">{{ _('rejudge') }}</div>
-                        </a>
-                        {% else %}
-                        <div class="item">
-                            <i class="refresh grey icon"></i>
-                            <div class="content">{{ _('locked') }}</div>
-                        </div>
-                        {% endif %}
+                    {% else %}
+                    <div class="relative pl-5">
+                        <span class="absolute top-0.5 left-0 flex flex-col items-center justify-center w-4 h-full text-sm">
+                            <i class="text-gray-500 fa-solid fa-arrows-rotate"></i>
+                        </span>
+                        <div class="hidden text-base md:block">{{ _('locked') }}</div>
+                    </div>
                     {% endif %}
-                    {% if can_edit %}
-                        <a class="item" href="{{ url('admin:judge_submission_change', submission.id) }}">
-                            <i class="cog icon"></i>
-                            <div class="content">{{ _('admin') }}</div>
-                        </a>
-                    {% endif %}
-                </div>
+                {% endif %}
+                {% if can_edit %}
+                    <a class="relative pl-5" href="{{ url('admin:judge_submission_change', submission.id) }}">
+                        <span class="absolute top-0.5 left-0 flex flex-col items-center justify-center w-4 h-full text-sm">
+                            <i class="fa-solid fa-gear"></i>
+                        </span>
+                        <div class="hidden text-base md:block">{{ _('admin') }}</div>
+                    </a>
+                {% endif %}
             </div>
         {% endif %}
     </div>
-</div>
-<div class="right floated two wide computer three wide tablet column">
-    <div class="ui middle aligned grid">
-        <div class="column">
-            <div class="ui center aligned segment">
-                {% if submission.status in ('QU', 'P', 'G', 'CE', 'IE', 'AB') %}
-                    <div class="ui tiny header">
-                        ---
-                        <div class="sub header">---</div>
-                    </div>
-                {% else %}
-                    {% if "TLE" != submission.result %}
-                        <div title="{{ submission.time or 0 }}s" class="ui tiny header">
-                            {{ (submission.time or 0)|floatformat(2) }}s
-                    {% else %}
-                        <div class="ui tiny header">
-                            ---
-                    {% endif %}
-                    {# No one actually like IEC prefixes, Jinja2. #}
-                    <div class="sub header">{{ (submission.memory_bytes|filesizeformat(True)).replace('i', '') }}</div>
-                </div>
-                {% endif %}
+</td>
+<td class=" w-28">
+    <div class="flex flex-col items-center justify-center h-full">
+        {% if submission.status in ('QU', 'P', 'G', 'CE', 'IE', 'AB') %}
+            <div class="font-bold">
+                ---
             </div>
+            <div class="font-light">---</div>
+        {% else %}
+            {% if "TLE" != submission.result %}
+                <div title="{{ submission.time or 0 }}s" class="font-bold">
+                    {{ (submission.time or 0)|floatformat(2) }}s
+            {% else %}
+                <div class="font-bold">
+                    ---
+            {% endif %}
+            {# No one actually like IEC prefixes, Jinja2. #}
         </div>
+        <div class="font-light">{{ (submission.memory_bytes|filesizeformat(True)).replace('i', '') }}</div>
+        {% endif %}
     </div>
-</div>
+</td>

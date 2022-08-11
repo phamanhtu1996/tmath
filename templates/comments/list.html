@@ -1,8 +1,8 @@
-<div class="ui bottom attached large threaded comments" style="max-width: unset">
-    <h2 class="ui dividing header">
+<div class="ui threaded comments !max-w-none">
+    <div class="flex items-center w-full py-2 text-3xl font-bold border-b border-slate-600">
         <i class="comments icon"></i>
         {{ _('Comments') }}
-    </h2>
+    </div>
     {% if has_comments %}
         {% set logged_in = request.user.is_authenticated %}
         {% set profile = request.profile if logged_in else None %}
@@ -130,49 +130,51 @@
             </div>
         {% endfor %}
     {% elif not comment_lock %}
-        <p class="no-comments-message">{{ _('There are no comments at the moment.') }}</p>
+        <p class="mt-2 text-lg font-normal text-black">{{ _('There are no comments at the moment.') }}</p>
     {% endif %}
 
     {% if request.user.is_authenticated and comment_form and not comment_lock %}
-    {% block comment_submit_title %}
-    <div class="ui top attached secondary black inverted menu">
-        <h3 class="ui item header">{{ _('New comment') }}</h3>
-        <div class="right menu"></div>
-    </div>
-    {% endblock %}
-    <div class="ui bottom attached segment">
-        {% if is_new_user %}
-            <div style="margin-bottom: 0" class="alert alert-info">
-                {{ _('You need to have solved at least one problem before your voice can be heard.') }}
-            </div>
-        {% else %}
-            <form class="ui reply form" action="" method="post" id="new-comment">
-                {% csrf_token %}
-                {% if comment_form.errors %}
-                    <div id="form-errors">
-                        {{ comment_form.non_field_errors() }}
-                        {{ comment_form.parent.errors }}
-                        {% if comment_form.body.errors %}{{ _('Invalid comment body.') }}{% endif %}
-                    </div>
-                {% endif %}
-                <div class="field">
-                    {{ comment_form.parent }}
-                    {{ comment_form.body }}
+    <div class="flex flex-col p-2 mt-4 space-y-4 rounded-md shadow-md">
+        {% block comment_submit_title %}
+        <div class="flex p-4 -m-2 text-white bg-black rounded-t-md">
+            <div class="flex-1 text-2xl font-bold">{{ _('New comment') }}</div>
+            <div class="right menu"></div>
+        </div>
+        {% endblock %}
+        <div class="flex flex-col">
+            {% if is_new_user %}
+                <div style="margin-bottom: 0" class="alert alert-info">
+                    {{ _('You need to have solved at least one problem before your voice can be heard.') }}
                 </div>
-                <button id="submit" type="submit" class="ui blue labeled submit icon button">
-                    <i class="edit icon"></i>
-                    <div class="content">
-                        {{ _('Add comment') }}
+            {% else %}
+                <form class="ui form" action="" method="post" id="new-comment">
+                    {% csrf_token %}
+                    {% if comment_form.errors %}
+                        <div id="form-errors">
+                            {{ comment_form.non_field_errors() }}
+                            {{ comment_form.parent.errors }}
+                            {% if comment_form.body.errors %}{{ _('Invalid comment body.') }}{% endif %}
+                        </div>
+                    {% endif %}
+                    <div class="field">
+                        {{ comment_form.parent }}
+                        {{ comment_form.body }}
                     </div>
-                </button>
-            </form>
+                    <button id="submit" type="submit" class="flex items-center px-4 py-2 font-semibold text-white bg-blue-500 rounded-md">
+                        <i class="edit icon"></i>
+                        <div class="content">
+                            {{ _('Add comment') }}
+                        </div>
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+        {% endif %}
+    
+        {% if comment_lock %}
+            <div class="alert alert-warning comment-lock">
+                {{ _('Comments are disabled on this page.') }}
+            </div>
         {% endif %}
     </div>
-    {% endif %}
-
-    {% if comment_lock %}
-        <div class="alert alert-warning comment-lock">
-            {{ _('Comments are disabled on this page.') }}
-        </div>
-    {% endif %}
 </div>

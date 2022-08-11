@@ -1,0 +1,129 @@
+<div id="sidebar" class="fixed left-0 z-50 text-white h-full overflow-hidden bg-black max-w-0 transition-[max-width] top-14">
+    <ul class="items-stretch flex flex-col text-white [&>*]:p-2">
+    {% for node in mptt_tree(nav_bar) recursive %}
+        {% if not node.is_admin or request.user.is_staff or request.user.is_superuser %}
+            {% if not node.is_leaf_node() %}
+            <li class="relative font-bold uppercase">
+                <a class="flex flex-col justify-center h-full" href="{{ node.path }}">
+                    {{ _(node.label) }}
+                </a>
+                <ul class="flex flex-col items-stretch justify-start pl-2 [&>*]:py-0.5 text-sm text-gray-500 w-full bg-black [&>li:nth-last-child(1)]:rounded-b-md">
+                    {% with children=node.get_children() %}
+                        {{ loop(children) }}
+                    {% endwith %}
+                </ul>
+            </li>
+            {% else %}
+            <li class="font-bold uppercase header"> 
+                <a class="flex flex-col justify-center h-full" href="{{ node.path }}">
+                    {{ _(node.label) }}
+                </a>
+            </li>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    </ul>
+</div>
+<div class="fixed top-0 left-0 z-50 w-full text-white bg-black">
+    <div class="flex items-center justify-between px-1.5 lg:px-6 py-1.5 mx-auto lg:py-0 max-w-8xl">
+        <a id="sidebar_button" class="flex flex-col items-center justify-center h-full lg:hidden">
+            <span class="relative p-5 border border-gray-600 rounded-md">
+                <i class="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 fa-solid fa-bars"></i>
+            </span>
+        </a>
+        <ul class="items-stretch hidden lg:flex [&>*]:px-5">
+            <li class="flex flex-col justify-center min-h-full">
+                <a class="" href="/">
+                    {% include 'site-logo-fragment.html' %}
+                </a>
+            </li>
+            {% for node in mptt_tree(nav_bar) recursive %}
+            {% if not node.is_admin or request.user.is_staff or request.user.is_superuser %}
+                {% if not node.is_leaf_node() %}
+                <li class="relative font-bold text-white uppercase group  {% if node.key in nav_tab %} bg-blue-600 rounded-md {% else %} hover:!bg-gray-200/25 {% endif %}">
+                    <a class="flex flex-col justify-center h-full" href="{{ node.path }}">
+                        <span class="flex items-center space-x-2">
+                            <span>{{ _(node.label) }}</span>
+                            <i class="fa-solid fa-caret-down"></i>
+                        </span>
+                    </a>
+                    <ul class="absolute flex-col left-0 items-stretch justify-start hidden group-hover:flex w-full bg-black [&>*]:py-2 [&>*]:px-5 [&>li:last-child]:rounded-b-md">
+                        {% with children=node.get_children() %}
+                            {{ loop(children) }}
+                        {% endwith %}
+                    </ul>
+                </li>
+                {% else %}
+                <li class="font-bold  group text-white uppercase  {% if node.key in nav_tab %} bg-blue-600 rounded-md {% else %} hover:!bg-gray-200/25 {% endif %} header"> 
+                    <a class="flex flex-col justify-center h-full {% if node.key in nav_tab %} group-hover:text-black {% endif %}" href="{{ node.path }}">
+                        {{ _(node.label) }}
+                    </a>
+                </li>
+                {% endif %}
+            {% endif %}
+            {% endfor %}
+        </ul>
+        <ul class="flex items-center space-x-6">
+            <li>
+                <a href="javascript:void(0)" onclick="submit_language('vi')" class="">
+                    <img src="{{ static('icons/vn_flag.svg') }}" alt="vn" class="object-cover w-6 h-4">
+                </a>
+            </li>
+            <li>
+                <a href="javascript:void(0)" onclick="submit_language('en')" class="">
+                    <img src="{{ static('icons/us_flag.svg') }}" alt="vn" class="object-cover w-6 h-4">
+                </a>
+            </li>
+            {% if request.user.is_authenticated %}
+            <li class="relative group">
+                <a href="{{ url('user_page') }}" class="flex flex-col justify-center h-full">
+                    <span class="flex items-center space-x-1 text-white">
+                        <img src="{{ gravatar(request.user, 80) }}" alt="{{ request.user.username }}" class="rounded-full w-11 h-11">
+                        <span>
+                            {%- trans username=request.user.username -%}
+                                Hello, <b>{{ username }}</b>
+                            {%- endtrans %}
+                        </span>
+                        <i class="fa-solid fa-caret-down"></i>
+                    </span>
+                </a> 
+                <ul class="absolute left-0 flex-col bg-gray-700/90 [&>*]:px-5 [&>*]:py-2 items-stretch justify-start hidden w-full group-hover:flex">
+                    {% if request.user.is_staff or request.user.is_superuser %}
+                    <li class="hover:bg-gray-700">
+                        <a href="{{ url('admin:index') }}" class="flex flex-col h-full font-semibold text-white ">{{ _('Admin') }}</a>
+                    </li>
+                    {% endif %}
+                    <li class="hover:bg-gray-700">
+                        <a href="{{ url('user_edit_profile') }}" class="flex flex-col h-full font-semibold text-white ">{{ _('Edit profile') }}</a>
+                    </li>
+                    {% if request.user.is_impersonate %}
+                    <li class="hover:bg-gray-700">
+                        <a href="{{ url('impersonate-stop') }}" class="flex flex-col h-full font-semibold text-white ">Stop impersonating</a>
+                    </li>
+                    {% else %}
+                    <li class="hover:bg-gray-700">
+                        <a href="{{ url('auth_logout') }}" class="flex flex-col h-full font-semibold text-white ">{{ _('Logout') }}</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </li>
+            {% else %}
+            <li class="!ml-4">
+                <a href="{{ url('auth_login') }}?next={{ LOGIN_RETURN_PATH|urlencode }}" class="font-bold text-white"> {{ _('Login') }}</a>
+            </li>
+            <li class="!ml-4">
+                <a href="{{ url('registration_register') }}" class="font-bold text-white">{{ _('Sign up') }}</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<script>
+    var sidebar_button = document.querySelector('#sidebar_button')
+    var sidebar = document.querySelector('#sidebar')
+    sidebar_button.addEventListener('click', function(e) {
+        sidebar.classList.toggle('max-w-0')
+        sidebar.classList.toggle('max-w-xs')
+    })
+</script>

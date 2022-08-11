@@ -8,12 +8,12 @@
 
     {% if contest.start_time <= now or perms.judge.see_private_contest %}
         {% if contest.can_see_own_scoreboard(request.user) %}
-            {{ make_tab('ranking', 'fa-bar-chart', url('contest_ranking', contest.key), _('Rankings')) }}
+            {{ make_tab('ranking', 'fa-ranking-star', url('contest_ranking', contest.key), _('Rankings')) }}
             {% if request.user.is_authenticated %}
                 {{ make_tab('participation', 'fa-users', url('contest_participation_own', contest.key), _('Participation')) }}
             {% endif %}
         {% else %}
-            {{ make_tab('ranking', 'fa-bar-chart', None, _('Hidden Rankings')) }}
+            {{ make_tab('ranking', 'fa-ranking-star', None, _('Hidden Rankings')) }}
         {% endif %}
     {% endif %}
     {% if can_edit %}
@@ -27,6 +27,7 @@
         {{ make_tab('clone', 'fa-copy', url('contest_clone', contest.key), _('Clone')) }}
     {% endif %}
 
+    <li class="">
     {% if request.user.is_authenticated %}
         {% if contest.can_join or is_editor or is_tester %}
             {% set in_contest = contest.is_in_contest(request.user) %}
@@ -34,25 +35,25 @@
                 {# Allow users to leave the virtual contest #}
                 {% if in_contest %}
                     <form action="{{ url('contest_leave', contest.key) }}" method="post"
-                          class="contest-join-pseudotab ui form">
+                          class="h-full">
                         {% csrf_token %}
-                        <input type="submit" class="ui primary button leaving-forever" value="{{ _('Leave contest') }}">
+                        <input type="submit" class="h-full p-4 text-white bg-blue-500 cursor-pointer rounded-t-md hover:bg-blue-700 leaving-forever" value="{{ _('Leave contest') }}">
                     </form>
                 {% else %}
                     {# Allow users to virtual join #}
                     <form action="{{ url('contest_join', contest.key) }}" method="post"
-                          class="contest-join-pseudotab ui form">
+                          class="h-full">
                         {% csrf_token %}
-                        <input type="submit" class="ui primary button" value="{{ _('Virtual join') }}">
+                        <input type="submit" class="h-full p-4 text-white bg-blue-500 cursor-pointer rounded-t-md hover:bg-blue-700" value="{{ _('Virtual join') }}">
                     </form>
                 {% endif %}
             {% else %}
                 {# Allow users to leave the contest #}
                 {% if in_contest %}
                     <form action="{{ url('contest_leave', contest.key) }}" method="post"
-                          class="contest-join-pseudotab ui form">
+                          class="h-full">
                         {% csrf_token %}
-                        <input type="submit" class="ui primary button" value="
+                        <input type="submit" class="h-full p-4 text-white bg-blue-500 cursor-pointer rounded-t-md hover:bg-blue-700" value="
                             {%- if request.participation.spectate %}
                                 {{- _('Stop spectating') -}}
                             {% else %}
@@ -61,15 +62,15 @@
                     </form>
                 {% elif is_editor or is_tester or live_participation.ended %}
                     <form action="{{ url('contest_join', contest.key) }}" method="post"
-                          class="contest-join-pseudotab ui form">
+                          class="h-full">
                         {% csrf_token %}
-                        <input type="submit" class="ui primary button" value="{{ _('Spectate contest') }}">
+                        <input type="submit" class="h-full p-4 text-white bg-blue-500 cursor-pointer rounded-t-md hover:bg-blue-700" value="{{ _('Spectate contest') }}">
                     </form>
                 {% else %}
                     <form action="{{ url('contest_join', contest.key) }}" method="post"
-                          class="contest-join-pseudotab ui form">
+                          class="h-full">
                         {% csrf_token %}
-                        <input type="submit" class="ui primary button {% if not has_joined %}first-join{% endif %}"
+                        <input type="submit" class="p-4 h-full rounded-t-md  bg-blue-500 text-white hover:bg-blue-700 cursor-pointer {% if not has_joined %}first-join{% endif %}"
                                value="{{ _('Join contest') }}">
                     </form>
                 {% endif %}
@@ -77,9 +78,10 @@
         {% endif %}
     {% elif contest.can_join %}
         <form action="{{ url('auth_login') }}" method="get"
-              class="contest-join-pseudotab ui form">
+              class="h-full">
             <input type="hidden" name="next" value="{{ LOGIN_RETURN_PATH|urlencode }}">
-            <input type="submit" class="ui primary button" value="{{ _('Log in to participate') }}">
+            <input type="submit" class="h-full p-4 text-white bg-blue-500 cursor-pointer rounded-t-md hover:bg-blue-700" value="{{ _('Log in to participate') }}">
         </form>
     {% endif %}
+    </li>
 {% endblock %}

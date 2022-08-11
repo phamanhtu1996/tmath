@@ -17,58 +17,50 @@
 {% endblock %}
 
 {% block body %}
-<div class="ui one column grid">
+<div class="flex flex-col space-y-4">
   {% if my_org %}
-  <div class="column">
-    <div class="ui basic segment">
-      <h3 class="ui dividing header">
-        {{ _('My organizations') }}
-      </h3>
-      <table class="ui unstackable selectable celled table">
-        <thead>
-          <tr>
-            <th class="center aligned fourteen wide" id="name">{{ _('Name') }}</th>
-            <th class="center aligned two wide">{{ _('Members') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for org in my_org %}
-          <tr>
-            <td><a href="{{ org.get_absolute_url() }}">{{ org.name }}</a></td>
-            <td class="center aligned">
-              <a href="{{ org.get_users_url() }}">{{ org.member_count }}</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+  <div class="text-2xl font-bold">
+    {{ _('My organizations') }}
   </div>
+  <table class="border">
+    <thead>
+      <tr class="[&>*]:p-4 divide-x divide-white">
+        <th class="w-5/6 text-white bg-black" id="name">{{ _('Name') }}</th>
+        <th class="text-white bg-black">{{ _('Members') }}</th>
+      </tr>
+    </thead>
+    <tbody class="[&>tr>*]:text-center [&>tr>*]:p-2 divide-x divide-y divide-slate-300">
+      {% for org in my_org %}
+      <tr class="divide-x divide-slate-300">
+        <td><a class="font-semibold cursor-pointer" href="{{ org.get_absolute_url() }}">{{ org.name }}</a></td>
+        <td class="">
+          <a class="font-semibold cursor-pointer" href="{{ org.get_users_url() }}">{{ org.member_count }}</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
   {% endif %}
-  <div class="column">
-    <div class="ui basic segment">
-    <h3 class="ui dividing header">
-      {{ _('All organizations') }}
-    </h3>
-    <table id="organization-table" class="ui unstackable selectable celled table">
-        <thead>
-          <tr>
-            <th class="center aligned fourteen wide" id="name">{{ _('Name') }}</th>
-            <th class="center aligned two wide">{{ _('Members') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for org in organizations %}
-          <tr>
-            <td><a href="{{ org.get_absolute_url() }}">{{ org.name }}</a></td>
-            <td class="center aligned">
-              <a href="{{ org.get_users_url() }}">{{ org.member_count }}</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+  <div class="text-2xl font-bold">
+    {{ _('All organizations') }}
   </div>
+  <table id="organization-table" class="border">
+    <thead>
+      <tr class="[&>*]:p-4 divide-x divide-white">
+        <th class="w-5/6 text-white bg-black" id="name">{{ _('Name') }}</th>
+        <th class="text-white bg-black">{{ _('Members') }}</th>
+      </tr>
+    </thead>
+    <tbody class="[&>tr>*]:text-center [&>tr>*]:p-2 divide-x divide-y divide-slate-300">
+      {% for org in organizations %}
+      <tr class="divide-x divide-slate-300">
+        <td><a class="font-semibold cursor-pointer" href="{{ org.get_absolute_url() }}">{{ org.name }}</a></td>
+        <td class="">
+          <a class="font-semibold cursor-pointer" href="{{ org.get_users_url() }}">{{ org.member_count }}</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}

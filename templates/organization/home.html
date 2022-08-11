@@ -69,21 +69,19 @@
 {% endblock %}
 
 {% block content_media %}
+<link rel="stylesheet" href="{{ static('semantic/components/comment.min.css') }}">
 <style>
     .msg p {
         word-wrap: break-word;
         word-break: break-word;
     }
-    .hidden {
-        display: none;
-    }
 </style>
 {% endblock content_media %}
 
 {% block body %}
-<div class="ui computer reversed grid">
-    <div class="sixteen wide mobile four wide computer column">
-        <div class="ui fluid container">
+<div class="flex flex-col lg:flex-row-reverse">
+    <div class="lg:basis-1/4">
+        <div class="container ui fluid">
             <div class="ui top attached secondary inverted black menu">
                 <h3 class="ui item header">{{ _('Manage') }}</h3>
                 <div class="right menu">
@@ -92,10 +90,10 @@
                     </div>
                 </div>
             </div>
-            <div class="ui bottom attached fluid secondary vertical menu">
+            <ul class="flex flex-col">
                 {% if request.user.is_authenticated %}
                     {% if request.profile in organization %}
-                    <div class="item">
+                    <li class="item">
                         <form method="post" class="ui form" action="{{ url('leave_organization', organization.id, organization.slug) }}">
                             {% csrf_token %}
                             <div class="ui field">
@@ -104,9 +102,9 @@
                                 </button>
                             </div>
                         </form>
-                    </div>
+                    </li>
                     {% elif organization.is_open %}
-                    <div class="item">
+                    <li class="item">
                         <form method="post" class="ui form" action="{{ url('join_organization', organization.id, organization.slug) }}">
                             {% csrf_token %}
                             <div class="ui field">
@@ -115,108 +113,98 @@
                                 </button>
                             </div>
                         </form>
-                    </div>
+                    </li>
                     {% else %}
-                    <div class="item">
+                    <li class="item">
                         <a href="{{ url('request_organization', organization.id, organization.slug) }}"
                            class="ui fluid primary button">{{ _('Request membership') }}</a>
-                    </div>
+                    </li>
                     {% endif %}
                 {% endif %}
         
                 {% if can_edit %}
-                <div class="item">
+                <li class="item">
                     <a class="ui fluid primary button" href="{{ url('edit_organization', organization.id, organization.slug) }}">{{ _('Edit organization') }}</a>
-                </div>
+                </li>
             
                 {% if not organization.is_open %}
-                <div class="item">
+                <li class="item">
                     <a class="ui fluid primary button" href="{{ url('organization_requests_pending', organization.id, organization.slug) }}">{{ _('View requests') }}</a>
-                </div>
+                </li>
                     
                 {% endif %}
         
                 {% if perms.judge.add_contest %}
-                <div class="item">
+                <li class="item">
                     <a class="ui fluid primary button" href="{{ url('admin:judge_contest_add') }}">{{ _('Create contest') }}</a>
-                </div>
+                </li>
                 {% endif %}
 
                 {% endif %}
             
                 {% if perms.judge.change_organization %}
-                <div class="item">
+                <li class="item">
                     <a class="ui fluid primary button" href="{{ url('admin:judge_organization_change', organization.id) }}">{{ _('Admin organization') }}</a>
-                </div>
+                </li>
                 {% endif %}
-                <div class="item">
+                <li class="item">
                     <a class="ui fluid primary button" href="{{ organization.get_users_url() }}">{{ _('View members') }}</a>
-                </div>
-            </div>
+                </li>
+            </ul>
         </div>
     </div>
-    <div class="sixteen wide mobile twelve wide computer column">
-        <div class="ui fluid container">
-            <div class="ui top attached secondary inverted black menu">
-                <h3 class="ui item header">{{ _('Information') }}</h3>
-                <div class="right menu">
-                    <div class="icon item">
-                        <i class="info circle icon"></i>
-                    </div>
-                </div>
+    <div class="flex flex-col p-4 lg:basis-3/4">
+        <div class="flex items-center p-2 text-white bg-black rounded-t-md">
+            <div class="flex-1 text-2xl font-bold">{{ _('Information') }}</div>
+            <div class="">
+                <i class="info circle icon"></i>
             </div>
-            <div class="ui bottom attached segment">
-                {% cache 3600 'organization_html' organization.id MATH_ENGINE %}
-                    {{ organization.about|markdown('organization-about', MATH_ENGINE)|reference|str|safe }}
-                {% endcache %}
-            </div>
-            {% if request.user.is_authenticated and request.profile in organization %}
-            <div class="ui top attached secondary inverted black menu">
-                <h3 class="ui item header">{{ organization.room }}</h3>
-                <div class="right menu">
-                    <div class="icon item">
-                        <i class="comments icon"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="ui bottom attached segments">
-                <div class="ui segment" id="description" style="overflow-x: auto; max-height: 50em;">
-                    <div class="ui comments" style="max-width: unset" id="messages">
-                    {% for message in msg|reverse %}
-                        <div class="comment">
-                            <a href="{{ url('user_page', message.user.user.user.username) }}" class="avatar">
-                                <img src="{{ gravatar(message.user.user) }}">
-                            </a>
-                            <div class="content">
-                                {{ link_user(message.user.user) }}
-                                <div class="metadata">
-                                    {{ message.publish_on|date(_("N j, Y, g:i a")) }}
-                                </div>
-                                <div class="text">
-                                    {% cache 3600 'message_html' message.id %}
-                                    {{ message.msg|markdown('comment') }}
-                                    {% endcache %}
-                                </div>
-                                <div class="action"></div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                    </div>
-                </div>
-                <div class="ui segment">
-                    <form class="ui form" method="post" action="">
-                        <div class="field">
-                            <label for="message">Message</label>
-                            <textarea name="msg" id="message" rows="2"></textarea>
-                        </div>
-                        <div class="field">
-                            <a class="ui primary button" onclick="send_message()">Send</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            {% endif %}
         </div>
+        <div class="p-2 prose border border-black rounded-b-md max-w-none">
+            {% cache 3600 'organization_html' organization.id MATH_ENGINE %}
+                {{ organization.about|markdown('organization-about', MATH_ENGINE)|reference|str|safe }}
+            {% endcache %}
+        </div>
+        {% if request.user.is_authenticated and request.profile in organization %}
+        <div class="flex items-center p-2 mt-10 text-white bg-black rounded-t-md">
+            <div class="flex-1 text-2xl font-bold">{{ organization.room }}</div>
+            <div class="">
+                <i class="comments icon"></i>
+            </div>
+        </div>
+        <div class="border border-black divide-y divide-black rounded-b-md">
+            <div class="p-2 overflow-x-auto max-h-[50rem]" id="description">
+                <div class="ui comments max-w-none" id="messages">
+                {% for message in msg|reverse %}
+                    <div class="comment">
+                        <a href="{{ url('user_page', message.user.user.user.username) }}" class="avatar">
+                            <img src="{{ gravatar(message.user.user) }}">
+                        </a>
+                        <div class="content">
+                            {{ link_user(message.user.user) }}
+                            <div class="metadata">
+                                {{ message.publish_on|date(_("N j, Y, g:i a")) }}
+                            </div>
+                            <div class="text">
+                                {% cache 3600 'message_html' message.id %}
+                                {{ message.msg|markdown('comment') }}
+                                {% endcache %}
+                            </div>
+                            <div class="action"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+            <form class="flex flex-col p-4 space-y-4" method="post" action="">
+                <label class="block" for="message">
+                    <span class="text-gray-700">Message</span> 
+                    <textarea name="msg" class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" id="message" rows="2"></textarea>
+                </label>
+                <a class="p-4 font-bold text-white bg-indigo-500 rounded-md cursor-pointer hover:bg-indigo-600" onclick="send_message()">Send</a>
+            </form>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% if request.user.is_authenticated and request.profile in organization %}

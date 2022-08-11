@@ -468,12 +468,11 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         self.category = safe_int_or_none(request.GET.get('category'))
         if 'type' in request.GET:
             try:
-                self.selected_types = list(map(int, request.GET.get('type').split(',')))
+                self.selected_types = list(map(int, request.GET.getlist('type')))
             except ValueError:
                 pass
         self.point_start = safe_float_or_none(request.GET.get('point_start'))
         self.point_end = safe_float_or_none(request.GET.get('point_end'))
-        # print(self.point_start)
 
     def get(self, request, *args, **kwargs):
         self.setup_problem_list(request)
