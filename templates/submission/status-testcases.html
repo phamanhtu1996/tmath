@@ -32,20 +32,20 @@
             <div class="">
                 {% for case in statuses %}
                     {% if case.status == "AC" %}
-                        <i class="green check icon"></i>
+                        <i class="font-bold text-green-500 fa-solid fa-check"></i>
                     {% elif case.status == "SC" %}
                         <span class="case-SC">&ndash;</span>
                     {% else %}
                         <a href="#{{ case.id }}">
                             <i class="{%- if case.status == 'WA' -%}
-                                red
+                                text-red-500
                             {%- elif case.status == 'TLE' -%}
-                                grey
+                                text-gray-500
                             {%- elif case.status == 'RTE' -%}
-                                orange
+                                text-orange-500
                             {%- elif case.status in ['MLE', 'OLE', 'IR'] -%}
-                                blue
-                            {%- endif %} times icon"></i>
+                                text-blue-500
+                            {%- endif %} fa-solid fa-xmark font-bold"></i>
                         </a>
                     {% endif %}
                     {% if case.num_combined > 1 %}
