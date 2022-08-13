@@ -151,7 +151,7 @@
                     if (id < first)
                         return;
                     first = id;
-                    row = $('<tr>', {id: id, 'class': 'bg-white shadow-md [&>td:nth-child(1)]:rounded-l-md [&>td:nth-last-child(1)]:rounded-r-md'}).hide().prependTo(table);
+                    row = $('<tr>', {id: id, 'class': 'transition-all bg-white shadow-md [&>td:nth-child(1)]:rounded-l-md [&>td:nth-last-child(1)]:rounded-r-md'}).hide().prependTo(table);
                     if (table.find('>tr').length >= {{ paginator.per_page }})
                         table.find('>tr:last-child').slideUp('slow', function () {
                             $(this).remove();
@@ -356,7 +356,7 @@
             <table id="submissions-table" class="w-full -mt-2 border border-separate border-transparent border-spacing-y-2">
                 {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
                 {% for submission in submissions %}
-                    <tr class="bg-white shadow-md [&>td:nth-child(1)]:rounded-l-md [&>td:nth-last-child(1)]:rounded-r-md" id="{{ submission.id }}">
+                    <tr class="bg-white transition-all shadow-md [&>td:nth-child(1)]:rounded-l-md [&>td:nth-last-child(1)]:rounded-r-md" id="{{ submission.id }}">
                         {% with problem_name=show_problem and (submission.problem.i18n_name or submission.problem.name) %}
                             {% include "submission/row.html" %}
                         {% endwith %}
