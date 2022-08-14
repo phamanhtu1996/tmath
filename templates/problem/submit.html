@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block js_media %}
-    <script type="text/javascript" src="{{ static('ace.js') }}"></script>
+    <script type="text/javascript" src="{{ ACE_URL }}/ace.js"></script>
     {{ form.media.js }}
     {% compress js %}
         <script type="text/javascript">
@@ -241,10 +241,6 @@
     {{ form.media.css }}
     {% compress css %}
         <style media="screen">
-            .hidden {
-                display: none;
-            }
-
             #submit-wrapper {
                 margin-top: 0.7em;
             }
