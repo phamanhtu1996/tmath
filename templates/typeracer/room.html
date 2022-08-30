@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block body %}
+{% include 'typeracer/typeracer.html' %}
+{% endblock body %}
+
+{% block bodyend %}
+<script>
+  var start = 0
+  const content = document.querySelector('#type_content')
+  let summary
+  let arrayQuote
+  const typeInput = document.querySelector('#type')
+  typeInput.onpaste = e => e.preventDefault();
+  const QUOTE_API_URL = '{{ url("typeracer:get_quote", room.id) }}'
+
+  function getQuote() {
+    return fetch(QUOTE_API_URL)
+      .then(response => response.json())
+      .then(data => data.content)
+  }  
+
+  async function renderNewQuote() {
+    const quote = await getQuote()
+    content.innerHTML = ''
+    quote.split('').forEach(char => {
+      const characterSpan = document.createElement('span')
+      const charText = document.createTextNode(char)
+      characterSpan.appendChild(charText)
+      content.appendChild(characterSpan)
+    })
+    typeInput.disabled = false
+    typeInput.focus()
+    typeInput.value = null
+    arrayQuote = content.querySelectorAll('span')
+    summary = arrayQuote.length
+  }
+  
+  window.onload = e => {
+    var startTime = {{ room.contest.time_until_start|json }}
+    var start = Date.now()
+    var content = document.querySelector('#type_content')
+    var typeInput = document.querySelector('#type')
+    typeInput.disabled = true
+    if (startTime == 0) {
+      renderNewQuote()
+    } else {
+      var countdownToStart = setInterval(function() {
+        var time = Math.round(startTime - (Date.now() - start) / 1000);
+        if (time <= 0) {
+          renderNewQuote()
+          clearInterval(countdownToStart)
+        }
+        var timesince = Math.floor(startTime - (Date.now() - start) / 1000)
+        content.innerHTML = `The race will start in ${timesince} seconds`
+      }, 500)
+    }
+  }
+
+  const timer = document.querySelector('#timer')
+  const speed = document.querySelector('#speed')
+  const car = document.querySelector('#car_' + window.user.id)
+  let startTime
+  let countDown
+  let speedCount
+  let carUpdate
+  let startType = false
+
+  typeInput.addEventListener('input', function() {
+    if (!startType) {
+      startTimer()
+      setSpeed()
+      carAnimate()
+      startType = true
+    }
+    typeInput.classList.remove('incorrect')
+    const arrayValue = typeInput.value.split('')
+    var i = start
+    while (i < arrayQuote.length && arrayQuote[i] != ' ') {
+      arrayQuote[i].classList.remove('correct')
+      arrayQuote[i].classList.remove('incorrect')
+      i += 1
+    }
+    let correct = true
+    arrayValue.forEach((character, index) => {
+      if (correct) {
+        if (start + index == arrayQuote.length && character == ' ') {
+          clearInterval(countDown)
+          clearInterval(speedCount)
+          clearInterval(carUpdate)
+          car.style.left = '98%'
+          start = start + index
+          speed.innerText = calSpeed()
+          content.innerHTML = 'Congratulation'
+          typeInput.value = null
+          typeInput.disabled = 'disabled'
+        } else {
+          const answer = arrayQuote[index + start].innerText
+          if (character === answer) {
+            arrayQuote[index + start].classList.add('correct')
+            if (answer == ' ') {
+              typeInput.value = null
+              start = index + start + 1
+            }
+          } else {
+            arrayQuote[index + start].classList.add('incorrect')
+            typeInput.classList.add('incorrect')
+            correct = false
+          }
+        }
+      }
+    })
+  })
+
+  function setCarAnimate(id, progress) {
+    console.log(id, progress)
+    thiscar = document.querySelector('#car_' + id)
+    console.log(thiscar)
+    thiscar.style.left = progress + '%'
+  }
+
+  function carAnimate() {
+    carUpdate = setInterval(() => {
+      car.style.left = Math.floor(start * 100 / summary) + '%'
+    }, 1000)
+  }
+
+  function calSpeed() {
+    return Math.floor(start * 60 * 1000 / (new Date() - startTime))
+  }
+
+  function setSpeed() {
+    speedCount = setInterval(() => {
+      speed.innerText = calSpeed()
+      $.ajax({
+        type: 'POST',
+        url: '{{ url("typeracer:update_progress") }}',
+        data: {
+          user: window.user.id,
+          progress: Math.floor(start * 100 / summary),
+          contest: '{{ room.contest.id }}',
+          speed: speed.innerText,
+        },
+      })
+    }, 2000)
+  }
+
+  function startTimer() {
+    timer.innerText = 0
+    startTime = new Date()
+    countDown = setInterval(() => {
+      timer.innerText = getTimerTime()
+    }, 1000)
+  }
+
+  function getTimerTime() {
+    return Math.floor((new Date() - startTime) / 1000)
+  }
+
+  function addNewParticipation(user) {
+    $.ajax({
+      type: 'GET',
+      url: `{{ url("typeracer:new_user") }}`,
+      data: {
+        user: user,
+      },
+      success: function(response) {
+        console.log(response)
+        $('#list').append(response)
+      }
+    })
+  }
+
+  window.load_dynamic_update = function () {
+    event_dispatcher.on('typocontest_{{ room.contest.id }}', function (message) {
+      setCarAnimate(message.user, message.progress)
+    });
+    event_dispatcher.on('typopartipation_{{ room.contest.id }}', function (message) {
+      addNewParticipation(message.user)
+    });
+  }
+  {% if EVENT_LAST_MSG %}
+  $(function () {
+    load_dynamic_update();
+  });
+  {% endif %}
+</script>
+{% endblock bodyend %}

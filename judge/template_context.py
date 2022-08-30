@@ -121,7 +121,7 @@ def math_setting(request):
     caniuse = CanIUse(request.META.get('HTTP_USER_AGENT', ''))
 
     if request.user.is_authenticated:
-        engine = request.profile.math_engine
+        engine = request.user.profile.math_engine
     else:
         engine = settings.MATHOID_DEFAULT_TYPE
     if engine == 'auto':
