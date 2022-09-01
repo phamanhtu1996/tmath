@@ -48,10 +48,13 @@ class TypoContest(models.Model):
 
   @property
   def time_until_end(self):
-    current = now()
-    if current >= self.time_start:
+    if self._now >= self.time_start:
       return 0
-    return (self.time_start + datetime.timedelta(seconds=self.limit) - current).total_seconds()
+    return (self.time_end - self._now).total_seconds()
+
+  @property
+  def time_end(self):
+    return self.time_start + datetime.timedelta(seconds=self.limit)
 
   @property
   def ended(self):

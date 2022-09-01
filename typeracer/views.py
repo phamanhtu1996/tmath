@@ -63,7 +63,10 @@ def finishTypoContest(request):
       contest=contest_object,
     )
     result.speed = int(speed)
-    result.time = datetime.time(microsecond=int(time))
+    second = int(time) // 1000
+    microsecond = int(time) % 1000
+    result.time = datetime.time(second=second, microsecond=microsecond * 1000)
+    result.progress = int(progress)
     result.order = rank + 1
     result.is_finish = True
     result.save()
@@ -73,7 +76,7 @@ def finishTypoContest(request):
     })
   return JsonResponse({
     'result': 'success',
-    'status': 200
+    'status': 200,
   })
 
 def getQuote(request, pk):
@@ -149,7 +152,7 @@ class Ranking(TitleMixin, DetailView):
   
   def get_context_data(self, **kwargs):
     context = super().get_context_data(**kwargs)
-    context['ranks'] = TypoResult.objects.filter(contest=self.object, is_finish=True).order_by('-speed', '-time')
+    context['ranks'] = TypoResult.objects.filter(contest=self.object, is_finish=True).order_by('-progress', '-speed', 'time')
     return context
 
 

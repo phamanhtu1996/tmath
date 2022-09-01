@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --newbie: theme('colors.gray.500');
+  --amateur: theme('colors.green.500');
+  --expert: theme('colors.blue.500');
+  --candidate-master: theme('colors.purple.500');
+  --master: theme('colors.orange.500');
+  --grandmaster: theme('colors.red.500');
+  --target: theme('colors.red.500');
+}
+
 .bg-gray-500 {
   --tw-bg-opacity: 1;
   background-color: rgb(107 114 128 / var(--tw-bg-opacity));
@@ -64,3 +74,170 @@
   @apply !rounded-tr-none
 }
 
+.tabs {
+  @apply border-b flex w-full mb-2
+}
+
+.tabs > ul {
+  @apply m-0 p-0 flex overflow-x-auto overflow-y-hidden list-outside
+}
+
+.tabs > ul > li {
+  @apply -mb-px relative block
+}
+.tabs > ul > li > a {
+  @apply mr-0.5 leading-5 rounded-t-md relative block px-4 py-3 whitespace-nowrap text-gray-700
+}
+.tabs > ul > li.active > a {
+  @apply text-black cursor-default bg-white border border-red-50 border-b-transparent border-t-[3px] border-t-blue-500
+}
+
+.solved-problem-color {
+  @apply text-green-500
+}
+
+.unsolved-problem-color {
+  @apply text-red-500
+}
+
+.attempted-problem-color {
+  @apply text-yellow-400
+}
+
+.top-pagination-bar {
+  @apply mb-3
+}
+
+.bottom-pagination-bar {
+  @apply mt-3
+}
+
+#content-body {
+  @apply pb-16
+}
+
+/* Rating */
+
+.rating {
+  @apply font-bold
+}
+
+.rate-newbie {
+  color: var(--newbie)
+}
+
+.rate-amateur {
+  color: var(--amateur)
+}
+
+.rate-expert {
+  color: var(--expert)
+}
+
+.rate-candidate-master {
+  color: var(--candidate-master)
+}
+
+.rate-master {
+  color: var(--master)
+}
+
+.rate-grandmaster {
+  color: var(--grandmaster)
+}
+
+.rate-target {
+  color: var(--target)
+}
+
+.rate-box {
+  @apply w-5 
+}
+
+.rate-box.rate-none {
+  @apply invisible
+}
+
+.rate-box circle {
+  fill: none;
+  @apply stroke-2
+}
+
+.rate-box.rate-newbie circle {
+  stroke: var(--newbie);
+}
+.rate-box.rate-amateur circle {
+  stroke: var(--amateur);
+}
+.rate-box.rate-expert circle {
+  stroke: var(--expert);
+}
+.rate-box.rate-candidate-master circle {
+  stroke: var(--candidate-master);
+}
+.rate-box.rate-master circle {
+  stroke: var(--master);
+}
+.rate-box.rate-grandmaster circle {
+  stroke: var(--grandmaster);
+}
+.rate-box.rate-target circle {
+  stroke: var(--target);
+}
+.rate-box.rate-newbie path {
+  fill: var(--newbie);
+}
+.rate-box.rate-amateur path {
+  fill: var(--amateur);
+}
+.rate-box.rate-expert path {
+  fill: var(--expert);
+}
+.rate-box.rate-candidate-master path {
+  fill: var(--candidate-master);
+}
+.rate-box.rate-master path {
+  fill: var(--master);
+}
+.rate-box.rate-grandmaster path {
+  fill: var(--grandmaster);
+}
+.rate-box.rate-target path {
+  fill: var(--target);
+}
+
+.sidebox {
+  @apply px-1.5 pb-6 !important
+}
+
+.btn-clipboard {
+  @apply absolute top-0 right-0
+}
+
+.scrollbar::-webkit-scrollbar { 
+  @apply w-2.5 h-2.5
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  @apply rounded-full bg-gray-500
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  @apply rounded-full m-px bg-gray-700
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-indigo-500
+}
+
+.correct {
+  @apply text-green-500
+}
+
+.incorrect {
+  @apply underline text-red-500
+}
+
+input.incorrect {
+  @apply bg-red-500 text-white
+}
