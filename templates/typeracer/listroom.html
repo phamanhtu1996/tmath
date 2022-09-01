@@ -1,5 +1,15 @@
 {% extends 'base.html' %}
 
+{% block js_media %}
+<script>
+  $(document).ready(function () {
+    $('.time-remaining').each(function () {
+        count_down($(this));
+    });
+  })
+</script>
+{% endblock js_media %}
+
 {% block body %}
 <div class="grid grid-cols-4 gap-4 mt-10 auto-rows-fr">
   {% for room in rooms %}
@@ -11,20 +21,39 @@
         <div class="text-base font-normal text-gray-700">
           <span>Participations: </span> {{ room.user_count }}
         </div>
+        {% if room.contest and not room.contest.is_opened %}
+        <div class="text-base time">
+          {{ _('Open in %(countdown)s.', countdown=room.contest.time_before_join|as_countdown) }}
+        </div>
+        {% elif room.contest %}
+        <div class="text-base">
+          Open
+        </div>
+        {% else %}
+        <div class="text-base">
+          No contest
+        </div>
+        {% endif %}
       </div>
       <div class="flex">
-        <a class="py-2 font-semibold text-center text-white bg-indigo-500 basis-1/2 rounded-bl-md" {% if room.user_count > 1 %} href="{{ url('typeracer:room_detail', room.id) }} {% endif %}">{{ _('View') }}</a>
-        {% if current_room is not none and current_room.id == room.id %}
+        <a class="flex-1 py-2 font-semibold text-center text-white bg-indigo-500 rounded-bl-md" {% if room.contest and (room.user_count > 1 or request.user.is_superuser) %} href="{{ url('typeracer:typo_ranking', room.contest.id) }} {% endif %}">{{ _('View') }}</a>
+        {% if room.contest and room.contest.can_join %}
+        {% if current_room and current_room.id == room.id %}
         <form class="flex-1 border-l border-white" action="{{ url('typeracer:join_room', room.id) }}" method="post">
           {% csrf_token %}
-          <input type="submit" class="w-full py-2 font-semibold text-center text-white bg-indigo-500 rounded-br-md" value="{{ _('Join') }}">
+          <input type="submit" class="w-full py-2 font-semibold text-center text-white bg-indigo-500 cursor-pointer rounded-br-md hover:bg-indigo-600 hover:text-black" value="{{ _('Join') }}">
         </form>
-        {% elif current_room is not none %}
-        <div class="w-full py-2 font-semibold text-center text-white bg-gray-500 rounded-br-md">{{ _('Join') }}</div>
+        {% elif current_room %}
         {% else %}
         <form class="flex-1 border-l border-white" action="{{ url('typeracer:join_room', room.id) }}" method="post">
           {% csrf_token %}
-          <input type="submit" class="w-full py-2 font-semibold text-center text-white bg-indigo-500 rounded-br-md" value="{{ _('Join') }}">
+          <input type="submit" class="w-full py-2 font-semibold text-center text-white bg-indigo-500 cursor-pointer rounded-br-md hover:bg-indigo-600 hover:text-black" value="{{ _('Join') }}">
+        </form>
+        {% endif %}
+        {% elif not room.contest %}
+        <form class="flex-1 border-l border-white" action="{{ url('typeracer:join_room', room.id) }}" method="post">
+          {% csrf_token %}
+          <input type="submit" class="w-full py-2 font-semibold text-center text-white bg-indigo-500 cursor-pointer ho rounded-br-md hover:bg-indigo-600 hover:text-black" value="{{ _('Create') }}">
         </form>
         {% endif %}
       </div>

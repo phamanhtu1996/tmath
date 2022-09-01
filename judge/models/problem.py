@@ -89,6 +89,7 @@ class License(models.Model):
     class Meta:
         verbose_name = _('license')
         verbose_name_plural = _('licenses')
+        ordering = ('key', )
 
 
 class TranslatedProblemQuerySet(SearchQuerySet):

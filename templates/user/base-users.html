@@ -76,8 +76,8 @@
 
     <div class="flex flex-col">
         {% block before_users_table %}{% endblock %}
-        <div class="w-full my-4 overflow-x-auto">
-            <table class="w-full border border-separate border-transparent border-spacing-y-4">
+        <div class="w-full my-4 overflow-x-auto scrollbar" >
+            <table id="users-table" class="w-full border border-separate border-transparent border-spacing-y-4">
                 {% block users_table %}{% endblock %}
             </table>
         </div>

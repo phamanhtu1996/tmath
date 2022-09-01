@@ -21,7 +21,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from fernet_fields import EncryptedCharField
 from pyotp.utils import strings_equal
-from sortedm2m.fields import SortedManyToManyField
+# from sortedm2m.fields import SortedManyToManyField
 
 from judge.models.choices import ACE_THEMES, MATH_ENGINES_CHOICES, TIMEZONE, RATE, NEWBIE
 from judge.models.runtime import Language
@@ -115,7 +115,7 @@ class Profile(models.Model):
     ace_theme = models.CharField(max_length=30, choices=ACE_THEMES, default='github')
     last_access = models.DateTimeField(verbose_name=_('last access time'), default=now)
     ip = models.GenericIPAddressField(verbose_name=_('last IP'), blank=True, null=True)
-    organizations = SortedManyToManyField(Organization, verbose_name=_('organization'), blank=True,
+    organizations = models.ManyToManyField(Organization, verbose_name=_('organization'), blank=True,
                                           related_name='members', related_query_name='member')
     display_rank = models.CharField(max_length=10, default='user', verbose_name=_('display rank'),
                                     choices=(
@@ -131,7 +131,7 @@ class Profile(models.Model):
                                    help_text=_('User-defined JavaScript for site customization.'))
     current_contest = models.OneToOneField('ContestParticipation', verbose_name=_('current contest'),
                                            null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
-    typoroom = models.OneToOneField('typeracer.TypoRoom', verbose_name=_('current typo room'), 
+    typo_contest = models.OneToOneField('typeracer.TypoContest', verbose_name=_('current typo contest'), 
                                         null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
     math_engine = models.CharField(verbose_name=_('math engine'), choices=MATH_ENGINES_CHOICES, max_length=4,
                                    default=settings.MATHOID_DEFAULT_TYPE,
@@ -237,18 +237,18 @@ class Profile(models.Model):
 
     update_contest.alters_data = True
 
-    def remove_exam(self):
-        self.current_exam = None
+    def remove_typo(self):
+        self.typo_contest = None
         self.save()
-
-    remove_exam.alters_data = True
-
-    def update_exam(self):
-        exam = self.current_exam
-        if exam is not None and (exam.ended or not exam.exam.is_accessible_by(self.user)):
-            self.remove_exam()
     
-    update_exam.alters_data = True
+    remove_typo.alters_data = True
+
+    def update_typo(self):
+        contest = self.typo_contest
+        if contest is not None and contest.ended:
+            self.remove_contest()
+
+    update_typo.alters_data = True
 
     def check_totp_code(self, code):
         totp = pyotp.TOTP(self.totp_key)
