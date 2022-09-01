@@ -10,6 +10,10 @@ def timedelta(value, display='long'):
         return value
     return nice_repr(value, display)
 
+@registry.filter
+def second(value: datetime.time):
+    return value.hour * 3600 + value.minute * 60 + value.second + (value.microsecond // 1000) / 1000
+
 
 @registry.filter
 def timestampdelta(value, display='long'):

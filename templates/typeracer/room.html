@@ -59,15 +59,15 @@
     if (startTime < Date.now()) {
       renderNewQuote()
     } else {
+      var time = Math.round((startTime - Date.now()) / 1000);
       var countdownToStart = setInterval(function() {
-        var time = Math.round(startTime - (Date.now() - start) / 1000);
         if (time <= 0) {
           renderNewQuote()
           clearInterval(countdownToStart)
         }
-        var timesince = Math.floor((startTime - Date.now())/ 1000)
-        content.innerHTML = `The race will start in ${timesince} seconds`
-      }, 500)
+        content.innerHTML = `The race will start in ${time} seconds`
+        time--
+      }, 1000)
     }
   }
 
@@ -95,6 +95,9 @@
         time: time
       }
     })
+    setTimeout(function() {
+      window.location.reload();
+    }, 2000);
   }
 
   typeInput.addEventListener('input', function() {
