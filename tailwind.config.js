@@ -1,8 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  // content: ["./templates/grappelli/**/*.{html,js}", "./templates/admin/**/*.html"],
   content: ["./templates/**/*.{html,js}"],
   theme: {
     extend: {
+      fontFamily: {
+        'awesome': 'FontAwesome'
+      },
       maxWidth: {
         '8xl': '1440px'
       },
