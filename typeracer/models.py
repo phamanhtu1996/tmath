@@ -104,6 +104,7 @@ class TypoRoom(models.Model):
   access_code = models.CharField(_('access code'), max_length=100, blank=True, default='')
   is_random = models.BooleanField(_("is random contest"), default=True)
   max_user = models.IntegerField(_("max number user can participation"), default=-1)
+  practice = models.BooleanField(_("practice room"), default=False)
 
   def __str__(self) -> str:
     return self.name

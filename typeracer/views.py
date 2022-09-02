@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.urls import reverse
 from .models import *
-from judge.utils.views import TitleMixin
+from judge.utils.views import TitleMixin, generic_message
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from judge import event_poster as event
@@ -15,12 +15,12 @@ from random import randint
 
 # Create your views here.
 
-def get_random_contest():
+def get_random_contest(limit=300):
   data = TypoData.objects.all()
   i = randint(0, data.count() - 1)
   contest = TypoContest.objects.create(
     data = data[i],
-    time_start = timezone.now() + timezone.timedelta(seconds=300),
+    time_start = timezone.now() + timezone.timedelta(seconds=limit),
     time_join = timezone.now(),
     limit = 300
   )
@@ -80,10 +80,16 @@ def finishTypoContest(request):
   })
 
 def getQuote(request, pk):
-  room = TypoRoom.objects.get(pk=pk)
-  return JsonResponse({
-    'content': room.contest.data.data
-  })
+  room: TypoRoom = TypoRoom.objects.get(pk=pk)
+  contest: TypoContest = room.contest
+  if contest._now >= contest.time_start:
+    return JsonResponse({
+      'content': room.contest.data.data
+    })
+  else:
+    return JsonResponse({
+      'content': ''
+    })
 
 
 class Racer(TemplateView):
@@ -159,19 +165,25 @@ class Ranking(TitleMixin, DetailView):
 class JoinRoom(LoginRequiredMixin, RoomMixin, SingleObjectMixin, View):
   def post(self, request, *args, **kwargs):
     self.object = self.get_object()
-    profile = request.profile
+    profile: Profile = request.profile
+    if profile.typo_contest is not None:
+      return generic_message(request, 'Can\'t join room', 'You are in %s' % profile.typo_contest.room.name, 403)
     contest = self.object.contest
-    if contest is None or (contest.ended and self.object.is_random):
-      contest = get_random_contest()
-      self.object.contest = contest
-      self.object.save()
+    room: TypoRoom = self.object
+    if contest is None or (contest.ended and room.is_random):
+      contest = get_random_contest(limit=15 if room.practice else 300)
+      room.contest = contest
+      room.save()
     if not contest.can_join:
-      raise Http404()
+      return generic_message(request, 'Can\'t join room', 'Contest is started', 403)
+    user_count = TypoResult.objects.filter(contest=contest)
+    if room.max_user > 0 and room.max_user == user_count:
+      return generic_message(request, 'Can\'t join room', 'Room is full', 403)
     participation = TypoResult.objects.get_or_create(user=profile, contest=contest)
     if participation[1]:
       event.post('typopartipation_%s' % contest.id, {
         'user': participation[0].id,
       })
     elif participation[0].is_finish:
-      return HttpResponseRedirect(reverse('typeracer:typo_ranking', args=(self.object.contest.id, )))
-    return HttpResponseRedirect(reverse('typeracer:room_detail', args=(self.object.id, )))
+      return HttpResponseRedirect(reverse('typeracer:typo_ranking', args=(contest.id, )))
+    return HttpResponseRedirect(reverse('typeracer:room_detail', args=(room.id, )))
