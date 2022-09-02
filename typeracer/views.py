@@ -63,10 +63,7 @@ def finishTypoContest(request):
       contest=contest_object,
     )
     result.speed = int(speed)
-    minute = int(time) // 60000
-    second = (int(time) // 1000) % 60
-    microsecond = int(time) % 1000
-    result.time = datetime.time(minute=minute, second=second, microsecond=microsecond * 1000)
+    result.time = int(time) / 1000
     result.progress = int(progress)
     result.order = rank + 1
     result.is_finish = True
