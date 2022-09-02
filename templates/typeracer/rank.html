@@ -40,7 +40,7 @@
         {{ user.progress }}%
       </td>
       <td class="font-semibold text-center">
-        {{ user.time|second }}s
+        {{ user.time|floatformat(3) }}s
       </td>
     </tr>
     {% endfor %}

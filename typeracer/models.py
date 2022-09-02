@@ -27,10 +27,17 @@ class TypoData(models.Model):
 
 
 class TypoContest(models.Model):
+  name = models.CharField(_("name"), max_length=255, blank=True, null=True)
   data = models.ForeignKey(TypoData, related_name='contest', null=True, on_delete=models.SET_NULL)
   time_start = models.DateTimeField(_('time start'), help_text=_('time to start racing'))
   time_join = models.DateTimeField(_('time join'), help_text=_('time to participation join'))
   limit = models.IntegerField(_('time limit'), help_text=_('time limit'), default=0)
+
+  def __str__(self) -> str:
+    if self.name:
+      return self.name
+    else:
+      return 'typo'
 
   @cached_property
   def _now(self):
@@ -78,13 +85,16 @@ class TypoContest(models.Model):
 
 class TypoResult(models.Model):
   user = models.ForeignKey('judge.Profile', verbose_name=_('user'), related_name='typos', on_delete=models.CASCADE)
-  time = models.TimeField(_('time'), default=datetime.time(0, 0))
+  time = models.FloatField(_('time'), default=0)
   speed = models.FloatField(_('speed'), default=0)
   ranked = models.BooleanField(_('is ranking'), default=False)
   order = models.PositiveIntegerField(_('order'), default=1)
   progress = models.IntegerField(_("progress"), default=0)
   is_finish = models.BooleanField(_("is finished"), default=False)
   contest = models.ForeignKey("typeracer.TypoContest", verbose_name=_("contest"), related_name='participations', null=True, blank=True, on_delete=models.CASCADE)
+
+  def __str__(self) -> str:
+    return "%s - %s" % (self.user, self.contest)
 
   class Meta:
     unique_together = ('user', 'contest')
