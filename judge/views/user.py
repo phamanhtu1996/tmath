@@ -547,6 +547,8 @@ class CreateManyUser(TitleMixin, FormView):
             username = prefix + str_id
             password = User.objects.make_random_password()
             email = username + '@tmath.vn'
+            if User.objects.filter(username=username).exists():
+                User.objects.filter(username=username).delete()
             new_user = User.objects.create_user(username=username, email=email, password=password)
             new_profile = Profile(user=new_user, language=language)
             new_profile.save()
