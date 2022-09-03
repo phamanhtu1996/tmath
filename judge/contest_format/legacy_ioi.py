@@ -86,7 +86,7 @@ class LegacyIOIContestFormat(DefaultContestFormat):
 
     def display_participation_result(self, participation):
         return format_html(
-            '<td class="ioi_format"><a class="font-bold text-black" href="{url}">{points}<div class="solving-time">{cumtime}</div></a></td>',
+            '<td class="sticky right-0 ioi_format"><a class="font-bold text-black" href="{url}">{points}<div class="solving-time">{cumtime}</div></a></td>',
             url=reverse('contest_all_user_submissions',
                         args=[self.contest.key, participation.user.user.username]),
             points=floatformat(participation.score, -self.contest.points_precision),

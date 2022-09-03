@@ -18,6 +18,7 @@ class ProblemGroupForm(ModelForm):
 class ProblemGroupAdmin(admin.ModelAdmin):
     fields = ('name', 'full_name', 'problems')
     form = ProblemGroupForm
+    search_fields = ['name']
 
     def save_model(self, request, obj, form, change):
         super(ProblemGroupAdmin, self).save_model(request, obj, form, change)
@@ -41,6 +42,7 @@ class ProblemTypeForm(ModelForm):
 class ProblemTypeAdmin(admin.ModelAdmin):
     fields = ('name', 'full_name', 'problems')
     form = ProblemTypeForm
+    search_fields = ['name']
 
     def save_model(self, request, obj, form, change):
         super(ProblemTypeAdmin, self).save_model(request, obj, form, change)
@@ -64,6 +66,7 @@ class ProblemClassForm(ModelForm):
 class ProblemClassAdmin(admin.ModelAdmin):
     fields = ('name', 'full_name', 'problems')
     form = ProblemTypeForm
+    search_fields = ['name']
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)

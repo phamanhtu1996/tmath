@@ -43,23 +43,23 @@
 }
 
 .atcoder_format {
-  @apply border-l min-w-[5rem] w-24 py-1 text-center 
+  @apply border-l min-w-[5rem] w-24 py-1 text-center bg-white 
 }
 
 .default_format {
-  @apply border-l min-w-[5rem] w-24 py-1 text-center
+  @apply border-l min-w-[5rem] w-24 py-1 text-center bg-white
 }
 
 .ecoo_format {
-  @apply border-l min-w-[5rem] w-24 py-1 text-center
+  @apply border-l min-w-[5rem] w-24 py-1 text-center bg-white
 }
 
 .icpc_format {
-  @apply border-l min-w-[5rem] w-24 py-1 text-center
+  @apply border-l min-w-[5rem] w-24 py-1 text-center bg-white
 }
 
 .ioi_format {
-  @apply border-l min-w-[5rem] w-24 py-1 text-center
+  @apply border-l min-w-[5rem] w-24 py-1 text-center bg-white
 }
 
 .prose .table {
