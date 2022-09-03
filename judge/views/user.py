@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, User
 from django.contrib.auth.views import LoginView, PasswordChangeView, redirect_to_login, LogoutView as BaseLogoutView
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
@@ -28,8 +28,9 @@ from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, FormView, ListView, TemplateView, View
 from reversion import revisions
 
-from judge.forms import CustomAuthenticationForm, DownloadDataForm, ProfileForm, newsletter_id
-from judge.models import Profile, Rating, Submission
+from judge.forms import CustomAuthenticationForm, DownloadDataForm, ProfileForm, newsletter_id, CreateManyUserForm
+from judge.models import Profile, Rating, Submission, Language
+from judge.models.profile import Organization
 from judge.performance_points import get_pp_breakdown
 from judge.ratings import rating_class, rating_progress
 from judge.tasks import prepare_user_data
@@ -510,3 +511,47 @@ class UserLogoutView(TitleMixin, BaseLogoutView):
         if not request.user.is_authenticated:
             return HttpResponseRedirect(reverse('auth_login'))
         return super().dispatch(request, *args, **kwargs)
+
+import csv
+
+class CreateManyUser(TitleMixin, FormView):
+    form_class = CreateManyUserForm
+    template_name: str = 'user/manyuserform.html'
+    title = 'Create many user'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['all_organization'] = Organization.objects.all().values_list('id', 'name')
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            raise Http404()
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form: CreateManyUserForm) -> HttpResponse:
+        prefix = form.cleaned_data['prefix_user']
+        start = form.cleaned_data['start_id']
+        end = form.cleaned_data['end_id']
+        org_id = form.cleaned_data['organization']
+        org: Organization = Organization.objects.get(id=org_id)
+        response = HttpResponse(content_type='text/csv',)
+        response['Content-Disposition'] = 'attachment; filename="%s_list_user.csv"' % prefix
+        writer = csv.writer(response)
+        writer.writerow(['Username', 'Password'])
+        language = Language.get_default_language()
+        for id in range(start, end + 1):
+            str_id = str(id)
+            while len(str_id) < 4:
+                str_id = '0' + str_id
+            username = prefix + str_id
+            password = User.objects.make_random_password()
+            email = username + '@tmath.vn'
+            new_user = User.objects.create_user(username=username, email=email, password=password)
+            new_profile = Profile(user=new_user, language=language)
+            new_profile.save()
+            if org:
+                org.members.add(new_profile)
+            writer.writerow([username, password])
+
+        return response

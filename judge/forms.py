@@ -48,6 +48,17 @@ def fix_unicode(string, unsafe=tuple('\u202a\u202b\u202d\u202e')):
     return string + (sum(k in unsafe for k in string) - string.count('\u202c')) * '\u202c'
 
 
+class CreateManyUserForm(Form):
+    prefix_user = forms.CharField(label=_('prefix user'), max_length=10, required=True)
+    start_id = forms.IntegerField(label=_('start id'), required=True)
+    end_id = forms.IntegerField(label=_('end id'), required=True)
+    organization = forms.ChoiceField(label=_('organization'), required=False, widget=forms.Select())
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields['organization'].choices = [(item.id, item.name) for item in Organization.objects.all()]
+
+
 class ProfileForm(ModelForm):
     if newsletter_id is not None:
         newsletter = forms.BooleanField(label=_('Subscribe to contest updates'), initial=False, required=False)

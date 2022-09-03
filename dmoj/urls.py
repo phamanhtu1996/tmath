@@ -110,6 +110,8 @@ urlpatterns = [
     url(r'^accounts/', include(register_patterns)),
     url(r'^', include('social_django.urls')),
     url(r'^chat/', include('chat.urls')),
+    url(r'^typo/', include('typeracer.urls')),
+    url(r'^manyuser/$', user.CreateManyUser.as_view(), name='many_user'),
 
     url(r'^problems/$', problem.ProblemList.as_view(), name='problem_list'),
     url(r'^problems/random/$', problem.RandomProblem.as_view(), name='problem_random'),
