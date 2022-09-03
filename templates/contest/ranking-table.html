@@ -11,7 +11,7 @@
     {% if has_rating %}
         <td class="text-center rating-column">{% if user.participation_rating %}{{ rating_number(user.participation_rating) }}{% endif %}</td>
     {% endif %}
-    <td class="p-2 organization-column min-w-[8rem]">
+    <td class="p-2 organization-column min-w-[8rem] border-r">
         {% if user.organization %}
             <span class="organization"><a href="{{ user.organization.get_absolute_url() }}">
                 {{- user.organization.short_name -}}

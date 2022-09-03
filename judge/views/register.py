@@ -6,14 +6,14 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import get_default_password_validators
-from django.forms import ChoiceField, ModelChoiceField
+from django.forms import ChoiceField, ModelChoiceField, ModelMultipleChoiceField
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext, gettext_lazy as _
 from registration.backends.default.views import (ActivationView as OldActivationView,
                                                  RegistrationView as OldRegistrationView)
 from registration.forms import RegistrationForm
-from sortedm2m.forms import SortedMultipleChoiceField
+# from sortedm2m.forms import SortedMultipleChoiceField
 
 from judge.models import Language, Organization, Profile, TIMEZONE
 from judge.utils.recaptcha import ReCaptchaField, ReCaptchaWidget
@@ -24,14 +24,14 @@ bad_mail_regex = list(map(re.compile, settings.BAD_MAIL_PROVIDER_REGEX))
 
 
 class CustomRegistrationForm(RegistrationForm):
-    username = forms.RegexField(regex=r'^(?=.{8,30}$)(?![_.])(?!.*[_.]{2})[a-z0-9_]+(?<![_.])$', max_length=30, label=_('Username'),
+    username = forms.RegexField(regex=r'^(?=.{6,30}$)(?![_.])(?!.*[_.]{2})[a-z0-9_]+(?<![_.])$', max_length=30, label=_('Username'),
                                 error_messages={'invalid': _('A username must contain lower latinh letters, '
-                                                             'numbers, min length = 8, max length = 30')})
+                                                             'numbers, min length = 6, max length = 30')})
     timezone = ChoiceField(label=_('Timezone'), choices=TIMEZONE,
                            widget=Select2Widget(attrs={'style': 'width:100%'}))
     language = ModelChoiceField(queryset=Language.objects.all(), label=_('Preferred language'), empty_label=None,
                                 widget=Select2Widget(attrs={'style': 'width:100%'}))
-    organizations = SortedMultipleChoiceField(queryset=Organization.objects.filter(is_open=True),
+    organizations = ModelMultipleChoiceField(queryset=Organization.objects.filter(is_open=True),
                                               label=_('Organizations'), required=False,
                                               widget=Select2MultipleWidget(attrs={'style': 'width:100%'}))
     name = forms.RegexField(regex=r'^(?!\s*$).+', max_length=50, required=True, label=_('Fullname'))

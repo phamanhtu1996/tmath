@@ -28,6 +28,7 @@ from judge.models.runtime import Language
 # from judge.models.contest import RATE, NEWBIE
 from judge.ratings import rating_class
 from judge.utils.two_factor import webauthn_decode
+from typeracer.models import TypoResult
 
 __all__ = ['Organization', 'Profile', 'OrganizationRequest', 'WebAuthnCredential']
 
@@ -245,8 +246,12 @@ class Profile(models.Model):
 
     def update_typo(self):
         contest = self.typo_contest
-        if contest is not None and contest.ended:
-            self.remove_contest()
+        if contest is not None:
+            if contest.ended:
+                self.remove_contest()
+            result = TypoResult.objects.get(user=self, contest=contest)
+            if result.is_finish:
+                self.remove_contest()
 
     update_typo.alters_data = True
 
