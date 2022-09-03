@@ -8,9 +8,8 @@
 {% endblock %}
 
 {% block users_media %}
-    <link rel="stylesheet" href="{{ static('semantic/components/checkbox.min.css') }}">
     <style>
-        #users-table, .h-scrollable-table {
+        #users-table, .scrollbar {
             transform:rotateX(180deg);
             -ms-transform:rotateX(180deg); /* IE 9 */
             -webkit-transform:rotateX(180deg); /* Safari and Chrome */
@@ -47,8 +46,6 @@
         #users-table td a:hover {
             text-decoration: underline;
         }
-
-
 
         .rank {
             min-width: 2.5em
@@ -179,7 +176,6 @@
 {% endblock %}
 
 {% block users_js_media %}
-<script src="{{ static('semantic/components/checkbox.min.js') }}"></script>
     {% if can_edit %}
         <script type="text/javascript">
             $(function () {
@@ -254,6 +250,13 @@
                 localStorage.setItem('show-usernames', $('.username-column').is(':visible') ? 'true' : 'false');
             });
             
+            var table = document.querySelector('#users-table')
+            $('#compact-checkbox').click(function () {
+                table.classList.toggle('border-spacing-y-1')
+                table.classList.toggle('border-spacing-y-4')
+                localStorage.setItem('compact-row', table.classList.contains('border-spacing-y-1') ? 'true' : 'false');
+            });
+            
             if (localStorage.getItem('show-organizations') == 'true') {
                 $('.organization-column').show();
                 $('#show-organizations-checkbox').prop('checked', true);
@@ -262,6 +265,12 @@
             if (localStorage.getItem('show-usernames') == 'true') {
                 $('.username-column').show();
                 $('#show-usernames-checkbox').prop('checked', true);
+            }
+            
+            if (localStorage.getItem('compact-row') == 'true') {
+                table.classList.toggle('border-spacing-y-1')
+                table.classList.toggle('border-spacing-y-4')
+                $('#compact-checkbox').prop('checked', true);
             }
         });
     </script>
@@ -348,19 +357,21 @@ function exportData() {
             <input id="search-contest" type="text" placeholder="{{ _('View user participation') }}">
         {% endif %}
     {% endif %}
-    <div class="flex-1 space-x-4">
-        <div class="inline-flex items-center">
-            <div class="ui checkbox">
-                <input id="show-organizations-checkbox" type="checkbox">
-                <label for="show-organizations-checkbox">{{ _('Show organizations') }}</label>
-            </div>
-        </div>
-        <div class="inline-flex items-center">
-            <div class="ui checkbox">
-                <input id="show-usernames-checkbox" type="checkbox">
-                <label for="show-usernames-checkbox">{{ _('Show username') }}</label>
-            </div>
-        </div>
+    <div class="flex flex-1 space-x-4 item-center">
+        <label for="show-organizations-checkbox" class="inline-flex items-center">
+            <input id="show-organizations-checkbox" type="checkbox" class="w-5 h-5 text-indigo-600 border-gray-300 rounded shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50">
+            <span class="ml-2 text-gray-700">{{ _('Show organizations') }}</span>
+        </label>
+        <label for="show-usernames-checkbox" class="inline-flex items-center">
+            <input id="show-usernames-checkbox" type="checkbox" class="w-5 h-5 text-indigo-600 border-gray-300 rounded shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50">
+            <span class="ml-2 text-gray-700">{{ _('Show username') }}</span>
+        </label>
+        {% if request.user.is_staff or request.user.is_superuser %}
+        <label for="compact-checkbox" class="inline-flex items-center">
+            <input id="compact-checkbox" type="checkbox" class="w-5 h-5 text-indigo-600 border-gray-300 rounded shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50">
+            <span class="ml-2 text-gray-700">{{ _('Compact') }}</span>
+        </label>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
