@@ -133,19 +133,16 @@ class CustomLoginView(LoginView):
     authentication_form = CustomAuthenticationForm
     redirect_authenticated_user = True
 
-    def get_success_url(self):
-        return reverse_lazy('home')
-
-    def form_valid(self, form):
-        password = form.cleaned_data['password']
-        validator = PwnedPasswordsValidator()
-        try:
-            validator.validate(password)
-        except ValidationError:
-            self.request.session['password_pwned'] = True
-        else:
-            self.request.session['password_pwned'] = False
-        return super().form_valid(form)
+    # def form_valid(self, form):
+    #     password = form.cleaned_data['password']
+    #     validator = PwnedPasswordsValidator()
+    #     try:
+    #         validator.validate(password)
+    #     except ValidationError:
+    #         self.request.session['password_pwned'] = True
+    #     else:
+    #         self.request.session['password_pwned'] = False
+    #     return super().form_valid(form)
 
 
 class CustomPasswordChangeView(PasswordChangeView):

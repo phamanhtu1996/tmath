@@ -37,7 +37,7 @@ class TypoContest(models.Model):
     if self.name:
       return self.name
     else:
-      return 'typo'
+      return 'typo %s' % self.id
 
   @cached_property
   def _now(self):

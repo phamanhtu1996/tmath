@@ -15,7 +15,7 @@ from random import randint
 
 # Create your views here.
 
-def get_random_contest(limit=300):
+def get_random_contest(limit=120):
   data = TypoData.objects.all()
   i = randint(0, data.count() - 1)
   contest = TypoContest.objects.create(

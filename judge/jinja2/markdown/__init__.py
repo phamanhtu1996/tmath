@@ -13,6 +13,7 @@ from lxml.etree import ParserError, XMLSyntaxError
 from judge.highlight_code import highlight_code
 from judge.jinja2.markdown.lazy_load import lazy_load as lazy_load_processor
 from judge.jinja2.markdown.math import MathInlineGrammar, MathInlineLexer, MathRenderer
+from .emoji import EmojiInlineGrammar, EmojiInlineLexer, EmojiRenderer
 from judge.utils.camo import client as camo_client
 from judge.utils.texoid import TEXOID_ENABLED, TexoidRenderer
 from .bleach_whitelist import all_styles, mathml_attrs, mathml_tags
@@ -28,15 +29,15 @@ class CodeSafeInlineGrammar(mistune.InlineGrammar):
     emphasis = re.compile(r'^\*((?:\*\*|[^\*])+?)()\*(?!\*)')  # *word*
 
 
-class AwesomeInlineGrammar(MathInlineGrammar, CodeSafeInlineGrammar):
+class AwesomeInlineGrammar(MathInlineGrammar, EmojiInlineGrammar, CodeSafeInlineGrammar):
     pass
 
 
-class AwesomeInlineLexer(MathInlineLexer, mistune.InlineLexer):
+class AwesomeInlineLexer(MathInlineLexer, EmojiInlineLexer, mistune.InlineLexer):
     grammar_class = AwesomeInlineGrammar
 
 
-class AwesomeRenderer(MathRenderer, mistune.Renderer):
+class AwesomeRenderer(MathRenderer, EmojiRenderer, mistune.Renderer):
     def __init__(self, *args, **kwargs):
         self.nofollow = kwargs.pop('nofollow', True)
         self.texoid = TexoidRenderer() if kwargs.pop('texoid', False) else None

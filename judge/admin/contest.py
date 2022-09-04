@@ -349,10 +349,11 @@ class ProblemInlineFormset(forms.BaseInlineFormSet):
         form_valid = [form for form in self.forms if form.is_valid() and form not in delete_forms]
         for form in form_valid:
             problem = form.cleaned_data['problem']
-            if SampleContestProblem.objects.filter(problem=problem, level=level).exclude(contest=self.instance).exists():
-                raise forms.ValidationError('Problem %(problem)s appeared in another level %(level)s sample contest!' % {
+            qs = SampleContestProblem.objects.filter(problem=problem, level=level).exclude(contest=self.instance)
+            if qs.exists():
+                raise forms.ValidationError('Problem %(problem)s appeared in %(contest)s sample contest!' % {
                     'problem': problem,
-                    'level': level
+                    'contest': qs.first().contest.key
                 })
     
     def save(self, commit: bool = True):
