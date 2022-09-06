@@ -35,7 +35,7 @@ class AceWidget(forms.Textarea):
 
         ace_attrs = {
             'class': 'django-ace-widget loading',
-            'style': 'width:%s; height:%s' % (self.width, self.height),
+            'style': 'width:%s; height:%s; font-size:14px' % (self.width, self.height),
             'id': 'ace_%s' % name,
         }
         if self.mode:

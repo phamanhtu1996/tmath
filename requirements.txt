@@ -1,4 +1,4 @@
-Django>=2.2,<3
+Django<4
 django_compressor
 django-mptt
 django-pagedown<2
@@ -31,7 +31,7 @@ celery
 ansi2html @ git+https://github.com/DMOJ/ansi2html.git
 sqlparse
 lupa
-martor @ git+https://github.com/DMOJ/martor.git
+martor @ git+https://github.com/patpro28/martor
 netaddr
 webauthn
 bleach==4.1.0

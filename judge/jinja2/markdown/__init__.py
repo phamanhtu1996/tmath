@@ -9,6 +9,7 @@ from django.conf import settings
 from markupsafe import Markup
 from lxml import html
 from lxml.etree import ParserError, XMLSyntaxError
+import markdown as md
 
 from judge.highlight_code import highlight_code
 from judge.jinja2.markdown.lazy_load import lazy_load as lazy_load_processor
@@ -153,10 +154,10 @@ def fragment_tree_to_str(tree):
 @registry.filter
 def markdown(value, style, math_engine=None, lazy_load=False):
     styles = settings.MARKDOWN_STYLES.get(style, settings.MARKDOWN_DEFAULT_STYLE)
-    escape = styles.get('safe_mode', True)
-    nofollow = styles.get('nofollow', True)
-    texoid = TEXOID_ENABLED and styles.get('texoid', False)
-    math = getattr(settings, 'MATHOID_URL') and styles.get('math', False)
+    # escape = styles.get('safe_mode', True)
+    # nofollow = styles.get('nofollow', True)
+    # texoid = TEXOID_ENABLED and styles.get('texoid', False)
+    # math = getattr(settings, 'MATHOID_URL') and styles.get('math', False)
     bleach_params = styles.get('bleach', {})
 
     post_processors = []
@@ -165,11 +166,12 @@ def markdown(value, style, math_engine=None, lazy_load=False):
     if lazy_load:
         post_processors.append(lazy_load_processor)
 
-    renderer = AwesomeRenderer(escape=escape, nofollow=nofollow, texoid=texoid,
-                               math=math and math_engine is not None, math_engine=math_engine)
-    markdown = mistune.Markdown(renderer=renderer, inline=AwesomeInlineLexer,
-                                parse_block_html=1, parse_inline_html=1)
-    result = markdown(value)
+    # renderer = AwesomeRenderer(escape=escape, nofollow=nofollow, texoid=texoid,
+    #                            math=math and math_engine is not None, math_engine=math_engine)
+    # markdown = mistune.Markdown(renderer=renderer, inline=AwesomeInlineLexer,
+    #                             parse_block_html=1, parse_inline_html=1)
+
+    result = md.markdown(value, extensions=settings.MARKDOWN_EXTENSIONS)
 
     if post_processors:
         tree = fragments_to_tree(result)

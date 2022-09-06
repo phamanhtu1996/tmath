@@ -1,9 +1,9 @@
 from django.urls import path
-from django.conf.urls import url, include
+from django.conf.urls import include
 from .views import make_message
 
 app_name = 'chat'
 
 urlpatterns = [
-    url(r'^send$', make_message, name="send_message")
+    path('send/', make_message, name="send_message")
 ]

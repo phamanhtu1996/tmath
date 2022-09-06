@@ -2,7 +2,7 @@ from collections import defaultdict
 from functools import partial
 
 from django.shortcuts import render
-from django.utils import six
+import six
 from django.utils.translation import gettext as _
 from packaging import version
 

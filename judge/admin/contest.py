@@ -1,18 +1,16 @@
 from random import randrange
-from adminsortable2.admin import SortableInlineAdminMixin
 from django import forms
-from django.conf.urls import url
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
 from django.db import connection, transaction
 from django.db.models import Q, TextField
 from django.forms import ModelForm, ModelMultipleChoiceField
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy, path
 from django.utils import timezone
 from django.utils.html import format_html
-from django.utils.translation import gettext_lazy as _, ungettext
+from django.utils.translation import gettext_lazy as _, ngettext
 from reversion.admin import VersionAdmin
 
 from django_ace import AceWidget
@@ -21,8 +19,9 @@ from judge.models import Contest, ContestProblem, ContestSubmission, Profile, Ra
 from judge.models.contest import ContestLevel, SampleContestProblem
 from judge.ratings import rate_contest
 from judge.utils.views import NoBatchDeleteMixin
-from judge.widgets import AdminHeavySelect2MultipleWidget, AdminHeavySelect2Widget, AdminMartorWidget, \
-    AdminSelect2MultipleWidget, AdminSelect2Widget
+from judge.widgets import AdminHeavySelect2MultipleWidget, AdminHeavySelect2Widget, AdminMartorWidget
+
+from grappelli.forms import GrappelliSortableHiddenMixin
 
 
 class AdminHeavySelect2Widget(AdminHeavySelect2Widget):
@@ -40,39 +39,26 @@ class ContestTagForm(ModelForm):
 
 
 class ContestTagAdmin(admin.ModelAdmin):
-    fields = ('name', 'color', 'description', 'contests')
+    fields = ('name', 'color', 'description')
     list_display = ('name', 'color')
     actions_on_top = True
     actions_on_bottom = True
-    form = ContestTagForm
+    search_fields = ['name']
     formfield_overrides = {
         TextField: {'widget': AdminMartorWidget},
     }
 
-    def save_model(self, request, obj, form, change):
-        super(ContestTagAdmin, self).save_model(request, obj, form, change)
-        obj.contests.set(form.cleaned_data['contests'])
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(ContestTagAdmin, self).get_form(request, obj, **kwargs)
-        if obj is not None:
-            form.base_fields['contests'].initial = obj.contests.all()
-        return form
-
-
-class ContestProblemInlineForm(ModelForm):
-    class Meta:
-        widgets = {'problem': AdminHeavySelect2Widget(data_view='problem_select2')}
-
-
-class ContestProblemInline(SortableInlineAdminMixin, admin.TabularInline):
+class ContestProblemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
     model = ContestProblem
     verbose_name = _('Problem')
     verbose_name_plural = 'Problems'
     fields = ('problem', 'points', 'partial', 'is_pretested', 'max_submissions', 'output_prefix_override', 'order',
               'rejudge_column')
     readonly_fields = ('rejudge_column',)
-    form = ContestProblemInlineForm
+    sortable_field_name = 'order'
+    autocomplete_fields = ['problem', ]
+    # form = ContestProblemInlineForm
 
     def rejudge_column(self, obj):
         if obj.id is None:
@@ -107,17 +93,6 @@ class ContestForm(ModelForm):
 
     class Meta:
         widgets = {
-            'authors': AdminHeavySelect2MultipleWidget(data_view='profile_select2'),
-            'curators': AdminHeavySelect2MultipleWidget(data_view='profile_select2'),
-            'testers': AdminHeavySelect2MultipleWidget(data_view='profile_select2'),
-            'private_contestants': AdminHeavySelect2MultipleWidget(data_view='profile_select2',
-                                                                   attrs={'style': 'width: 100%'}),
-            'organizations': AdminHeavySelect2MultipleWidget(data_view='organization_select2'),
-            'tags': AdminSelect2MultipleWidget,
-            'banned_users': AdminHeavySelect2MultipleWidget(data_view='profile_select2',
-                                                            attrs={'style': 'width: 100%'}),
-            'view_contest_scoreboard': AdminHeavySelect2MultipleWidget(data_view='profile_select2',
-                                                                       attrs={'style': 'width: 100%'}),
             'description': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('contest_preview')}),
         }
 
@@ -137,9 +112,19 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
         (_('Justice'), {'fields': ('banned_users',)}),
     )
     list_display = ('key', 'name', 'is_visible', 'is_rated', 'locked_after', 'start_time', 'end_time', 'time_limit',
-                    'user_count')
+                    'user_count', 'show_word')
     search_fields = ('key', 'name')
     inlines = [ContestProblemInline]
+    autocomplete_fields = [
+        'authors', 
+        'curators', 
+        'testers', 
+        'private_contestants', 
+        'organizations', 
+        'banned_users', 
+        'view_contest_scoreboard',
+        'tags'
+    ]
     actions_on_top = True
     actions_on_bottom = True
     form = ContestForm
@@ -226,7 +211,7 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
         if not request.user.has_perm('judge.change_contest_visibility'):
             queryset = queryset.filter(Q(is_private=True) | Q(is_organization_private=True))
         count = queryset.update(is_visible=True)
-        self.message_user(request, ungettext('%d contest successfully marked as visible.',
+        self.message_user(request, ngettext('%d contest successfully marked as visible.',
                                              '%d contests successfully marked as visible.',
                                              count) % count)
     make_visible.short_description = _('Mark contests as visible')
@@ -235,7 +220,7 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
         if not request.user.has_perm('judge.change_contest_visibility'):
             queryset = queryset.filter(Q(is_private=True) | Q(is_organization_private=True))
         count = queryset.update(is_visible=True)
-        self.message_user(request, ungettext('%d contest successfully marked as hidden.',
+        self.message_user(request, ngettext('%d contest successfully marked as hidden.',
                                              '%d contests successfully marked as hidden.',
                                              count) % count)
     make_hidden.short_description = _('Mark contests as hidden')
@@ -244,7 +229,7 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
         for row in queryset:
             self.set_locked_after(row, timezone.now())
         count = queryset.count()
-        self.message_user(request, ungettext('%d contest successfully locked.',
+        self.message_user(request, ngettext('%d contest successfully locked.',
                                              '%d contests successfully locked.',
                                              count) % count)
     set_locked.short_description = _('Lock contest submissions')
@@ -253,7 +238,7 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
         for row in queryset:
             self.set_locked_after(row, None)
         count = queryset.count()
-        self.message_user(request, ungettext('%d contest successfully unlocked.',
+        self.message_user(request, ngettext('%d contest successfully unlocked.',
                                              '%d contests successfully unlocked.',
                                              count) % count)
     set_unlocked.short_description = _('Unlock contest submissions')
@@ -276,18 +261,49 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
 
     def get_urls(self):
         return [
-            url(r'^update/rate/$', self.update_rate, name='judge_update_rate'),
-            url(r'^rate/all/$', self.rate_all_view, name='judge_contest_rate_all'),
-            url(r'^(\d+)/rate/$', self.rate_view, name='judge_contest_rate'),
-            url(r'^(\d+)/judge/(\d+)/$', self.rejudge_view, name='judge_contest_rejudge'),
+            path('update/rate/', self.update_rate, name='judge_update_rate'),
+            path('rate/all/', self.rate_all_view, name='judge_contest_rate_all'),
+            path('<int:id>/rate/', self.rate_view, name='judge_contest_rate'),
+            path('<int:contest_id>/judge/<int:problem_id>/', self.rejudge_view, name='judge_contest_rejudge'),
+            path('<int:id>/export_word', self.export_word, name='export_word'),
         ] + super(ContestAdmin, self).get_urls()
+
+    def export_word(self, request, id):
+        from judge.signals import unlink_if_exists
+        from django.conf import settings
+        import pandoc
+        import io, os
+
+        contest = get_object_or_404(Contest, id=id)
+        problems = ContestProblem.objects.filter(contest=contest).order_by('order')
+        file = os.path.join(settings.WORD_CONTEST_CACHE, "contest_{}.docx".format(contest.key))
+        if os.path.exists(file):
+            unlink_if_exists(file)
+        md = "# {}\r\n\r\n".format(contest.name)
+        for index, problem in enumerate(problems):
+            md += "# Problem %s" % (contest.get_label_for_problem(index)) + "\r\n\r\n" + str(problem.problem.description) + "\r\n\r\n"
+            md += "\r\n\r\n"
+        
+        md = md.replace('~', '$')
+        md = md.replace('##', '## ')
+        md = md.replace('](/', '](%s/' % settings.SITE_FULL_URL)
+        doc = pandoc.read(source=md, format='markdown')
+        pandoc.write(doc=doc, format='docx', file=file)
+        # pandoc.write(doc=doc, format='markdown', file="/tmp/%s.md" % (contest.key))
+        f = io.open(file, mode='rb')
+        response = HttpResponse(
+            f.read(),
+            content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        )
+        response['Content-Disposition'] = 'attachment; filename="contest_%s.docx"' % (contest.key)
+        return response
 
     def rejudge_view(self, request, contest_id, problem_id):
         queryset = ContestSubmission.objects.filter(problem_id=problem_id).select_related('submission')
         for model in queryset:
             model.submission.judge(rejudge=True)
 
-        self.message_user(request, ungettext('%d submission was successfully scheduled for rejudging.',
+        self.message_user(request, ngettext('%d submission was successfully scheduled for rejudging.',
                                              '%d submissions were successfully scheduled for rejudging.',
                                              len(queryset)) % len(queryset))
         return HttpResponseRedirect(reverse('admin:judge_contest_change', args=(contest_id,)))
@@ -327,15 +343,17 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
             Q(user__user_permissions__codename__in=perms),
         ).distinct()
         return form
+        
+    def show_word(self, obj):
+        return format_html('<a href="{0}" style="white-space:nowrap; background-color: blue; padding: 0.5rem; border-radius: 6px;">{1}</a>',
+                        reverse('admin:export_word', kwargs={'id': obj.id,}), _('Export word'))
 
 
 class ProblemInlineForm(ModelForm):
     
     def has_changed(self) -> bool:
         return True
-
-    class Meta:
-        widgets = {'problem': AdminHeavySelect2Widget(data_view='problem_select2')}
+    
 
 
 class ProblemInlineFormset(forms.BaseInlineFormSet):
@@ -367,20 +385,21 @@ class ProblemInlineFormset(forms.BaseInlineFormSet):
         self.save_m2m()
         
 
-class ProblemInline(SortableInlineAdminMixin, admin.TabularInline):
+class ProblemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
     model = SampleContestProblem
     verbose_name = _('Problem')
     verbose_name_plural = 'Problems'
     fields = ( 'order', 'problem', 'points', 'partial', 'is_pretested', 'max_submissions', 'output_prefix_override',)
-    form = ProblemInlineForm
+    autocomplete_fields = ['problem']
     formset = ProblemInlineFormset
+    form = ProblemInlineForm
+    sortable_field_name = 'order'
     extra: int = 0
 
 
 class SampleContestForm(ModelForm):
     class Meta:
         widgets = {
-            'tags': AdminSelect2MultipleWidget,
             'description': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('contest_preview')}),
         }
 
@@ -410,6 +429,9 @@ class SampleContestAdmin(VersionAdmin):
     )
     list_display = ('key', 'name', 'get_number_problems', 'level', 'clone_button', 'pdf_button')
     list_filter = (ContestLevelFilter, )
+    autocomplete_fields = [
+        'tags'
+    ]
     search_fields = ('key', 'name')
     inlines = [ProblemInline]
     actions_on_top = True
@@ -423,8 +445,8 @@ class SampleContestAdmin(VersionAdmin):
 
     def get_urls(self):
         return [
-            url(r'^(\d+)/clone/$', self.clone, name='judge_samplecontest_clone'),
-            url(r'^(\d+)/pdf$', self.pdf, name='judge_samplecontest_pdf'),
+            path('<int:id>/clone/', self.clone, name='judge_samplecontest_clone'),
+            path('<int:id>/pdf', self.pdf, name='judge_samplecontest_pdf'),
         ] + super().get_urls()
     
     def pdf(self, request, id):
@@ -476,13 +498,6 @@ class SampleContestAdmin(VersionAdmin):
                            reverse('admin:judge_samplecontest_pdf', args=(obj.id,)))
 
 
-class ContestParticipationForm(ModelForm):
-    class Meta:
-        widgets = {
-            'contest': AdminSelect2Widget(),
-            'user': AdminHeavySelect2Widget(data_view='profile_select2'),
-        }
-
 
 class ContestParticipationAdmin(admin.ModelAdmin):
     fields = ('contest', 'user', 'real_start', 'virtual', 'is_disqualified')
@@ -490,8 +505,8 @@ class ContestParticipationAdmin(admin.ModelAdmin):
     actions = ['recalculate_results']
     actions_on_bottom = actions_on_top = True
     search_fields = ('contest__key', 'contest__name', 'user__user__username')
-    form = ContestParticipationForm
     date_hierarchy = 'real_start'
+    autocomplete_fields = ['user', 'contest']
 
     def get_queryset(self, request):
         return super(ContestParticipationAdmin, self).get_queryset(request).only(
@@ -509,7 +524,7 @@ class ContestParticipationAdmin(admin.ModelAdmin):
         for participation in queryset:
             participation.recompute_results()
             count += 1
-        self.message_user(request, ungettext('%d participation recalculated.',
+        self.message_user(request, ngettext('%d participation recalculated.',
                                              '%d participations recalculated.',
                                              count) % count)
     recalculate_results.short_description = _('Recalculate results')

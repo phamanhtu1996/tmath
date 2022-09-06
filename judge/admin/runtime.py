@@ -1,9 +1,8 @@
-from django.conf.urls import url
 from django.db.models import TextField
 from django.forms import ModelForm, ModelMultipleChoiceField, TextInput
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
+from django.urls import reverse, path
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -11,16 +10,10 @@ from reversion.admin import VersionAdmin
 
 from django_ace import AceWidget
 from judge.models import Judge, Problem
-from judge.widgets import AdminHeavySelect2MultipleWidget, AdminMartorWidget
+from judge.widgets import AdminMartorWidget
 
 
 class LanguageForm(ModelForm):
-    problems = ModelMultipleChoiceField(
-        label=_('Disallowed problems'),
-        queryset=Problem.objects.all(),
-        required=False,
-        help_text=_('These problems are NOT allowed to be submitted in this language'),
-        widget=AdminHeavySelect2MultipleWidget(data_view='problem_select2'))
 
     class Meta:
         widgets = {'description': AdminMartorWidget}
@@ -29,17 +22,12 @@ class LanguageForm(ModelForm):
 class LanguageAdmin(VersionAdmin):
     fields = ('key', 'name', 'short_name', 'common_name', 'file_only', 'file_size_limit',
               'ace', 'pygments', 'info', 'extension', 'description',
-              'template', 'problems')
+              'template',)
     list_display = ('key', 'name', 'common_name', 'info')
     form = LanguageForm
-
-    def save_model(self, request, obj, form, change):
-        super(LanguageAdmin, self).save_model(request, obj, form, change)
-        obj.problem_set.set(Problem.objects.exclude(id__in=form.cleaned_data['problems'].values('id')))
-
+    search_fields = ['key', 'short_name', 'name']
+    
     def get_form(self, request, obj=None, **kwargs):
-        self.form.base_fields['problems'].initial = \
-            Problem.objects.exclude(id__in=obj.problem_set.values('id')).values_list('pk', flat=True) if obj else []
         form = super(LanguageAdmin, self).get_form(request, obj, **kwargs)
         if obj is not None:
             form.base_fields['template'].widget = AceWidget(obj.ace, request.profile.ace_theme)
@@ -51,7 +39,7 @@ class GenerateKeyTextInput(TextInput):
         text = super(TextInput, self).render(name, value, attrs)
         return mark_safe(text + format_html(
             '''\
-<a href="#" onclick="return false;" class="button" id="id_{0}_regen">Regenerate</a>
+<a href="#" onclick="return false;" class="p-2 font-bold bg-blue-500 rounded-md" id="id_{0}_regen">Regenerate</a>
 <script type="text/javascript">
 django.jQuery(document).ready(function ($) {{
     $('#id_{0}_regen').click(function () {{
@@ -89,8 +77,8 @@ class JudgeAdmin(VersionAdmin):
     }
 
     def get_urls(self):
-        return ([url(r'^(\d+)/disconnect/$', self.disconnect_view, name='judge_judge_disconnect'),
-                 url(r'^(\d+)/terminate/$', self.terminate_view, name='judge_judge_terminate')] +
+        return ([path('<int:id>/disconnect/', self.disconnect_view, name='judge_judge_disconnect'),
+                 path('<int:id>/terminate/', self.terminate_view, name='judge_judge_terminate')] +
                 super(JudgeAdmin, self).get_urls())
 
     def disconnect_judge(self, id, force=False):

@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod, abstractproperty
 
-from django.utils import six
+import six
 
 
 class abstractclassmethod(classmethod):

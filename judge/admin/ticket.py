@@ -10,7 +10,6 @@ from judge.widgets import AdminHeavySelect2MultipleWidget, AdminHeavySelect2Widg
 class TicketMessageForm(ModelForm):
     class Meta:
         widgets = {
-            'user': AdminHeavySelect2Widget(data_view='profile_select2', attrs={'style': 'width: 100%'}),
             'body': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('ticket_preview')}),
         }
 
@@ -19,14 +18,7 @@ class TicketMessageInline(StackedInline):
     model = TicketMessage
     form = TicketMessageForm
     fields = ('user', 'body')
-
-
-class TicketForm(ModelForm):
-    class Meta:
-        widgets = {
-            'user': AdminHeavySelect2Widget(data_view='profile_select2', attrs={'style': 'width: 100%'}),
-            'assignees': AdminHeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 100%'}),
-        }
+    autocomplete_fields = ['user']
 
 
 class TicketAdmin(ModelAdmin):
@@ -34,5 +26,5 @@ class TicketAdmin(ModelAdmin):
     readonly_fields = ('time',)
     list_display = ('title', 'user', 'time', 'linked_item')
     inlines = [TicketMessageInline]
-    form = TicketForm
+    autocomplete_fields = ['user', 'assignees']
     date_hierarchy = 'time'

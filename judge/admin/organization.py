@@ -6,13 +6,12 @@ from django.utils.translation import gettext, gettext_lazy as _
 from reversion.admin import VersionAdmin
 
 from judge.models import Organization
-from judge.widgets import AdminHeavySelect2MultipleWidget, AdminMartorWidget
+from judge.widgets import AdminMartorWidget
 
 
 class OrganizationForm(ModelForm):
     class Meta:
         widgets = {
-            'admins': AdminHeavySelect2MultipleWidget(data_view='profile_select2'),
             'about': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('organization_preview')}),
         }
 
@@ -23,13 +22,14 @@ class OrganizationAdmin(VersionAdmin):
               'creation_date', 'admins')
     list_display = ('name', 'short_name', 'is_open', 'slots', 'show_public')
     prepopulated_fields = {'slug': ('name',)}
+    autocomplete_fields = ['admins']
     search_fields = ['name', 'slug']
     actions_on_top = True
     actions_on_bottom = True
     form = OrganizationForm
 
     def show_public(self, obj):
-        return format_html('<a href="{0}" style="white-space:nowrap;">{1}</a>',
+        return format_html('<a href="{0}" class="view_on_site_button">{1}</a>',
                            obj.get_absolute_url(), gettext('View on site'))
 
     show_public.short_description = ''

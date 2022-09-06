@@ -1,18 +1,16 @@
 from django.forms import ModelForm
 from django.urls import reverse_lazy
 from django.utils.html import format_html
-from django.utils.translation import gettext_lazy as _, ungettext
+from django.utils.translation import gettext_lazy as _, ngettext
 from reversion.admin import VersionAdmin
 
 from judge.models import Comment
-from judge.widgets import AdminHeavySelect2Widget, AdminMartorWidget
+from judge.widgets import AdminMartorWidget
 
 
 class CommentForm(ModelForm):
     class Meta:
         widgets = {
-            'author': AdminHeavySelect2Widget(data_view='profile_select2'),
-            'parent': AdminHeavySelect2Widget(data_view='comment_select2'),
             'body': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('comment_preview')}),
         }
 
@@ -24,6 +22,7 @@ class CommentAdmin(VersionAdmin):
     )
     list_display = ['author', 'linked_page', 'time']
     search_fields = ['author__user__username', 'page', 'body']
+    autocomplete_fields = ['author', 'parent']
     actions = ['hide_comment', 'unhide_comment']
     list_filter = ['hidden']
     readonly_fields = ['time']
@@ -37,14 +36,14 @@ class CommentAdmin(VersionAdmin):
 
     def hide_comment(self, request, queryset):
         count = queryset.update(hidden=True)
-        self.message_user(request, ungettext('%d comment successfully hidden.',
+        self.message_user(request, ngettext('%d comment successfully hidden.',
                                              '%d comments successfully hidden.',
                                              count) % count)
     hide_comment.short_description = _('Hide comments')
 
     def unhide_comment(self, request, queryset):
         count = queryset.update(hidden=False)
-        self.message_user(request, ungettext('%d comment successfully unhidden.',
+        self.message_user(request, ngettext('%d comment successfully unhidden.',
                                              '%d comments successfully unhidden.',
                                              count) % count)
     unhide_comment.short_description = _('Unhide comments')

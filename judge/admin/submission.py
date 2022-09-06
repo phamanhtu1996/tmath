@@ -2,15 +2,15 @@ from functools import partial
 from operator import itemgetter
 
 from django.conf import settings
-from django.conf.urls import url
 from django.contrib import admin, messages
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.urls import path
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.html import format_html
-from django.utils.translation import gettext, gettext_lazy as _, pgettext, ungettext
+from django.utils.translation import gettext, gettext_lazy as _, pgettext, ngettext
 
 from django_ace import AceWidget
 from judge.models import ContestParticipation, ContestProblem, ContestSubmission, Profile, Submission, \
@@ -167,7 +167,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         judged = len(queryset)
         for model in queryset:
             model.judge(rejudge=True, batch_rejudge=True)
-        self.message_user(request, ungettext('%d submission was successfully scheduled for rejudging.',
+        self.message_user(request, ngettext('%d submission was successfully scheduled for rejudging.',
                                              '%d submissions were successfully scheduled for rejudging.',
                                              judged) % judged)
     judge.short_description = _('Rejudge the selected submissions')
@@ -196,7 +196,7 @@ class SubmissionAdmin(admin.ModelAdmin):
                 id__in=queryset.values_list('contest__participation_id')).prefetch_related('contest'):
             participation.recompute_results()
 
-        self.message_user(request, ungettext('%d submission were successfully rescored.',
+        self.message_user(request, ngettext('%d submission were successfully rescored.',
                                              '%d submissions were successfully rescored.',
                                              len(submissions)) % len(submissions))
     recalculate_score.short_description = _('Rescore the selected submissions')
@@ -246,7 +246,7 @@ class SubmissionAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         return [
-            url(r'^(\d+)/judge/$', self.judge_view, name='judge_submission_rejudge'),
+            path('<int:id>/judge/', self.judge_view, name='judge_submission_rejudge'),
         ] + super(SubmissionAdmin, self).get_urls()
 
     def judge_view(self, request, id):
