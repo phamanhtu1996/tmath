@@ -7,7 +7,7 @@ django-reversion
 django-social-share
 django-sortedm2m @ git+https://github.com/DMOJ/django-sortedm2m.git
 django-impersonate
-dmoj-wpadmin @ git+https://github.com/DMOJ/dmoj-wpadmin.git
+django-grappelli
 lxml
 Pygments
 mistune==0.8.4
