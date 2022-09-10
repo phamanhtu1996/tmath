@@ -345,7 +345,7 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
         return form
         
     def show_word(self, obj):
-        return format_html('<a href="{0}" style="white-space:nowrap; background-color: blue; padding: 0.5rem; border-radius: 6px;">{1}</a>',
+        return format_html('<a href="{0}" style="white-space:nowrap; background-color: blue; padding: 0.5rem; font-weight:600; border-radius: 6px;">{1}</a>',
                         reverse('admin:export_word', kwargs={'id': obj.id,}), _('Export word'))
 
 

@@ -419,6 +419,31 @@ MARTOR_MARKDOWN_BASE_MENTION_URL = '/user/'
 MARTOR_UPLOAD_MEDIA_DIR = 'martor'
 MARTOR_UPLOAD_SAFE_EXTS = {'.jpg', '.png', '.gif'}
 
+MARKDOWN_EXTENSIONS = [
+    'pymdownx.betterem',
+    'pymdownx.arithmatex',
+    'pymdownx.superfences',
+    'pymdownx.emoji',
+    'pymdownx.extra',
+    'markdown.extensions.footnotes',
+    'markdown.extensions.attr_list',
+    'markdown.extensions.def_list',
+    'markdown.extensions.tables',
+    'markdown.extensions.abbr',
+    'markdown.extensions.md_in_html',
+    'markdown.extensions.smarty',
+]
+
+
+MARKDOWN_EXTENSIONS_CONFIG = {
+    'pymdownx.arithmatex': {
+        'generic': True,
+
+    },
+}
+
+MARTOR_THEME = 'custom'
+
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 

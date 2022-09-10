@@ -152,7 +152,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
                 'description', 'license', 'testcase_visibility_mode',
             ),
         }),
-        (_('Social Media'), {'classes': ('collapse',), 'fields': ('og_image', 'summary')}),
+        (_('Social Media'), {'classes': ('grp-collapse grp-open',), 'fields': ('og_image', 'summary')}),
         (_('Taxonomy'), {'fields': ('classes', 'types', 'group')}),
         (_('Points'), {'fields': (('points', 'partial'), 'short_circuit')}),
         (_('Limits'), {'fields': ('time_limit', 'memory_limit')}),

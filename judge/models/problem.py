@@ -232,8 +232,14 @@ class Problem(models.Model):
     def is_editable_by(self, user):
         if not user.is_authenticated:
             return False
-        if user.has_perm('judge.edit_all_problem') or user.has_perm('judge.edit_public_problem') and self.is_public:
+
+        if user.has_perm('judge.edit_all_problem'):
             return True
+
+        if user.has_perm('judge.edit_public_problem') and self.is_public:
+            if not (self.is_organization_private or user.has_perm('judge.see_organization_problem')):
+                return True
+
         return user.has_perm('judge.edit_own_problem') and \
             (user.profile.id in self.editor_ids or
                 self.is_organization_private and self.organizations.filter(admins=user.profile).exists())
