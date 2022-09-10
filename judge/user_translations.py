@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.utils import six
+import six
 from django.utils.safestring import SafeData, mark_safe
 
 if settings.USE_I18N:

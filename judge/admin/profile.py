@@ -1,15 +1,13 @@
 from django.contrib import admin
 from django.forms import ModelForm
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, path
 from django.utils.html import format_html
-from django.utils.translation import gettext, gettext_lazy as _, ungettext
+from django.utils.translation import gettext, gettext_lazy as _, ngettext
 from reversion.admin import VersionAdmin
-
 from django_ace import AceWidget
 from judge.models import Profile, WebAuthnCredential
 from judge.utils.views import NoBatchDeleteMixin
-from judge.widgets import AdminMartorWidget, AdminSelect2Widget
-
+from judge.widgets import AdminMartorWidget
 
 class ProfileForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -23,10 +21,6 @@ class ProfileForm(ModelForm):
 
     class Meta:
         widgets = {
-            'timezone': AdminSelect2Widget,
-            'language': AdminSelect2Widget,
-            'ace_theme': AdminSelect2Widget,
-            'current_contest': AdminSelect2Widget,
             'about': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('profile_preview')}),
         }
 
@@ -49,7 +43,7 @@ class WebAuthnInline(admin.TabularInline):
     readonly_fields = ('cred_id', 'public_key', 'counter')
     extra = 0
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return False
 
 
@@ -67,6 +61,7 @@ class ProfileAdmin(NoBatchDeleteMixin, VersionAdmin):
     actions_on_top = True
     actions_on_bottom = True
     form = ProfileForm
+    autocomplete_fields = ['organizations', 'language', 'current_contest']
     inlines = [WebAuthnInline]
 
     def get_queryset(self, request):
@@ -88,7 +83,7 @@ class ProfileAdmin(NoBatchDeleteMixin, VersionAdmin):
         return fields
 
     def show_public(self, obj):
-        return format_html('<a href="{0}" style="white-space:nowrap;">{1}</a>',
+        return format_html('<a href="{0}" class="view_on_site_button">{1}</a>',
                            obj.get_absolute_url(), gettext('View on site'))
     show_public.short_description = ''
 
@@ -117,7 +112,7 @@ class ProfileAdmin(NoBatchDeleteMixin, VersionAdmin):
         for profile in queryset:
             profile.calculate_points()
             count += 1
-        self.message_user(request, ungettext('%d user have scores recalculated.',
+        self.message_user(request, ngettext('%d user have scores recalculated.',
                                              '%d users have scores recalculated.',
                                              count) % count)
     recalculate_points.short_description = _('Recalculate scores')

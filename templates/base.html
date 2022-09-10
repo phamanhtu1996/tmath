@@ -48,7 +48,6 @@
         <link rel="stylesheet" href="{{ FONTAWESOME_CSS }}">
     {% endif %}
     {% compress css %}
-        <link rel="stylesheet" href="{{ static('style.css') }}?v=3">
         {% if PYGMENT_THEME %}
             <link rel="stylesheet" href="{{ static(PYGMENT_THEME) }}">
         {% endif %}
@@ -59,8 +58,8 @@
         <link rel="stylesheet" type="text/css" href="{{ static('libs/clipboard/tooltip.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ static('libs/select2/select2.css') }}">
         <link rel="stylesheet" href="{{ static('navbar.css') }}">
+        <link rel="stylesheet" href="{{ static('full_style.css') }}?v={{ version }}">
     {% endcompress %}
-    <link rel="stylesheet" href="{{ static('main.css') }}?v={{ version }}">
     <link rel="canonical"
           href="{{ DMOJ_SCHEME }}://{{ DMOJ_CANONICAL|default(site.domain) }}{{ request.get_full_path() }}">
     <style>
@@ -99,7 +98,7 @@
     {% compress js %}
         <script>{{ inlinei18n(LANGUAGE_CODE)|safe }}</script>
         {% if INLINE_JQUERY %}
-            <script src="{{ static('libs/jquery-3.4.1.min.js') }}"></script>
+            <script src="{{ static('libs/jquery-3.6.0.min.js') }}"></script>
         {% endif %}
         <script src="{{ static('libs/jquery-cookie.js') }}"></script>
         <script src="{{ static('libs/jquery-taphold.js') }}"></script>
@@ -210,6 +209,12 @@
                     form.submit()
                 }
             }
+            $.ajaxSetup({
+                beforeSend: function (xhr, settings) {
+                    if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain)
+                        xhr.setRequestHeader('X-CSRFToken', $.cookie('csrftoken'));
+                }
+            });
         </script>
     {% endcompress %}
     {% block js_media %}{% endblock %}

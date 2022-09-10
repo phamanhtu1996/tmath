@@ -12,12 +12,9 @@ from judge.admin.runtime import JudgeAdmin, LanguageAdmin
 from judge.admin.submission import SubmissionAdmin
 from judge.admin.taxon import ProblemGroupAdmin, ProblemTypeAdmin, ProblemClassAdmin
 from judge.admin.ticket import TicketAdmin
-# from judge.admin.tmatheng import ExamAdmin, MathProblemAdmin, MathProblemGroupAdmin
 from judge.models import BlogPost, Comment, CommentLock, Contest, ContestParticipation, \
     ContestTag, Judge, Language, License, MiscConfig, NavigationBar, Organization, \
     OrganizationRequest, Problem, ProblemGroup, ProblemType, Profile, Submission, Ticket, CourseModel, ProblemClass, ContestLevel
-# from judge.models import ExamProblem, Exam, MathProblem
-# from judge.models.tmatheng import MathGroup
 
 admin.site.register(BlogPost, BlogPostAdmin)
 admin.site.register(Comment, CommentAdmin)
@@ -44,6 +41,3 @@ admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Submission, SubmissionAdmin)
 admin.site.register(Ticket, TicketAdmin)
 admin.site.register(CourseModel, CourseAdmin)
-# admin.site.register(Exam, ExamAdmin)
-# admin.site.register(MathProblem, MathProblemAdmin)
-# admin.site.register(MathGroup, MathProblemGroupAdmin)

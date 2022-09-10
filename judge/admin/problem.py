@@ -7,14 +7,13 @@ from django.forms import ModelForm
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
-from django.utils.translation import gettext, gettext_lazy as _, ungettext
+from django.utils.translation import gettext, gettext_lazy as _, ngettext
 from reversion.admin import VersionAdmin
 
 from judge.models import LanguageLimit, Problem, ProblemClarification, ProblemTranslation, Profile, Solution
 from judge.models.problem import ProblemClass, ProblemGroup, ProblemType
 from judge.utils.views import NoBatchDeleteMixin
-from judge.widgets import AdminHeavySelect2MultipleWidget, AdminMartorWidget, AdminSelect2MultipleWidget, \
-    AdminSelect2Widget, CheckboxSelectMultipleWithSelectAll
+from judge.widgets import AdminMartorWidget, CheckboxSelectMultipleWithSelectAll
 
 class ProblemForm(ModelForm):
     change_message = forms.CharField(max_length=256, label='Edit reason', required=False)
@@ -32,16 +31,6 @@ class ProblemForm(ModelForm):
 
     class Meta:
         widgets = {
-            'authors': AdminHeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 100%'}),
-            'curators': AdminHeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 100%'}),
-            'testers': AdminHeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 100%'}),
-            'banned_users': AdminHeavySelect2MultipleWidget(data_view='profile_select2',
-                                                            attrs={'style': 'width: 100%'}),
-            'organizations': AdminHeavySelect2MultipleWidget(data_view='organization_select2',
-                                                             attrs={'style': 'width: 100%'}),
-            'types': AdminSelect2MultipleWidget,
-            'group': AdminSelect2Widget,
-            'classes': AdminSelect2Widget,
             'description': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
         }
 
@@ -98,15 +87,10 @@ class ProblemClassFilter(admin.SimpleListFilter):
         return queryset.filter(classes__name=self.value())
 
 
-class LanguageLimitInlineForm(ModelForm):
-    class Meta:
-        widgets = {'language': AdminSelect2Widget}
-
-
 class LanguageLimitInline(admin.TabularInline):
     model = LanguageLimit
     fields = ('language', 'time_limit', 'memory_limit')
-    form = LanguageLimitInlineForm
+    autocomplete_fields = ['language']
 
 
 class ProblemClarificationForm(ModelForm):
@@ -128,7 +112,6 @@ class ProblemSolutionForm(ModelForm):
 
     class Meta:
         widgets = {
-            'authors': AdminHeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 100%'}),
             'content': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('solution_preview')}),
         }
 
@@ -138,6 +121,7 @@ class ProblemSolutionInline(admin.StackedInline):
     fields = ('is_public', 'publish_on', 'authors', 'is_full_markup', 'content')
     form = ProblemSolutionForm
     extra = 0
+    autocomplete_fields = ['authors']
 
 
 class ProblemTranslationForm(ModelForm):
@@ -168,7 +152,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
                 'description', 'license', 'testcase_visibility_mode',
             ),
         }),
-        (_('Social Media'), {'classes': ('collapse',), 'fields': ('og_image', 'summary')}),
+        (_('Social Media'), {'classes': ('grp-collapse grp-open',), 'fields': ('og_image', 'summary')}),
         (_('Taxonomy'), {'fields': ('classes', 'types', 'group')}),
         (_('Points'), {'fields': (('points', 'partial'), 'short_circuit')}),
         (_('Limits'), {'fields': ('time_limit', 'memory_limit')}),
@@ -176,7 +160,18 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         (_('Justice'), {'fields': ('banned_users',)}),
         (_('History'), {'fields': ('change_message',)}),
     )
-    list_display = ['code', 'name', 'show_authors', 'points', 'is_public', 'show_public']
+    autocomplete_fields = [
+        'authors', 
+        'curators', 
+        'testers', 
+        'organizations', 
+        'banned_users', 
+        'classes', 
+        'types', 
+        'group',
+        'license',
+    ]
+    list_display = ['code', 'name', 'show_authors', 'points', 'is_public', 'show_public', ]
     ordering = ['code']
     search_fields = ('code', 'name', 'authors__user__username', 'curators__user__username')
     inlines = [LanguageLimitInline, ProblemClarificationInline, ProblemSolutionInline, ProblemTranslationInline]
@@ -230,7 +225,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
 
     def update_publish_date(self, request, queryset):
         count = queryset.update(date=timezone.now())
-        self.message_user(request, ungettext("%d problem's publish date successfully updated.",
+        self.message_user(request, ngettext("%d problem's publish date successfully updated.",
                                              "%d problems' publish date successfully updated.",
                                              count) % count)
 
@@ -240,7 +235,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         count = queryset.update(is_public=True)
         for problem_id in queryset.values_list('id', flat=True):
             self._rescore(request, problem_id)
-        self.message_user(request, ungettext('%d problem successfully marked as public.',
+        self.message_user(request, ngettext('%d problem successfully marked as public.',
                                              '%d problems successfully marked as public.',
                                              count) % count)
 
@@ -250,7 +245,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         count = queryset.update(is_public=False)
         for problem_id in queryset.values_list('id', flat=True):
             self._rescore(request, problem_id)
-        self.message_user(request, ungettext('%d problem successfully marked as private.',
+        self.message_user(request, ngettext('%d problem successfully marked as private.',
                                              '%d problems successfully marked as private.',
                                              count) % count)
 

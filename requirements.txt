@@ -1,4 +1,4 @@
-Django>=2.2,<3
+Django>3,<4
 django_compressor
 django-mptt
 django-pagedown<2
@@ -7,10 +7,9 @@ django-reversion
 django-social-share
 django-sortedm2m @ git+https://github.com/DMOJ/django-sortedm2m.git
 django-impersonate
-dmoj-wpadmin @ git+https://github.com/DMOJ/dmoj-wpadmin.git
+django-grappelli
 lxml
 Pygments
-mistune==0.8.4
 social-auth-app-django
 pytz
 django-statici18n
@@ -31,10 +30,12 @@ celery
 ansi2html @ git+https://github.com/DMOJ/ansi2html.git
 sqlparse
 lupa
-martor @ git+https://github.com/DMOJ/martor.git
+martor @ git+https://github.com/patpro28/martor
 netaddr
 webauthn
 bleach==4.1.0
 django-admin-sortable2
 pandoc
+pymdown-extensions
+FeedParser
 # django-semantic-admin @ git+https://github.com/patpro28/semantic-admin.git

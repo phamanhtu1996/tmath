@@ -140,7 +140,7 @@
     <a class="bg-blue-500 hover:bg-blue-600" href="{{ url('problem_ticket_list', problem.code) }}">{{ _('Manage tickets') }}
         {% if num_open_tickets %}<span class="badge">{{ num_open_tickets }}</span>{% endif %}
     </a>
-    <a class="bg-blue-500 hover:bg-blue-600" href="{{ url('problem_edit', problem.code) }}">{{ _('Edit problem') }}</a>
+    <a class="bg-blue-500 hover:bg-blue-600" href="{{ url('admin:judge_problem_change', problem.id) }}">{{ _('Edit problem') }}</a>
     {% if not problem.is_manually_managed %}
     <a class="bg-blue-500 hover:bg-blue-600" href="{{ url('problem_data', problem.code) }}">{{ _('Edit test data') }}</a>
     {% endif %}
@@ -301,7 +301,7 @@
 {% endblock %}
 
 {% block description %}
-<div class="prose max-w-none">
+<div class="prose text-black max-w-none">
     {% cache 86400 'problem_html' problem.id MATH_ENGINE LANGUAGE_CODE %}
         {{ description|markdown(problem.markdown_style, MATH_ENGINE)|reference|str|safe }}
     {% endcache %}

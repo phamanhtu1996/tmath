@@ -17,8 +17,8 @@
 {% endblock %}
 
 {% block body %}
-    <div class="h-scrollable-table">
-        <table id="judge-status" class="table">
+    <div class="overflow-auto scrollbar">
+        <table id="judge-status" class="table w-full text-center border divide-y">
             {% include "status/judge-status-table.html" %}
         </table>
     </div>

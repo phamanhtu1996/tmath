@@ -60,7 +60,7 @@ class BlogPostForm(ModelForm):
 
     class Meta:
         widgets = {
-            'authors': AdminHeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 100%'}),
+            # 'authors': AdminHeavySelect2MultipleWidget(data_view='profile_select2', attrs={'style': 'width: 100%'}),
             'content': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('blog_preview')}),
             'summary': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('blog_preview')}),
         }
@@ -77,6 +77,7 @@ class BlogPostAdmin(VersionAdmin):
     list_display_links = ('id', 'title')
     ordering = ('-publish_on',)
     form = BlogPostForm
+    autocomplete_fields = ['authors',]
     date_hierarchy = 'publish_on'
 
     def has_change_permission(self, request, obj=None):
@@ -124,6 +125,7 @@ class LicenseAdmin(admin.ModelAdmin):
     fields = ('key', 'link', 'name', 'display', 'icon', 'text')
     list_display = ('name', 'key')
     form = LicenseForm
+    search_fields = ['name', 'key']
 
 
 class UserListFilter(admin.SimpleListFilter):

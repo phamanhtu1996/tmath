@@ -8,16 +8,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# Build paths inside the project like this: BASE_DIR / ...
+from pathlib import Path
 import datetime
-import os
 import tempfile
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_jinja.builtins import DEFAULT_EXTENSIONS
 from jinja2 import select_autoescape
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -148,96 +148,21 @@ FONTAWESOME_CSS = '//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome
 MATERIAL_ICONS = '//fonts.googleapis.com/icon?family=Material+Icons'
 DMOJ_CANONICAL = ''
 
-# Application definition
+# grappelli custom
 
-INSTALLED_APPS = ()
+GRAPPELLI_ADMIN_TITLE = 'Tmath'
+GRAPPELLI_INDEX_DASHBOARD = 'dashboard.TmathDashboard'
 
-try:
-    import wpadmin
-except ImportError:
-    pass
-else:
-    del wpadmin
-    INSTALLED_APPS += ('wpadmin',)
-
-    WPADMIN = {
-        'admin': {
-            'title': 'DMOJ Admin',
-            'menu': {
-                'top': 'wpadmin.menu.menus.BasicTopMenu',
-                'left': 'wpadmin.menu.custom.CustomModelLeftMenuWithDashboard',
-            },
-            'custom_menu': [
-                {
-                    'model': 'judge.Problem',
-                    'icon': 'fa-question-circle',
-                    'children': [
-                        'judge.ProblemGroup',
-                        'judge.ProblemType',
-                    ],
-                },
-                {
-                    'model': 'judge.Submission',
-                    'icon': 'fa-check-square-o',
-                    'children': [
-                        'judge.Language',
-                        'judge.Judge',
-                    ],
-                },
-                {
-                    'model': 'judge.Contest',
-                    'icon': 'fa-bar-chart',
-                    'children': [
-                        'judge.SampleContest',
-                        'judge.ContestParticipation',
-                        'judge.ContestTag',
-                    ],
-                },
-                {
-                    'model': 'auth.User',
-                    'icon': 'fa-user',
-                    'children': [
-                        'auth.Group',
-                        'registration.RegistrationProfile',
-                    ],
-                },
-                {
-                    'model': 'judge.Profile',
-                    'icon': 'fa-user-plus',
-                    'children': [
-                        'judge.Organization',
-                        'judge.OrganizationRequest',
-                    ],
-                },
-                {
-                    'model': 'judge.NavigationBar',
-                    'icon': 'fa-bars',
-                    'children': [
-                        'judge.MiscConfig',
-                        'judge.License',
-                        'sites.Site',
-                        'redirects.Redirect',
-                    ],
-                },
-                ('judge.BlogPost', 'fa-rss-square'),
-                ('judge.Comment', 'fa-comment-o'),
-                ('flatpages.FlatPage', 'fa-file-text-o'),
-                ('judge.Solution', 'fa-pencil'),
-            ],
-            'dashboard': {
-                'breadcrumbs': True,
-            },
-            # 'custom_style': 'statics/' + 'wpadmin/css/themes/sunrise.css'
-        },
-    }
-
-INSTALLED_APPS += (
+INSTALLED_APPS = (
+    'django.contrib.contenttypes',
+    'grappelli.dashboard',
+    'grappelli',
     'django.contrib.admin',
+    'django.contrib.auth',
     'judge',
     'chat',
     'emath',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
+    'typeracer',
     'django.contrib.flatpages',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -259,14 +184,12 @@ INSTALLED_APPS += (
     'impersonate',
     'django_jinja',
     'martor',
-    'adminsortable2',
     # "corsheaders",
     # 'channels',
 )
 
 MIDDLEWARE = (
     'judge.middleware.ShortCircuitMiddleware',
-    # "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -281,6 +204,7 @@ MIDDLEWARE = (
     'impersonate.middleware.ImpersonateMiddleware',
     'judge.middleware.DMOJImpersonationMiddleware',
     'judge.middleware.ContestMiddleware',
+    'judge.middleware.TypoMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'judge.social_auth.SocialAuthExceptionMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
@@ -309,6 +233,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 SILENCED_SYSTEM_CHECKS = ['urls.W002', 'fields.W342']
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 ROOT_URLCONF = 'dmoj.urls'
 LOGIN_REDIRECT_URL = '/user'
 WSGI_APPLICATION = 'dmoj.wsgi.application'
@@ -318,12 +244,12 @@ TEMPLATES = [
     {
         'BACKEND': 'django_jinja.backend.Jinja2',
         'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),
+            BASE_DIR / 'templates',
         ],
         'APP_DIRS': False,
         'OPTIONS': {
             'match_extension': ('.html', '.txt'),
-            'match_regex': '^(?!(admin/|forms/))',
+            'match_regex': '^(?!(admin/|forms/|reversion/))',
             'context_processors': [
                 'django.template.context_processors.media',
                 'django.template.context_processors.tz',
@@ -354,7 +280,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'APP_DIRS': True,
         'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),
+            BASE_DIR / 'templates',
         ],
         'OPTIONS': {
             'context_processors': [
@@ -370,7 +296,7 @@ TEMPLATES = [
 ]
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 LOCALE_PATHS = [
-    os.path.join(BASE_DIR, 'locale'),
+    BASE_DIR / 'locale',
 ]
 
 LANGUAGES = [
@@ -476,6 +402,7 @@ MARKDOWN_STYLES = {
 }
 
 MARTOR_ENABLE_CONFIGS = {
+    'emoji': 'true',
     'imgur': 'true',
     'mention': 'true',
     'jquery': 'false',
@@ -492,13 +419,38 @@ MARTOR_MARKDOWN_BASE_MENTION_URL = '/user/'
 MARTOR_UPLOAD_MEDIA_DIR = 'martor'
 MARTOR_UPLOAD_SAFE_EXTS = {'.jpg', '.png', '.gif'}
 
+MARKDOWN_EXTENSIONS = [
+    'pymdownx.betterem',
+    'pymdownx.arithmatex',
+    'pymdownx.superfences',
+    'pymdownx.emoji',
+    'pymdownx.extra',
+    'markdown.extensions.footnotes',
+    'markdown.extensions.attr_list',
+    'markdown.extensions.def_list',
+    'markdown.extensions.tables',
+    'markdown.extensions.abbr',
+    'markdown.extensions.md_in_html',
+    'markdown.extensions.smarty',
+]
+
+
+MARKDOWN_EXTENSIONS_CONFIG = {
+    'pymdownx.arithmatex': {
+        'generic': True,
+
+    },
+}
+
+MARTOR_THEME = 'custom'
+
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': BASE_DIR / 'db.sqlite3',
     },
 }
 
@@ -536,13 +488,13 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-DMOJ_RESOURCES = os.path.join(BASE_DIR, 'resources')
+DMOJ_RESOURCES = BASE_DIR / 'resources'
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'resources'),
+    BASE_DIR / 'resources',
 ]
 STATIC_URL = '/static/'
 
@@ -587,7 +539,7 @@ CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 WEBAUTHN_RP_ID = None
 
 try:
-    with open(os.path.join(os.path.dirname(__file__), 'local_settings.py')) as f:
+    with open(Path(__file__).resolve().parent / 'local_settings.py') as f:
         exec(f.read(), globals())
 except IOError:
     pass

@@ -1,4 +1,4 @@
-from django.utils import six
+import six
 
 
 def utf8bytes(maybe_text):

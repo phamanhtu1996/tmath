@@ -25,9 +25,9 @@
 {% endblock %}
 
 {% block body %}
-    <div id="banner">
+    <div id="banner" class="text-center">
         <a href="https://www.timeanddate.com/worldclock/fixedtime.html?msg={{ contest.name|urlquote('') }}&amp;iso=
-                {{- contest.start_time|utc|date('Y-m-d\TH:i:s') }}" class="date">
+                {{- contest.start_time|utc|date('Y-m-d\TH:i:s') }}" class="text-3xl font-semibold date">
             {%- if contest.is_in_contest(request.user) and not request.participation.live -%}
                 {% if request.participation.spectate %}
                     {{- _('Spectating, contest ends in %(countdown)s.', countdown=contest.time_before_end|as_countdown) -}}
@@ -82,14 +82,14 @@
 
     {% if contest.ended or request.user.is_superuser or is_editor or is_tester %}
         <hr>
-        <div class="contest-problems">
+        <div>
             <div class="flex items-center my-3 space-x-4 text-3xl">
                 <i class="fa-solid fa-question-circle"></i>
                 <span class="font-bold">{{ _('Problems') }}</span>
             </div>
-            <table id="contest-problems" class="table">
-                <thead>
-                <tr>
+            <table class="table w-full border">
+                <thead class="text-white bg-black">
+                <tr class="[&>*]:text-center [&>*]:p-2 divide-x">
                     <th>{{ _('Problem') }}</th>
                     <th class="w-32">{{ _('Points') }}</th>
                     <th class="w-32">{{ _('AC Rate') }}</th>
@@ -99,9 +99,9 @@
                     {% endif %}
                 </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y ">
                 {% for problem in contest_problems %}
-                    <tr>
+                    <tr class="[&>*]:p-2 divide-x [&>*]:text-center">
                         <td>
                             {% if problem.is_public or request.user.is_superuser %}
                                 <a class="font-bold text-blue-500 hover:text-blue-600" href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
@@ -132,10 +132,10 @@
         </div>
     {% endif %}
 
-    <hr class="pb-1">
-    <span class="social">
+    <hr class="py-1">
+    <span class="flex flex-row-reverse gap-4 text-4xl">
+        {{ post_to_twitter(request, SITE_NAME + ':', contest, '<i class="fa-brands fa-square-twitter"></i>') }}
         {{ post_to_facebook(request, contest, '<i class="fa-brands fa-square-facebook"></i>') }}
-        {{ post_to_twitter(request, SITE_NAME + ':', contest, '<i class="fa-brands fa-twitter"></i>') }}
     </span>
 
     {% include "comments/list.html" %}

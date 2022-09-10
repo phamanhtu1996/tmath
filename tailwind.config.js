@@ -32,6 +32,12 @@ module.exports = {
             a: {
               textDecoration: 'none',
               color: theme('colors.blue.600'),
+            },
+            h2: {
+              borderWidth: '0 0 1px 0',
+            },
+            h3: {
+              borderWidth: '0 0 1px 0',
             }
           },
         },
