@@ -214,6 +214,7 @@ urlpatterns = [
 
     path('contest/<slug:contest>', include([
         path('', contests.ContestDetail.as_view(), name='contest_view'),
+        path('/csv', contests.exportcsv, name="export_csv"),
         path('/moss', contests.ContestMossView.as_view(), name='contest_moss'),
         path('/moss/delete', contests.ContestMossDelete.as_view(), name='contest_moss_delete'),
         path('/clone', contests.ContestClone.as_view(), name='contest_clone'),

@@ -74,6 +74,10 @@
   @apply !rounded-tr-none
 }
 
+.prose img.emojione {
+  @apply inline-flex h-5 align-text-top my-0
+}
+
 .tabs {
   @apply border-b flex w-full mb-2
 }

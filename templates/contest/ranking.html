@@ -282,75 +282,8 @@
 <div class="flex flex-row-reverse items-center">
 {% if request.user.is_superuser %}
 <div class="flex flex-col items-center justify-start">
-    <button class="p-3 font-semibold text-white bg-indigo-500 rounded-md hover:bg-indigo-600" onclick="exportData()">Export to CSV</button>
+    <a class="p-3 font-semibold text-white bg-indigo-500 rounded-md hover:bg-indigo-600" href="{{ url('export_csv', contest.key) }}">Export to CSV</a>
 </div>
-
-<script>
-    
-function exportData() {
-    var table = document.getElementById("users-table");
-    console.log(table);
-    var rows = [];
-    var n = 0;
-    {% for problem in problems %}
-        n++;
-    {% endfor %}
-    for(var i = 0, row; row = table.rows[i]; ++i) {
-        rank = row.cells[0].innerText;
-        result = row.cells[2].innerText.split('\n');
-        points = result[0];
-        if (i > 0) {
-            organization = row.cells[1].innerText.replace(/ /g,'').split('\n')[1];
-            username = row.cells[3].innerText.replace(/ /g,'').split('\n')[2];
-            fullname = row.cells[4].innerText.split('\n')[0];
-            time = result[1];
-        }
-        else {
-            organization = row.cells[1].innerText;
-            username = row.cells[3].innerText;
-            fullname = row.cells[4].innerText;
-            time = "Time";
-        }
-        
-        tmp = [
-            rank,
-            organization,
-            points,
-            time,
-            username,
-            fullname
-        ];
-        for(var j = 0; j < n; ++j) {
-            cell = row.cells[5 + j].innerText;
-            if (cell) {
-                problem_cell = cell.split('\n');
-                tmp.push(problem_cell[0], problem_cell[1]);
-            }
-            else {
-                tmp.push('', '');
-            }
-        }
-        rows.push(
-            tmp
-        );
-    }
-    csvContent = 'data:text/csv;charset=utf-8,%EF%BB%BF';
-        /* add the column delimiter as comma(,) and each row splitted by new line character (\n) */
-    rows.forEach(function(rowArray){
-        row = rowArray.join(",");
-        csvContent += row + "\r\n";
-    });
-
-    /* create a hidden <a> DOM node and set its download attribute */
-    var encodedUri = encodeURI(csvContent);
-    var link = document.createElement("a");
-    link.setAttribute("href", csvContent);
-    link.setAttribute("download", "Result-{{ contest.key }}.csv");
-    document.body.appendChild(link);
-        /* download the data file named "Stock_Price_Report.csv" */
-    link.click();
-}
-</script>
 {% endif %}
     {% if tab == 'participation' %}
         {% if contest.can_see_full_scoreboard(request.user) %}

@@ -24,7 +24,7 @@ except ImportError:
         return _make_pre_code(code)
 else:
     class HtmlCodeFormatter(pygments.formatters.HtmlFormatter):
-        def wrap(self, source, outfile):
+        def wrap(self, source):
             return self._wrap_div(self._wrap_pre(_wrap_code(source)))
 
     def highlight_code(code, language, cssclass='codehilite'):
