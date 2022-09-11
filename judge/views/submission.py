@@ -197,13 +197,8 @@ def abort_submission(request, submission):
 
 
 def filter_submissions_by_visible_problems(queryset, user):
-    join_sql_subquery(
-        queryset,
-        subquery=str(Problem.get_visible_problems(user).distinct().only('id').query),
-        params=[],
-        join_fields=[('problem_id', 'id')],
-        alias='visible_problems',
-    )
+    problems = Problem.get_visible_problems(user).distinct().values_list('id', flat=True)
+    queryset = queryset.filter(problem_id__in=problems)
 
 
 class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):

@@ -1028,3 +1028,23 @@ class SampleContestPDF(SingleObjectMixin, View):
         response['Content-Type'] = 'application/pdf'
         response['Content-Disposition'] = 'inline; filename=%s.%s.pdf' % (contest.key, language)
         return response
+
+def exportcsv(request, contest):
+    import codecs
+    contest_object = Contest.objects.get(key=contest)
+    response = HttpResponse()
+    response['Content-Type'] = 'text/csv'
+    response['Content-Disposition'] = 'inline; filename=%s_rank.csv' % contest_object.key
+    response.write(codecs.BOM_UTF8)
+    import csv
+    writer = csv.writer(response)
+    first_row = ['rank', 'name', 'username', 'point']
+    writer.writerow(first_row)
+    users = ContestParticipation.objects.filter(contest=contest_object).order_by('-score')
+    index = 0
+    for user in users:
+        index += 1
+        row = [index, user.user.name, user.user.user.username, user.score]
+        writer.writerow(row)
+
+    return response
