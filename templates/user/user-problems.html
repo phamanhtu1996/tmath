@@ -34,13 +34,13 @@
 
 {% block user_content %}
     {% if pp_breakdown %}
-        <h3 class="pp-breakdown-header">{{ _('Points breakdown') }}</h3>
-        <div id="submissions-table" class="pp-table table">
+        <h3 class="mb-4 text-2xl font-bold">{{ _('Points breakdown') }}</h3>
+        <div id="submissions-table" class="table w-full bg-black/5 pp-table">
             {% include "user/pp-table-body.html" %}
         </div>
         {% if pp_has_more %}
-            <div id="pp-load-link-wrapper">
-                <a id="pp-load-more-link" href="javascript:load_more_pp()">{{ _('Load more...') }}</a>
+            <div class="text-center border" id="pp-load-link-wrapper">
+                <a class="block py-2 font-bold cursor-pointer hover:bg-black/10" href="javascript:load_more_pp()">{{ _('Load more...') }}</a>
             </div>
         {% endif %}
     {% else %}
