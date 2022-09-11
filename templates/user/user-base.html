@@ -6,7 +6,7 @@
     <style>
         .user-gravatar {
             display: block;
-            padding-right: 15px;
+            margin-right: 15px;
             width: 135px;
         }
 
@@ -31,26 +31,25 @@
 {% endblock %}
 
 {% block body %}
-    <div class="user-info-page">
-        <div class="user-sidebar">
-            <div class="user-gravatar">
-                <img src="{{ gravatar(user, 135) }}" width="135px" height="135px">
+    <div class="flex max-w-full min-h-0 gap-4">
+        <div class="w-48 pl-4">
+            <div class="block w-40 mb-4 mr-4">
+                <img src="{{ gravatar(user, 160) }}" class="w-40 h-40 rounded-md">
             </div>
-            <br>
 
-            <div><b>
+            <div class="font-bold">
                 {%- trans trimmed counter=user.problem_count %}
                     {{ counter }} problem solved
                 {% pluralize %}
                     {{ counter }} problems solved
                 {% endtrans -%}
-            </b></div>
+            </div>
 
             {% if not user.is_unlisted %}
-                <div><b class="semibold">{{ _('Rank by points:') }}</b> #{{ rank }}</div>
+                <div><span class='font-semibold'>{{ _('Rank by points:') }}</span> #{{ rank }}</div>
             {% endif %}
             <div>
-                <b class="semibold">{{ _('Total points:') }}</b>
+                <span class='font-semibold'>{{ _('Total points:') }}</span>
                 <span title="{{ user.performance_points|floatformat(2) }}">
                     {{ user.performance_points|floatformat(0) }}
                 </span>
@@ -58,27 +57,27 @@
 
             <br>
             <div>
-                <a href="{{ url('all_user_submissions', user.user.username) }}">{{ _('View submissions') }}</a>
+                <a href="{{ url('all_user_submissions', user.user.username) }}" class="font-semibold text-blue-500 cursor-pointer">{{ _('View submissions') }}</a>
             </div>
 
             {% if ratings %}
                 <br>
-                <div><b>
+                <div class="font-bold">
                     {%- trans trimmed counter=ratings|length %}
                         {{ counter }} contest written
                     {% pluralize %}
                         {{ counter }} contests written
                     {% endtrans -%}
-                </b></div>
+                </div>
                 {% if not user.is_unlisted %}
-                    <div><b class="semibold">{{ _('Rank by rating:') }}</b> #{{ rating_rank }}</div>
+                    <div><span class="font-semibold">{{ _('Rank by rating:') }}</span> #{{ rating_rank }}</div>
                 {% endif %}
-                <div><b class="semibold">{{ _('Rating:') }}</b> {{ rating_number(rating) }}</div>
-                <div><b class="semibold">{{ _('Volatility:') }}</b> {{ rating.volatility }}</div>
-                <div><b class="semibold">{{ _('Min. rating:') }}</b> {{ rating_number(min_rating) }}</div>
-                <div><b class="semibold">{{ _('Max rating:') }}</b> {{ rating_number(max_rating) }}</div>
+                <div><span class="font-semibold">{{ _('Rating:') }}</span> {{ rating_number(rating) }}</div>
+                <div><span class="font-semibold">{{ _('Volatility:') }}</span> {{ rating.volatility }}</div>
+                <div><span class="font-semibold">{{ _('Min. rating:') }}</span> {{ rating_number(min_rating) }}</div>
+                <div><span class="font-semibold">{{ _('Max rating:') }}</span> {{ rating_number(max_rating) }}</div>
             {% endif %}
         </div>
-        <div class="user-content">{% block user_content %}{% endblock %}</div>
+        <div class="flex-1 overflow-hidden">{% block user_content %}{% endblock %}</div>
     </div>
 {% endblock %}

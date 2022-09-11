@@ -11,9 +11,9 @@
     <div class="content-description">
         {% with orgs=user.organizations.all() %}
             {% if orgs %}
-                <p style="margin-top: 0"><b>{{ _('From') }}</b>
+                <p style="margin-top: 0" class="mb-4 text-2xl"><b>{{ _('From') }}</b>
                     {% for org in orgs -%}
-                        <a href="{{ org.get_absolute_url() }}">{{ org.name }}</a>
+                        <a href="{{ org.get_absolute_url() }}" class="font-semibold text-blue-500 cursor-pointer hover:text-black">{{ org.name }}</a>
                         {%- if not loop.last %}, {% endif %}
                     {% endfor %}
                 </p>
@@ -30,10 +30,12 @@
         {% endif%}
 
         {% if user.about %}
-            <h4>{{ _('About') }}</h4>
-            {% cache 86400 'user_about' user.id MATH_ENGINE %}
-                {{ user.about|markdown('self-description', MATH_ENGINE)|reference|str|safe }}
-            {% endcache %}
+            <h4 class="text-2xl font-bold">{{ _('About') }}</h4>
+            <div class="prose max-w-none">
+                {% cache 86400 'user_about' user.id MATH_ENGINE %}
+                    {{ user.about|markdown('self-description', MATH_ENGINE)|reference|str|safe }}
+                {% endcache %}
+            </div>
         {% else %}
             <i>
                 {% if user.user == request.user %}
@@ -45,63 +47,63 @@
             <br>
         {% endif %}
 
-        <h4 id="submission-activity-header"></h4>
+        <h4 id="submission-activity-header" class="text-xl font-semibold"></h4>
         <div id="submission-activity" style="display: none;">
-            <div id="submission-activity-actions">
+            <div id="submission-activity-actions" class="flex items-center justify-center gap-4 mb-2 text-2xl font-semibold">
                 <a href="javascript:void(0)" id="prev-year-action">&laquo;</a>
                 &nbsp;<span id="year"></span>&nbsp;
                 <a href="javascript:void(0)" id="next-year-action">&raquo;</a>
             </div>
-            <div id="submission-activity-display">
-                <table id="submission-activity-table">
+            <div id="submission-activity-display" class="border rounded-md">
+                <table id="submission-activity-table" class="w-full p-1.5 border-separate">
                     <tr id="submission-0">
-                        <th class="submission-date-col info-text">
+                        <th class="text-sm font-extralight text-[#444] w-1/12">
                             {{ _('Sun') }}
                         </th>
                     </tr>
                     <tr id="submission-1">
-                        <th class="submission-date-col info-text">
+                        <th class="text-sm font-extralight text-[#444] w-1/12">
                             {{ _('Mon') }}
                         </th>
                     </tr>
                     <tr id="submission-2">
-                        <th class="submission-date-col info-text">
+                        <th class="text-sm font-extralight text-[#444] w-1/12">
                             {{ _('Tues') }}
                         </th>
                     </tr>
                     <tr id="submission-3">
-                        <th class="submission-date-col info-text">
+                        <th class="text-sm font-extralight text-[#444] w-1/12">
                             {{ _('Wed') }}
                         </th>
                     </tr>
                     <tr id="submission-4">
-                        <th class="submission-date-col info-text">
+                        <th class="text-sm font-extralight text-[#444] w-1/12">
                             {{ _('Thurs') }}
                         </th>
                     </tr>
                     <tr id="submission-5">
-                        <th class="submission-date-col info-text">
+                        <th class="text-sm font-extralight text-[#444] w-1/12">
                             {{ _('Fri') }}
                         </th>
                     </tr>
                     <tr id="submission-6">
-                        <th class="submission-date-col info-text">
+                        <th class="text-sm font-extralight text-[#444] w-1/12">
                             {{ _('Sat') }}
                         </th>
                     </tr>
                 </table>
-                <div class="info-bar">
-                    <span id="submission-total-count" class="info-text">
+                <div class="flex justify-between">
+                    <span id="submission-total-count" class="info-text pl-[8.33333%]">
                     </span>
-                    <table class="info-table">
+                    <table class="w-1/6 border-separate">
                         <tr>
-                            <th class="info-table-text info-text">{{ _('Less') }}</th>
-                            <td class="activity-0"><div></div></td>
-                            <td class="activity-1"><div></div></td>
-                            <td class="activity-2"><div></div></td>
-                            <td class="activity-3"><div></div></td>
-                            <td class="activity-4"><div></div></td>
-                            <th class="info-table-text info-text">{{ _('More') }}</th>
+                            <th class="w-1/12 text-xs font-extralight whitespace-nowrap">{{ _('Less') }}</th>
+                            <td class="rounded-md activity-0 min-w-[1rem]"><div></div></td>
+                            <td class="rounded-md activity-1 min-w-[1rem]"><div></div></td>
+                            <td class="rounded-md activity-2 min-w-[1rem]"><div></div></td>
+                            <td class="rounded-md activity-3 min-w-[1rem]"><div></div></td>
+                            <td class="rounded-md activity-4 min-w-[1rem]"><div></div></td>
+                            <th class="w-1/12 text-xs font-extralight whitespace-nowrap">{{ _('More') }}</th>
                         <tr>
                     </table>
                 </div>
@@ -109,11 +111,11 @@
         </div>
 
         {% if rating %}
-            <h4>{{ _('Rating history') }}</h4>
-            <div id="rating-chart">
+            <h4 class="py-2 text-2xl font-bold border-b">{{ _('Rating history') }}</h4>
+            <div id="rating-chart" class="h-[30rem] mt-4">
                 <canvas></canvas>
             </div>
-            <div id="rating-tooltip">
+            <div id="rating-tooltip" class="absolute hidden p-1 text-white transition-all ease-in-out -translate-x-1/2 rounded-sm pointer-events-none bg-black/70">
                 <div class="contest"></div>
                 <div class="date"></div>
                 <div class="rate-group">

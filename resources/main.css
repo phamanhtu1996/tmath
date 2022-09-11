@@ -245,3 +245,41 @@
 input.incorrect {
   @apply bg-red-500 text-white
 }
+
+/* Result */
+
+.AC {
+  @apply text-green-500 bg-[#53f23f]
+}
+
+.TLE, .MLE {
+  @apply text-black bg-[#ccc]
+}
+
+.WA {
+  @apply text-red-500 bg-[#ccc]
+}
+
+/* Progress */
+.activity-label {
+  @apply rounded-md relative whitespace-nowrap
+}
+.activity-0 {
+  @apply bg-[#ddd]
+}
+
+.activity-1 {
+  @apply bg-[#9be9a8]
+}
+
+.activity-2 {
+  @apply bg-[#40c463]
+}
+
+.activity-3 {
+  @apply bg-[#2f9c4c]
+}
+
+.activity-4 {
+  @apply bg-[#216e39]
+}
