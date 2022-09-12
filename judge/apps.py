@@ -14,7 +14,7 @@ class JudgeAppConfig(AppConfig):
         # noinspection PyUnresolvedReferences
         from . import signals, jinja2  # noqa: F401, imported for side effects
 
-        from judge.models import Language, Profile, Organization
+        from judge.models import Language, Profile, Organization, Problem
         from chat.models import ChatRoom, ChatParticipation
         from django.contrib.auth.models import User
 
@@ -26,7 +26,13 @@ class JudgeAppConfig(AppConfig):
                 profile.save()
         except DatabaseError:
             pass
-    
+
+        # problems = Problem.objects.all()
+        # for problem in problems:
+        #     description: str = problem.description
+        #     description = description.replace('~', '$')
+        #     problem.description = description
+        #     problem.save()
         
         try:
             for org in Organization.objects.filter(chat_room=None):
