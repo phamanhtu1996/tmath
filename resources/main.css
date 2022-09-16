@@ -248,20 +248,36 @@ input.incorrect {
 
 /* Result */
 
-.AC, .case-AC {
+.AC {
   @apply text-green-500 bg-[#53f23f]
 }
 
-.TLE, .MLE, .OLE, .case-OLE, .case-TLE, .case-MLE, .case-IR {
+.case-AC {
+  @apply text-green-500
+}
+
+.TLE, .MLE, .OLE{
   @apply text-black bg-[#ccc]
 }
 
-.WA, .case-WA {
+.case-OLE, .case-TLE, .case-MLE, .case-IR {
+  @apply text-black
+}
+
+.WA {
   @apply text-red-500 bg-[#ccc]
 }
 
-.case-RTE, .RTE {
+.case-WA {
+  @apply text-red-500
+}
+
+.case-RTE {
   @apply text-orange-500
+}
+
+.RTE {
+  @apply text-orange-500 bg-[#ccc]
 }
 
 /* Progress */
