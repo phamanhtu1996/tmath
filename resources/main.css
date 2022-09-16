@@ -248,16 +248,20 @@ input.incorrect {
 
 /* Result */
 
-.AC {
+.AC, .case-AC {
   @apply text-green-500 bg-[#53f23f]
 }
 
-.TLE, .MLE {
+.TLE, .MLE, .OLE, .case-OLE, .case-TLE, .case-MLE, .case-IR {
   @apply text-black bg-[#ccc]
 }
 
-.WA {
+.WA, .case-WA {
   @apply text-red-500 bg-[#ccc]
+}
+
+.case-RTE, .RTE {
+  @apply text-orange-500
 }
 
 /* Progress */
