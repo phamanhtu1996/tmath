@@ -67,7 +67,7 @@ def markdown(value, style, math_engine=None, lazy_load=False):
     if lazy_load:
         post_processors.append(lazy_load_processor)
 
-    result = md.markdown(value, extensions=settings.MARKDOWN_EXTENSIONS)
+    result = md.markdown(value, extensions=settings.MARKDOWN_EXTENSIONS, extension_configs=settings.MARKDOWN_EXTENSIONS_CONFIG)
 
     if post_processors:
         tree = fragments_to_tree(result)

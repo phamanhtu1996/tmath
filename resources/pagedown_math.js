@@ -1,12 +1,6 @@
 function mathjax_pagedown($) {
-    if ('MathJax' in window) {
-        $.each(window.editors, function (id, editor) {
-            var preview = $('div.wmd-preview#' + id + '_wmd_preview')[0];
-            editor.hooks.chain('onPreviewRefresh', function () {
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, preview]);
-            });
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, preview]);
-        });
+    if ('MathJax' in window && 'typesetPromise' in MathJax) {
+        MathJax.typesetPromise()
     }
 }
 
