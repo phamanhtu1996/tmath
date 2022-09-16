@@ -283,7 +283,7 @@ class ContestClone(ContestMixin, PermissionRequiredMixin, TitleMixin, SingleObje
         organizations = contest.organizations.all()
         private_contestants = contest.private_contestants.all()
         view_contest_scoreboard = contest.view_contest_scoreboard.all()
-        contest_problems = contest.contest_problems.all()
+        contest_problems = list(contest.contest_problems.all())
         old_key = contest.key
 
         contest.pk = None
