@@ -67,6 +67,15 @@ class ContestProblemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
                            reverse('admin:judge_contest_rejudge', args=(obj.contest.id, obj.id)))
     rejudge_column.short_description = ''
 
+    def get_extra(self, request, obj: Contest, **kwargs) -> int:
+        extra = 4
+        if obj:
+            current = obj.problems.count()
+            if current > extra:
+                return 0
+            return extra - current
+        return extra
+
 
 class ContestForm(ModelForm):
     def __init__(self, *args, **kwargs):

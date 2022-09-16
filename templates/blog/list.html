@@ -213,13 +213,13 @@
                             <i class="fa-solid fa-trophy"></i>
                         </div>
                     </div>
-                    <div class="px-2 border border-black rounded-b-md">
+                    <div class="px-2 overflow-y-auto border border-black rounded-b-md max-h-96 scrollbar">
                         {% for contest in future_contests %}
-                            <div class="contest">
-                                <div class="contest-list-title">
+                            <div class="py-5 text-center border-b border-red-50">
+                                <div class="text-xl font-semibold">
                                     <a href="{{ url('contest_view', contest.key) }}">{{ contest.name }}</a>
                                 </div>
-                                <div class="time">
+                                <div class="text-gray-500 time">
                                     {{ _('Starting in %(countdown)s.', countdown=contest.time_before_start|as_countdown) }}
                                 </div>
                             </div>
