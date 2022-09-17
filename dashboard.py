@@ -19,6 +19,19 @@ class TmathDashboard(Dashboard):
         Dashboard.__init__(self, **kwargs)
 
         self.children.append(modules.AppList(
+            title=_('Hot models'),
+            column=1,
+            collapsible=True,
+            models=(
+                'judge.models.problem.Problem',
+                'judge.models.contest.Contest',
+                'judge.models.contest.SampleContest',
+                'django.contrib.auth.models.User',
+                'judge.models.profile.Profile',
+            )
+        ))
+
+        self.children.append(modules.AppList(
             title=_('Authentication'),
             column=1,
             collapsible=True,
@@ -26,6 +39,7 @@ class TmathDashboard(Dashboard):
                 'django.contrib.auth.models.User', 
                 "django.contrib.auth.models.Group",
                 'judge.models.profile.Profile',
+                'django.contrib.admin.models.LogEntry',
             )
         ))
 
