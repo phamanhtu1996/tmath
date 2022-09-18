@@ -3,7 +3,7 @@ from bisect import bisect
 from operator import attrgetter, itemgetter
 
 from django.db import transaction
-from django.db.models import Count, OuterRef, Subquery
+from django.db.models import Count, OuterRef, Subquery, IntegerField
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -125,10 +125,10 @@ def rate_contest(contest):
     rating_sorted = rating_subquery.order_by('-contest__end_time')
     users = contest.users.order_by('is_disqualified', '-score', 'cumtime', 'tiebreaker') \
         .annotate(submissions=Count('submission'),
-                  last_rating=Coalesce(Subquery(rating_sorted.values('rating')[:1]), 600),
-                  volatility=Coalesce(Subquery(rating_sorted.values('volatility')[:1]), 400),
+                  last_rating=Coalesce(Subquery(rating_sorted.values('rating')[:1]), 600, output_field=IntegerField()),
+                  volatility=Coalesce(Subquery(rating_sorted.values('volatility')[:1]), 400, output_field=IntegerField()),
                   times=Coalesce(Subquery(rating_subquery.order_by().values('user_id')
-                                          .annotate(count=Count('id')).values('count')), 0)) \
+                                          .annotate(count=Count('id')).values('count')), 0, output_field=IntegerField())) \
         .exclude(user_id__in=contest.rate_exclude.all()) \
         .filter(virtual=0).values('id', 'user_id', 'score', 'cumtime', 'tiebreaker', 'is_disqualified',
                                   'last_rating', 'volatility', 'times')
