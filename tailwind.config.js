@@ -28,7 +28,6 @@ module.exports = {
               },
               borderRadius: '.25rem',
               padding: '0 5px',
-              margin: '0 2px',
             },
             a: {
               textDecoration: 'none',
@@ -61,6 +60,7 @@ module.exports = {
               padding: '0.5rem',
               backgroundColor: theme('colors.black'),
               color: theme('colors.white'),
+              fontWeight: '700',
             },
             'tbody td:not(first-child)': {
               borderLeftWidth: '1px',
