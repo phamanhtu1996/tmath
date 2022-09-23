@@ -8,7 +8,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
-from django.core.validators import FileExtensionValidator, RegexValidator
+from django.core.validators import RegexValidator
 from django.template.defaultfilters import filesizeformat
 from django.db.models import Q
 from django.forms import BooleanField, CharField, ChoiceField, Form, ModelForm, MultipleChoiceField, inlineformset_factory
@@ -20,9 +20,10 @@ from django_ace import AceWidget
 from judge.models import Contest, Language, Organization, Problem, Profile, Submission, WebAuthnCredential
 from judge.models.contest import SampleContest, SampleContestProblem
 from judge.models.problem import LanguageLimit, Solution
+from judge.models.problem_data import PublicSolution
 from judge.utils.subscription import newsletter_id
-from judge.widgets import HeavyPreviewPageDownWidget, Select2MultipleWidget, Select2Widget, CheckboxSelectMultipleWithSelectAll
-from judge.widgets.martor import MartorWidget
+from judge.widgets import HeavyPreviewPageDownWidget, Select2MultipleWidget, Select2Widget, MartorWidget
+from martor.fields import MartorFormField
 from judge.widgets.select2 import HeavySelect2MultipleWidget, SemanticSelect, SemanticSelectMultiple, SemanticCheckboxSelectMultiple
 
 TOTP_CODE_LENGTH = 6
@@ -462,13 +463,17 @@ class SampleContestForm(ModelForm):
         model = SampleContest
         fields = '__all__'
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
     def clean_key(self):
         key = self.cleaned_data['key']
         qs = SampleContest.objects.filter(key=key)
-        print(self.instance)
         if qs.count() > 0:
             raise forms.ValidationError(_('Sample contest with key already exists.'))
         
+
+class CreatePublicSolutionForm(ModelForm):
+    class Meta:
+        model = PublicSolution
+        fields = ['description']
+        widgets = {
+            'description': MartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
+        }

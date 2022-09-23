@@ -120,3 +120,15 @@ class ProblemTestCase(models.Model):
     checker = models.CharField(max_length=10, verbose_name=_('checker'), choices=CHECKERS, blank=True)
     checker_args = models.TextField(verbose_name=_('checker arguments'), blank=True,
                                     help_text=_('checker arguments as a JSON object'))
+
+
+class PublicSolution(models.Model):
+    author = models.ForeignKey("judge.Profile", verbose_name=_("user"), on_delete=models.CASCADE)
+    problem = models.ForeignKey("judge.Problem", verbose_name=_("problem"), on_delete=models.CASCADE)
+    description = models.TextField(_("solution"))
+    created = models.DateTimeField(_("date created"), auto_now_add=True)
+    approved = models.BooleanField(_("is approved"), default=False)
+    point = models.IntegerField(_("point"), default=0)
+
+    def __str__(self) -> str:
+        return "Solution %s of %s" % (self.author.name, self.problem.name)

@@ -1,0 +1,28 @@
+{% extends 'common-content.html' %}
+
+{% block media %}
+{{ form.media.css }}
+{% endblock media %}
+
+{% block js_media %}
+{{ form.media.js }}
+{% endblock js_media %}
+
+{% block body %}
+<form action="" method="post" class="max-w-5xl mx-auto mt-10">
+  {% csrf_token %}
+  <label for="{{ form.description.id_for_label }}" class="block">
+    <span class="mb-1 font-bold text-gray-700">{{ form.description.label }}</span>
+    {% if form.description.error %}
+    <div class="">{{ form.description.error }}</div>
+    {% endif %}
+    {{ form.description }}
+  </label>
+  <input type="submit" value="Submit" class="w-full p-2 mt-4 font-bold text-white bg-blue-500 rounded-md cursor-pointer">
+</form>
+{% endblock body %}
+
+{% block bodyend %}
+{{ super() }}
+<script src="{{ static('martor-mathjax.js') }}?v=5"></script>
+{% endblock bodyend %}

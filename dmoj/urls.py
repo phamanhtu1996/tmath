@@ -122,6 +122,7 @@ urlpatterns = [
     path('problem/<slug:problem>', include([
         path('/update', problem.ProblemEdit.as_view(), name='problem_edit'),
         path('', problem.ProblemDetail.as_view(), name='problem_detail'),
+        path('/ps', problem.PublicSolutionCreateView.as_view(), name='create_public_solution'),
         path('/editorial', problem.ProblemSolution.as_view(), name='problem_editorial'),
         path('/raw', problem.ProblemRaw.as_view(), name='problem_raw'),
         path('/pdf', problem.ProblemPdfView.as_view(), name='problem_pdf'),

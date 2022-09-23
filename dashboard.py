@@ -21,7 +21,7 @@ class TmathDashboard(Dashboard):
         self.children.append(modules.AppList(
             title=_('Hot models'),
             column=1,
-            collapsible=True,
+            collapsible=False,
             models=(
                 'judge.models.problem.Problem',
                 'judge.models.contest.Contest',
@@ -35,6 +35,7 @@ class TmathDashboard(Dashboard):
             title=_('Authentication'),
             column=1,
             collapsible=True,
+            css_classes=['grp-closed', ],
             models=(
                 'django.contrib.auth.models.User', 
                 "django.contrib.auth.models.Group",
@@ -47,6 +48,7 @@ class TmathDashboard(Dashboard):
             title=_('Organizations'),
             column=1,
             collapsible=True,
+            css_classes=['grp-closed', ],
             models=(
                 'judge.models.profile.*',
             ),
@@ -57,6 +59,7 @@ class TmathDashboard(Dashboard):
             title=_('Problems'),
             column=1,
             collapsible=True,
+            css_classes=['grp-closed', ],
             models=(
                 'judge.models.problem.*',
             )
@@ -66,6 +69,7 @@ class TmathDashboard(Dashboard):
             title=_('Contests'),
             column=1,
             collapsible=True,
+            css_classes=['grp-closed', ],
             models=(
                 'judge.models.contest.*',
             )
@@ -75,6 +79,7 @@ class TmathDashboard(Dashboard):
             title=_('Submissions'),
             column=1,
             collapsible=True,
+            css_classes=['grp-closed', ],
             models=(
                 'judge.models.submission.*',
                 'judge.models.runtime.*'
@@ -85,6 +90,7 @@ class TmathDashboard(Dashboard):
             title=_('Typo'),
             column=1,
             collapsible=True,
+            css_classes=['grp-closed', ],
             models=(
                 'typeracer.models.*',
             )
@@ -94,6 +100,7 @@ class TmathDashboard(Dashboard):
             title=_('Blogs'),
             column=1,
             collapsible=True,
+            css_classes=['grp-closed', ],
             models=(
                 'judge.models.comment.*',
                 'judge.models.ticket.*',
@@ -105,6 +112,7 @@ class TmathDashboard(Dashboard):
             title=_('Settings'),
             column=1,
             collapsible=True,
+            css_classes=['grp-closed', ],
             models=(
                 'django.contrib.flatpages.*',
                 'django.contrib.sites.*',

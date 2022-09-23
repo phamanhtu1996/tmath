@@ -27,10 +27,12 @@ from django.views.generic.detail import SingleObjectMixin
 from reversion import revisions
 
 from judge.comments import CommentedDetailView
-from judge.forms import LanguageInlineFormset, ProblemCloneForm, ProblemCreateForm, ProblemSubmitForm, ProblemUpdateForm, SolutionForm, SolutionInlineFormset
+from judge.forms import LanguageInlineFormset, ProblemCloneForm, ProblemCreateForm, \
+    ProblemSubmitForm, ProblemUpdateForm, CreatePublicSolutionForm
 from judge.models import ContestSubmission, Judge, Language, Problem, ProblemGroup, \
     ProblemTranslation, ProblemType, RuntimeVersion, Solution, Submission, SubmissionSource, \
     TranslatedProblemForeignKeyQuerySet
+from judge.models.problem_data import PublicSolution
 from judge.pdf_problems import DefaultPdfMaker, HAS_PDF
 from judge.utils.diggpaginator import DiggPaginator
 from judge.utils.opengraph import generate_opengraph
@@ -884,3 +886,28 @@ class ProblemEdit(ProblemMixin, PermissionRequiredMixin, TitleMixin, UpdateView)
         elif request.method == 'GET':
             return self.get(request, *args, **kwargs)
         return super().dispatch(request, *args, **kwargs)
+
+
+class PublicSolutionCreateView(TitleMixin, CreateView):
+    model = PublicSolution
+    template_name = "problem/create_solution.html"
+    form_class = CreatePublicSolutionForm
+
+    def post(self, request, *args, **kwargs) -> HttpResponse:
+        return super().post(request, *args, **kwargs)
+
+    def get_title(self):
+        return "Create solution for %s" % (self.problem.name)
+    
+    def dispatch(self, request, *args, **kwargs):
+        code = self.kwargs.get('problem', None)
+        self.problem: Problem = Problem.objects.get(code=code)
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form: CreatePublicSolutionForm):
+        user = self.request.user.profile
+        ps: PublicSolution = form.save(commit=False)
+        ps.author = user
+        ps.problem = self.problem
+        ps.save()
+        return HttpResponseRedirect(reverse('problem_detail', args=(self.problem.code,)))
