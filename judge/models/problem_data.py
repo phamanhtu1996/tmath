@@ -6,8 +6,10 @@ from django.core.validators import FileExtensionValidator
 from django.core.cache import cache
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
 
 from judge.utils.problem_data import ProblemDataStorage
+
 
 __all__ = ['problem_data_storage', 'problem_directory_file', 'ProblemData', 'ProblemTestCase', 'CHECKERS']
 
@@ -125,10 +127,35 @@ class ProblemTestCase(models.Model):
 class PublicSolution(models.Model):
     author = models.ForeignKey("judge.Profile", verbose_name=_("user"), on_delete=models.CASCADE)
     problem = models.ForeignKey("judge.Problem", verbose_name=_("problem"), on_delete=models.CASCADE)
+    contest = models.ForeignKey("judge.Contest", verbose_name=_("contest"), on_delete=models.CASCADE, null=True, blank=True)
     description = models.TextField(_("solution"))
+    score = models.IntegerField(_('votes'), default=0)
     created = models.DateTimeField(_("date created"), auto_now_add=True)
     approved = models.BooleanField(_("is approved"), default=False)
     point = models.IntegerField(_("point"), default=0)
 
     def __str__(self) -> str:
         return "Solution %s of %s" % (self.author.name, self.problem.name)
+
+    def is_accessible_by(self, user: User):
+        if not user.is_authenticated:
+            return False
+        if user.is_superuser:
+            return True
+        if user == self.author.user:
+            return True
+        return self.approved
+
+    class Meta:
+        ordering = ('-created',)
+
+
+class SolutionVote(models.Model):
+    voter = models.ForeignKey("judge.Profile", related_name='voted_solutions', on_delete=models.CASCADE)
+    solution = models.ForeignKey(PublicSolution, related_name='votes', on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ['voter', 'solution']
+        verbose_name = _('solution vote')
+        verbose_name_plural = _('solution votes')

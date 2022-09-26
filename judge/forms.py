@@ -474,6 +474,3 @@ class CreatePublicSolutionForm(ModelForm):
     class Meta:
         model = PublicSolution
         fields = ['description']
-        widgets = {
-            'description': MartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
-        }

@@ -281,3 +281,33 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         if form.cleaned_data.get('change_message'):
             return form.cleaned_data['change_message']
         return super(ProblemAdmin, self).construct_change_message(request, form, *args, **kwargs)
+
+
+class PublicSolutionAdminForm(ModelForm):
+    class Meta:
+        widgets = {
+            'description': AdminMartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
+        }
+
+
+class PublicSolutionAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            "fields": (
+                'author', 'problem', 'created'
+            ),
+        }),
+        ('Assessment', {
+            "fields": (
+                'approved', 'point', 'score'
+            ),
+        }),
+        ('Solution', {
+            'fields': (
+                'description',
+            ),
+        }),
+    )
+    
+    form = PublicSolutionAdminForm
+    readonly_fields = ['author', 'problem', 'created', 'score']
