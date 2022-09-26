@@ -122,6 +122,9 @@ urlpatterns = [
     path('problem/<slug:problem>', include([
         path('/update', problem.ProblemEdit.as_view(), name='problem_edit'),
         path('', problem.ProblemDetail.as_view(), name='problem_detail'),
+        path('/ps', problem.PublicSolutionCreateView.as_view(), name='create_public_solution'),
+        path('/listps', problem.PublicSolutionListView.as_view(), name='public_solution'),
+        path('/public_solution/<int:pk>', problem.PublicSolutionDetailView.as_view(), name='public_solution_detail'),
         path('/editorial', problem.ProblemSolution.as_view(), name='problem_editorial'),
         path('/raw', problem.ProblemRaw.as_view(), name='problem_raw'),
         path('/pdf', problem.ProblemPdfView.as_view(), name='problem_pdf'),
@@ -157,6 +160,8 @@ urlpatterns = [
                 name='problem_submissions_rescore_success'),
         ])),
     ])),
+    path('publicsolution/upvote/', problem.upvote_solution, name='solution_upvote'),
+    path('publicsolution/downvote/', problem.downvote_solution, name='solution_downvote'),
 
     path('submissions/', paged_list_view(submission.AllSubmissions, 'all_submissions')),
     path('submissions/user/<str:user>/', paged_list_view(submission.AllUserSubmissions, 'all_user_submissions')),

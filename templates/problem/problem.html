@@ -131,6 +131,11 @@
 
     <hr class="pb-2">
     
+    <a class="w-full py-3 pl-4 mt-2 text-white bg-blue-500 rounded-md hover:text-white hover:bg-blue-600" href="{{ url('public_solution', problem.code) }}">{{ _('List editorial') }}</a>
+    {% if can_add_solution %}
+    <p class="mt-2">You left {{ num_solution }} solutions </p>
+    <a class="w-full py-3 pl-4 mt-2 text-white bg-blue-500 rounded-md hover:text-white hover:bg-blue-600" href="{{ url('create_public_solution', problem.code) }}">{{ _('Create editorial') }}</a>
+    {% endif %}
     {% if (editorial and editorial.is_accessible_by(request.user)) and not request.in_contest %}
     <a class="w-full py-3 pl-4 mt-2 text-white bg-red-500 rounded-md hover:text-white hover:bg-red-600" href="{{ url('problem_editorial', problem.code) }}">{{ _('Read editorial') }}</a>
     <hr class="pb-2">

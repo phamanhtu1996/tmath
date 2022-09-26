@@ -31,9 +31,22 @@ def disallowed_characters_validator(text):
                               params={'value': ''.join(common_disallowed_characters)})
 
 
-class ProblemType(models.Model):
+class ProblemCategory(models.Model):
     name = models.CharField(max_length=20, verbose_name=_('problem category ID'), unique=True)
     full_name = models.CharField(max_length=100, verbose_name=_('problem category name'))
+
+    def __str__(self):
+        return user_gettext(self.full_name)
+
+    class Meta:
+        ordering = ['full_name']
+        verbose_name = _('problem category')
+        verbose_name_plural = _('problem categories')
+        
+
+class ProblemType(models.Model):
+    name = models.CharField(max_length=20, verbose_name=_('problem type ID'), unique=True)
+    full_name = models.CharField(max_length=100, verbose_name=_('problem type name'))
 
     def __str__(self):
         return user_gettext(self.full_name)

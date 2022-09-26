@@ -401,6 +401,7 @@ MARKDOWN_STYLES = {
     'ticket': MARKDOWN_USER_LARGE_STYLE,
 }
 
+MARTOR_ENABLE_LABEL = True
 MARTOR_ENABLE_CONFIGS = {
     'emoji': 'true',
     'imgur': 'true',

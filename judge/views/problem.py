@@ -8,11 +8,12 @@ from random import randrange
 
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.db.models import Count, F, Prefetch, Q
 from django.db.utils import ProgrammingError
-from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
@@ -27,10 +28,13 @@ from django.views.generic.detail import SingleObjectMixin
 from reversion import revisions
 
 from judge.comments import CommentedDetailView
-from judge.forms import LanguageInlineFormset, ProblemCloneForm, ProblemCreateForm, ProblemSubmitForm, ProblemUpdateForm, SolutionForm, SolutionInlineFormset
+from judge.forms import LanguageInlineFormset, ProblemCloneForm, ProblemCreateForm, \
+    ProblemSubmitForm, ProblemUpdateForm, CreatePublicSolutionForm
 from judge.models import ContestSubmission, Judge, Language, Problem, ProblemGroup, \
     ProblemTranslation, ProblemType, RuntimeVersion, Solution, Submission, SubmissionSource, \
-    TranslatedProblemForeignKeyQuerySet
+    TranslatedProblemForeignKeyQuerySet, Profile
+from judge.models.contest import Contest
+from judge.models.problem_data import PublicSolution, SolutionVote
 from judge.pdf_problems import DefaultPdfMaker, HAS_PDF
 from judge.utils.diggpaginator import DiggPaginator
 from judge.utils.opengraph import generate_opengraph
@@ -38,7 +42,7 @@ from judge.utils.problems import contest_attempted_ids, contest_completed_ids, h
     user_completed_ids
 from judge.utils.strings import safe_float_or_none, safe_int_or_none
 from judge.utils.tickets import own_ticket_filter
-from judge.utils.views import QueryStringSortMixin, SingleObjectFormView, TitleMixin, add_file_response, generic_message
+from judge.utils.views import DiggPaginatorMixin, QueryStringSortMixin, SingleObjectFormView, TitleMixin, add_file_response, generic_message
 from judge.views.widgets import submission_uploader
 
 
@@ -183,6 +187,10 @@ class ProblemDetail(ProblemMixin, SolvedProblemMixin, CommentedDetailView):
                 context['submissions_left'] = max(contest_problem.max_submissions -
                                                   get_contest_submission_count(self.object, user.profile,
                                                                                user.profile.current_contest.virtual), 0)
+            num_solution = self.contest.limit_solution
+            num_solution -= PublicSolution.objects.filter(author=user.profile, problem=self.object, contest=self.contest).count()
+            context['can_add_solution'] = num_solution > 0
+            context['num_solution'] = num_solution
 
         context['available_judges'] = Judge.objects.filter(online=True, problems=self.object)
         context['show_languages'] = self.object.allowed_languages.count() != Language.objects.count()
@@ -884,3 +892,153 @@ class ProblemEdit(ProblemMixin, PermissionRequiredMixin, TitleMixin, UpdateView)
         elif request.method == 'GET':
             return self.get(request, *args, **kwargs)
         return super().dispatch(request, *args, **kwargs)
+
+
+class PublicSolutionCreateView(TitleMixin, LoginRequiredMixin, CreateView):
+    model = PublicSolution
+    template_name = "problem/create_solution.html"
+    form_class = CreatePublicSolutionForm
+
+    def post(self, request, *args, **kwargs) -> HttpResponse:
+        return super().post(request, *args, **kwargs)
+
+    def get_title(self):
+        return "Create solution for %s" % (self.problem.name)
+
+    def dispatch(self, request, *args, **kwargs):
+        code = self.kwargs.get('problem', None)
+        profile: Profile = self.request.profile
+        self.problem: Problem = Problem.objects.get(code=code)
+        if profile.current_contest is not None:
+            self.contest: Contest = profile.current_contest.contest
+            if not self.problem in self.contest.problems.all():
+                raise Http404()
+            num_solution = PublicSolution.objects.filter(contest=self.contest, problem=self.problem, author=profile).count()
+            if num_solution >= self.contest.limit_solution:
+                raise Http404()
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form: CreatePublicSolutionForm):
+        user = self.request.user.profile
+        ps: PublicSolution = form.save(commit=False)
+        ps.author = user
+        ps.problem = self.problem
+        ps.contest = self.contest
+        ps.save()
+        return HttpResponseRedirect(reverse('problem_detail', args=(self.problem.code,)))
+
+
+class PublicSolutionListView(TitleMixin, DiggPaginatorMixin, ListView):
+    model = PublicSolution
+    template_name = "problem/list_solution.html"
+    context_object_name = 'solutions'
+    paginate_by = 50
+
+    def get_title(self):
+        return "Solution for %s" % (self.problem.name)
+
+    def dispatch(self, request, *args, **kwargs):
+        code = self.kwargs.get('problem', None)
+        self.problem: Problem = Problem.objects.get(code=code)
+        return super().dispatch(request, *args, **kwargs)
+    
+    def _get_queryset(self):
+        qs = super().get_queryset()
+        qs.filter(problem=self.problem)
+        return qs
+
+    @cached_property
+    def profile(self):
+        if not self.request.user.is_authenticated:
+            return None
+        return self.request.profile
+
+    def get_queryset(self):
+        queryset = self._get_queryset()
+
+        if self.profile is None or not self.request.user.is_superuser:
+            queryset = queryset.filter(approved=True)
+        
+        return queryset
+
+class SolutionMixin(object):
+    model = PublicSolution
+    context_object_name = 'solution'
+
+    def get_object(self, queryset=None):
+        solution = super().get_object(queryset)
+        if not solution.is_accessible_by(self.request.user):
+            raise Http404()
+        return solution
+
+    def no_such_solution(self):
+        pk = self.kwargs.get(self.slug_url_kwarg, None)
+        return generic_message(self.request, _('No such solution'),
+                               _('Could not find a problem with the id "%s".') % pk, status=404)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            return self.no_such_solution()
+
+
+class PublicSolutionDetailView(TitleMixin, LoginRequiredMixin, SolutionMixin, CommentedDetailView):
+    template_name = "problem/solution.html"
+
+    def get_comment_page(self):
+        return 's:%s' % self.object.pk
+
+    def get_title(self):
+        return "Solution of problem %s" % (self.object.problem.code)
+
+    def get_context_data(self, **kwargs):
+        
+        context = super().get_context_data(**kwargs)
+        if SolutionVote.objects.filter(voter=self.request.user.profile, solution=self.get_object()).exists():
+            context['vote'] = SolutionVote.objects.filter(voter=self.request.user.profile, solution=self.get_object()).first().score
+        else:
+            context['vote'] = 0
+        return context
+
+
+@login_required
+def vote_solution(request, delta):
+    if abs(delta) != 1:
+        return HttpResponseBadRequest(_('Messing around, are we?'), content_type='text/plain')
+
+    if request.method != 'POST':
+        return HttpResponseForbidden()
+
+    if 'id' not in request.POST or len(request.POST['id']) > 10:
+        return HttpResponseBadRequest()
+
+    if not request.user.is_staff and not request.profile.has_any_solves:
+        return HttpResponseBadRequest(_('You must solve at least one problem before you can vote.'),
+                                      content_type='text/plain')
+
+    if request.profile.mute:
+        return HttpResponseBadRequest(_('Your part is silent, little toad.'), content_type='text/plain')
+    try:
+        solution_id = int(request.POST['id'])
+    except ValueError:
+        return HttpResponseBadRequest()
+    else:
+        if not PublicSolution.objects.filter(id=solution_id).exists():
+            raise Http404()
+
+    vote: SolutionVote = SolutionVote.objects.get_or_create(voter=request.profile, solution_id=solution_id)[0]
+    if abs(vote.score + delta) > 1:
+        return HttpResponseBadRequest(_('You already voted.'), content_type='text/plain')
+    PublicSolution.objects.filter(id=solution_id).update(score=F('score') + delta)
+    vote.score += delta
+    vote.save()
+    return HttpResponse('success', content_type='text/plain')
+
+
+def upvote_solution(request):
+    return vote_solution(request, 1)
+
+def downvote_solution(request):
+    return vote_solution(request, -1)

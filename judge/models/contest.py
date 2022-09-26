@@ -165,6 +165,8 @@ class Contest(models.Model):
     points_precision = models.IntegerField(verbose_name=_('precision points'), default=3,
                                            validators=[MinValueValidator(0), MaxValueValidator(10)],
                                            help_text=_('Number of digits to round points to.'))
+    add_solution = models.BooleanField(_('can add solution'), default=False)
+    limit_solution = models.IntegerField(_("limit solution"), default=0)
 
     @property
     def markdown_style(self):
