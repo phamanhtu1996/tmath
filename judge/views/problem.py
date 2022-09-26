@@ -990,11 +990,21 @@ class PublicSolutionDetailView(TitleMixin, LoginRequiredMixin, SolutionMixin, Co
     def get_comment_page(self):
         return 's:%s' % self.object.pk
 
+    def get_content_title(self):
+        solution = self.object
+        return mark_safe(escape(_('Solution of %(problem)s by %(user)s')) % {
+            'problem': format_html('<a href="{0}" class="text-blue-500">{1}</a>',
+                                   reverse('problem_detail', args=[solution.problem.code]),
+                                   solution.problem.translated_name(self.request.LANGUAGE_CODE)),
+            'user': format_html('<a href="{0}" class="text-blue-500">{1}</a>',
+                                reverse('user_page', args=[solution.author.user.username]),
+                                solution.author.user.username),
+        })
+
     def get_title(self):
         return "Solution of problem %s" % (self.object.problem.code)
 
     def get_context_data(self, **kwargs):
-        
         context = super().get_context_data(**kwargs)
         if SolutionVote.objects.filter(voter=self.request.user.profile, solution=self.get_object()).exists():
             context['vote'] = SolutionVote.objects.filter(voter=self.request.user.profile, solution=self.get_object()).first().score
