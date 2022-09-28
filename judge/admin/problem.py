@@ -311,3 +311,19 @@ class PublicSolutionAdmin(admin.ModelAdmin):
     
     form = PublicSolutionAdminForm
     readonly_fields = ['author', 'problem', 'created', 'score']
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+
+        func, name, desc = self.get_action('approve_all_solution')
+        actions[name] = (func, name, desc)
+
+        return actions
+
+    def approve_all_solution(self, request, queryset):
+        count = queryset.update(approved=True)
+        self.message_user(request, ngettext('%d solution successfully marked as approve.',
+                                             '%d solutions successfully marked as approve.',
+                                             count) % count)
+
+    approve_all_solution.short_description = _('Mark solutions as approve')

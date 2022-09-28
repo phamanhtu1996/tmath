@@ -945,7 +945,7 @@ class PublicSolutionListView(TitleMixin, DiggPaginatorMixin, ListView):
     
     def _get_queryset(self):
         qs = super().get_queryset()
-        qs.filter(problem=self.problem)
+        qs = qs.filter(problem=self.problem)
         return qs
 
     @cached_property
@@ -956,11 +956,9 @@ class PublicSolutionListView(TitleMixin, DiggPaginatorMixin, ListView):
 
     def get_queryset(self):
         queryset = self._get_queryset()
-
         if self.profile is None or not self.request.user.is_superuser:
             queryset = queryset.filter(approved=True)
-        
-        return queryset
+        return queryset 
 
 class SolutionMixin(object):
     model = PublicSolution
