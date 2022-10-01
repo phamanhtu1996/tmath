@@ -18,7 +18,7 @@ from django.utils.translation import gettext as _
 from django.views.generic import DetailView
 
 from judge.highlight_code import highlight_code
-from judge.models import Problem, ProblemData, ProblemTestCase, Submission, problem_data_storage
+from judge.models import Problem, ProblemData, ProblemTestCase, Submission, problem_data_storage, Log
 from judge.utils.problem_data import ProblemDataCompiler
 from judge.utils.unicode import utf8text
 from judge.utils.views import TitleMixin, add_file_response
@@ -224,6 +224,14 @@ def problem_data_file(request, problem, path):
         add_file_response(request, response, url_path, os.path.join(problem, path), problem_data_storage)
     except IOError:
         raise Http404()
+
+    Log.objects.create(
+        user = request.user.profile,
+        title = 'Download test',
+        message = '%s download test of problem %s' % (request.user.username, problem),
+        object_id = object.pk,
+        object_title = object.name
+    )
 
     response['Content-Type'] = 'application/octet-stream'
     return response

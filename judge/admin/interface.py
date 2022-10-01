@@ -9,7 +9,7 @@ from mptt.admin import DraggableMPTTAdmin
 from reversion.admin import VersionAdmin
 
 from judge.dblock import LockModel
-from judge.models import NavigationBar
+from judge.models import NavigationBar, Log
 from judge.widgets import AdminHeavySelect2MultipleWidget, AdminHeavySelect2Widget, AdminMartorWidget
 
 
@@ -174,3 +174,22 @@ class LogEntryAdmin(admin.ModelAdmin):
 
     def queryset(self, request):
         return super().queryset(request).prefetch_related('content_type')
+
+
+class LogAdmin(admin.ModelAdmin):
+    readonly_fields = ('user', 'title', 'object_id', 'object_title', 'message', 'time')
+    list_display = ('title', 'user', 'object_title', 'time')
+    search_fields = ('object_title', 'title')
+    list_filter = (UserListFilter,)
+    list_display_links = None
+    actions = None
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return obj is None and request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+

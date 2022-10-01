@@ -160,7 +160,7 @@ GRANT ALL PRIVILEGES ON tmath.* to 'tmath'@'localhost' IDENTIFIED BY 'emath123@'
 ```mysql
 CREATE DATABASE tmath DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;
 
-CREATE USER 'tmath'@'localhost' IDENTIFIED BY 'emath123@';
+CREATE USER 'tmath'@'localhost' IDENTIFIED BY 'tmath123@';
 
-GRANT ALL PRIVILEGES ON tmath.* to 'tmath'@'localhost';
+GRANT ALL PRIVILEGES ON dmoj.* to 'tmath'@'localhost';
 ```

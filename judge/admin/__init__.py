@@ -4,7 +4,7 @@ from django.contrib.flatpages.models import FlatPage
 
 from judge.admin.comments import CommentAdmin
 from judge.admin.contest import ContestAdmin, ContestParticipationAdmin, ContestTagAdmin
-from judge.admin.interface import BlogPostAdmin, CourseAdmin, FlatPageAdmin, LicenseAdmin, LogEntryAdmin, NavigationBarAdmin
+from judge.admin.interface import BlogPostAdmin, CourseAdmin, FlatPageAdmin, LicenseAdmin, LogEntryAdmin, NavigationBarAdmin, LogAdmin
 from judge.admin.organization import OrganizationAdmin, OrganizationRequestAdmin
 from judge.admin.problem import ProblemAdmin, PublicSolutionAdmin
 from judge.admin.profile import ProfileAdmin
@@ -14,7 +14,7 @@ from judge.admin.taxon import ProblemGroupAdmin, ProblemTypeAdmin, ProblemClassA
 from judge.admin.ticket import TicketAdmin
 from judge.models import BlogPost, Comment, CommentLock, Contest, ContestParticipation, \
     ContestTag, Judge, Language, License, MiscConfig, NavigationBar, Organization, \
-    OrganizationRequest, Problem, ProblemGroup, ProblemType, Profile, Submission, Ticket, CourseModel, ProblemClass, ContestLevel
+    OrganizationRequest, Problem, ProblemGroup, ProblemType, Profile, Submission, Ticket, CourseModel, ProblemClass, ContestLevel, Log
 from judge.models.problem_data import PublicSolution
 
 admin.site.register(BlogPost, BlogPostAdmin)
@@ -30,6 +30,7 @@ admin.site.register(Judge, JudgeAdmin)
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(License, LicenseAdmin)
 admin.site.register(LogEntry, LogEntryAdmin)
+admin.site.register(Log, LogAdmin)
 admin.site.register(MiscConfig)
 admin.site.register(NavigationBar, NavigationBarAdmin)
 admin.site.register(Organization, OrganizationAdmin)

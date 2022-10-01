@@ -125,3 +125,16 @@ class CourseModel(models.Model):
         )
         verbose_name = _('course')
         verbose_name_plural = _('courses')
+
+
+class Log(models.Model):
+    user = models.ForeignKey("judge.Profile", verbose_name=_("user"), on_delete=models.CASCADE)
+    title = models.CharField(_("title"), max_length=50)
+    message = models.CharField(_("message"), max_length=255)
+    object_id = models.IntegerField(_("object id"))
+    object_title = models.CharField(_("object title"), max_length=255)
+    time = models.DateTimeField(_("time"), auto_now=False, auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('logging')
+        ordering = ('-time',)
