@@ -178,7 +178,7 @@ class LogEntryAdmin(admin.ModelAdmin):
 
 class LogAdmin(admin.ModelAdmin):
     readonly_fields = ('user', 'title', 'object_id', 'object_title', 'message', 'time')
-    list_display = ('title', 'user', 'object_title', 'time')
+    list_display = ('message', 'title', 'user', 'object_title', 'time')
     search_fields = ('object_title', 'title')
     list_filter = (UserListFilter,)
     list_display_links = None

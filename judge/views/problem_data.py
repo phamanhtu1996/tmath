@@ -228,9 +228,9 @@ def problem_data_file(request, problem, path):
     Log.objects.create(
         user = request.user.profile,
         title = 'Download test',
-        message = '%s download test of problem %s' % (request.user.username, problem),
+        message = 'Downloaded test of problem "%s"' % (object.name),
         object_id = object.pk,
-        object_title = object.name
+        object_title = object.code
     )
 
     response['Content-Type'] = 'application/octet-stream'
