@@ -28,6 +28,7 @@ class TmathDashboard(Dashboard):
                 'judge.models.contest.SampleContest',
                 'django.contrib.auth.models.User',
                 'judge.models.profile.Profile',
+                'judge.models.interface.Log',
             )
         ))
 
