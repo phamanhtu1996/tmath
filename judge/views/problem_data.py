@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
-from django.forms import BaseModelFormSet, HiddenInput, ModelForm, NumberInput, Select, formset_factory
+from django.forms import BaseModelFormSet, ModelForm, formset_factory
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -23,6 +23,7 @@ from judge.utils.problem_data import ProblemDataCompiler
 from judge.utils.unicode import utf8text
 from judge.utils.views import TitleMixin, add_file_response
 from judge.views.problem import ProblemMixin
+from judge.widgets.fields import Select, NumberInput, CheckboxInput, HiddenInput
 
 mimetypes.init()
 mimetypes.add_type('application/x-yaml', '.yml')
@@ -68,8 +69,11 @@ class ProblemCaseForm(ModelForm):
                   'is_pretest', 'checker', 'checker_args') #, 'output_limit', 'output_prefix', 'generator_args')
         widgets = {
             # 'generator_args': HiddenInput,
-            'type': Select(attrs={'style': 'width: 100%'}),
-            'points': NumberInput(attrs={'style': 'width: 4em'}),
+            'type': Select(),
+            'checker': Select(),
+            'points': NumberInput(attrs={'style': 'width: 4em; margin: 0 auto;'}),
+            'is_pretest': CheckboxInput(),
+            'delete': CheckboxInput(),
             # 'output_prefix': NumberInput(attrs={'style': 'width: 4.5em'}),
             # 'output_limit': NumberInput(attrs={'style': 'width: 6em'}),
             'checker_args': HiddenInput,

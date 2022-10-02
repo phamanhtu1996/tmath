@@ -9,6 +9,7 @@
     </script>
     <script type="text/javascript" src="{{ static('libs/jquery-sortable.js') }}"></script>
     <script type="text/javascript" src="{{ static('libs/featherlight/featherlight.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script type="text/javascript">
         $(function () {
             function autofill_if_exists($select, file) {
@@ -77,7 +78,7 @@
                     type: 'number',
                     value: try_parse_json($args.val()).precision || 6,
                     title: 'precision (decimal digits)',
-                    style: 'width: 4em'
+                    class: 'block w-full px-2 py-1 border border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
                 }).change(function () {
                     if ($checker.val().startsWith('floats'))
                         $args.val(JSON.stringify({precision: parseInt($(this).val())}));
@@ -259,37 +260,20 @@
                 }
             });
             var oldIndex;
-            $table.sortable({
-                containerSelector: 'table',
-                itemPath: '> tbody:first',
-                itemSelector: 'tr',
-                handle: 'i.fa-ellipsis-v',
-                placeholder: '<tr class="placeholder">',
-                onDragStart: function ($item, container, _super) {
-                    oldIndex = $item.index();
-                    _super($item, container);
-                },
-                onDrop: function ($item, container, _super) {
-                    var newIndex = $item.index();
-                    if (newIndex > oldIndex) {
-                        var order = parseInt($item.parent().children().slice(oldIndex, newIndex).each(function () {
-                            var $order = $(this).find('input[id$=order]');
-                            $order.val(parseInt($order.val()) - 1).siblings('span.order').text($order.val());
-                        }).last().after($item).find('input[id$=order]').val());
-                        $item.find('input[id$=order]').val(order + 1).siblings('span.order').text(order + 1);
-                    } else if (newIndex < oldIndex) {
-                        var order = parseInt($item.parent().children().slice(newIndex + 1, oldIndex + 1).each(function () {
-                            var $order = $(this).find('input[id$=order]');
-                            $order.val(parseInt($order.val()) + 1).siblings('span.order').text($order.val());
-                        }).first().before($item).find('input[id$=order]').val());
-                        $item.find('input[id$=order]').val(order - 1).siblings('span.order').text(order - 1);
-                    }
-                    if (newIndex != oldIndex)
-                        handle_table_reorder();
-                    _super($item, container);
+            var el = document.getElementById('test_cases')
+            var sortable = new Sortable(el, {
+                animation: 150,
+                ghostClass: 'bg-blue-300',
+                handle: '.handle',
+                onEnd: function(evt) {
+                    var i = 1
+                    $table.find('tbody:first').find('tr').each(function() {
+                        $(this).find('.order').html(i)
+                        $(this).find('input[id$=order]').val(i++)
+                    })
+                    handle_table_reorder()
                 }
-            });
-
+            })
             var $controls = $('#column-visible');
             var problem = $controls.attr('data-problem');
             $controls.find('input').change(function () {
@@ -430,56 +414,63 @@
                 <a id="auto-fill" href="#"><i class="fa"></i> {{ _('Auto fill') }}</a>
             </label>
         </div>
-        <table id="case-table" class="table">
+        <table class="w-full table-fixed" id="case-table">
             <thead>
-            <tr>
-                <th class="order-column"></th>
-                <th class="type-column">{{ _('Type') }}</th>
-                <th>{{ _('Input file') }}</th>
-                <th>{{ _('Output file') }}</th>
-                <th>{{ _('Points') }}</th>
-                <th>{{ _('Pretest?') }}</th>
-                <th class="checker">{{ _('Checker') }}</th>
-                {% if cases_formset.can_delete %}
-                    <th>{{ _('Delete?') }}
+                <tr class="text-white text-center bg-black [&>*]:p-2 font-bold">
+                    <td class="w-20 border"></td>
+                    <td class="border">{{ _('Type') }}</td>
+                    <td class="border">{{ _('Input file') }}</td>
+                    <td class="border">{{ _('Output file') }}</td>
+                    <td class="border">{{ _('Points') }}</td>
+                    <td class="border">{{ _('Pretest?') }}</td>
+                    <td class="hidden border checker">{{ _('Checker')}}</td>
+                    <td class="flex items-center justify-center gap-3 p-2 border">
+                        {{ _('Delete?') }}
                         <input type="checkbox" name="delete_all" id="delete_all" />
-                    </th>
-                {% endif %}
-            </tr>
-            </thead>
-            <tbody>
-            {% for form in all_case_forms %}
-                {% if form.non_field_errors() %}
-                    <tr>
-                        <td colspan="{{ 9 + cases_formset.can_delete }}">{{ form.non_field_errors() }}</td>
-                    </tr>
-                {% endif %}
-                {% if form.prefix and '__prefix__' in form.prefix %}
-                    </tbody>
-                    <tbody class="extra-row-body" style="display: none">
-                {% endif %}
-                <tr data-type="{{ form['type'].value() }}">
-                    <td>{{ form.id }}{{ form.order.errors }}{{ form.order }}</td>
-                    <td class="type-column">{{ form.type.errors }}{{ form.type }}</td>
-                    <td{% if not (form.empty_permitted or form['type'].value() != 'C' or
-                                  form['input_file'].value() in valid_files) %} class="bad-file"{% endif %}>
-                        {{ form.input_file.errors }}{{ form.input_file }}
                     </td>
-                    <td{% if not (form.empty_permitted or form['type'].value() != 'C' or
-                                  form['output_file'].value() in valid_files) %} class="bad-file"{% endif %}>
-                        {{ form.output_file.errors }}{{ form.output_file }}
-                    </td>
-                    <td>{{ form.points.errors }}{{ form.points }}</td>
-                    <td>{{ form.is_pretest.errors }}{{ form.is_pretest }}</td>
-                    <td class="checker">
-                        {{ form.checker.errors }}{{ form.checker }}{{ form.checker_args.errors }}{{ form.checker_args }}
-                    </td>
-                    {% if cases_formset.can_delete %}
-                        <td>{{ form.DELETE }}</td>
-                    {% endif %}
                 </tr>
-            {% endfor %}
-            </tbody>
+            </thead>
+            <tbody class="divide-y" id="test_cases">
+                {% for form in all_case_forms %}
+                    {% if form.non_field_errors() %}
+                        <tr>
+                            <td colspan="{{ 9 + cases_formset.can_delete }}">{{ form.non_field_errors() }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if form.prefix and '__prefix__' in form.prefix %}
+                        </tbody>
+                        <tbody class="hidden extra-row-body">
+                    {% endif %}
+                    <tr data-type="{{ form['type'].value() }}" class="divide-x [&>*]:text-center [&>*]:border [&>*]:p-2">
+                        <td class="handle">
+                            {{ form.id }}{{ form.order.errors }}{{ form.order }}
+                        </td>
+                        <td class="">
+                            {{ form.type.errors }}
+                            {{ form.type }}
+                        </td>
+                        <td{% if not (form.empty_permitted or form['type'].value() != 'C' or
+                                      form['input_file'].value() in valid_files) %} class="bad-file"{% endif %}>
+                            {{ form.input_file.errors }}{{ form.input_file }}
+                        </td>
+                        <td{% if not (form.empty_permitted or form['type'].value() != 'C' or
+                                      form['output_file'].value() in valid_files) %} class="bad-file"{% endif %}>
+                            {{ form.output_file.errors }}{{ form.output_file }}
+                        </td>
+                        <td>
+                            {{ form.points.errors }}
+                            {{ form.points }}
+                        </td>
+                        <td>{{ form.is_pretest.errors }}{{ form.is_pretest }}</td>
+                        <td class="checker">
+                            {{ form.checker.errors }}{{ form.checker }}{{ form.checker_args.errors }}{{ form.checker_args }}
+                        </td>
+                        {% if cases_formset.can_delete %}
+                            <td>{{ form.DELETE }}</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
         </table>
         <input type="submit" value="{{ _('Submit!') }}" class="px-4 py-2 text-white bg-blue-500 rounded-md hover:text-blue-600">
         <a id="add-case-row" class="font-semibold text-blue-500" href="javascript:void(0)"><i class="fa-solid fa-plus"></i> {{ _('Add new case') }}</a>

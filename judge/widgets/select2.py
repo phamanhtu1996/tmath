@@ -272,11 +272,11 @@ class AdminHeavySelect2MultipleWidget(AdminSelect2Mixin, HeavySelect2MultipleWid
     pass
 
 
-class SemanticSelect(forms.Select):
+class Select(forms.Select):
     template_name = "forms/widgets/select.html"
 
 
-class SemanticSelectMultiple(forms.SelectMultiple, SemanticSelect):
+class SemanticSelectMultiple(forms.SelectMultiple, Select):
     pass
 
 class SemanticCheckboxSelectMultiple(forms.CheckboxSelectMultiple):

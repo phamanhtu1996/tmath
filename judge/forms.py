@@ -24,7 +24,7 @@ from judge.models.problem_data import PublicSolution
 from judge.utils.subscription import newsletter_id
 from judge.widgets import HeavyPreviewPageDownWidget, Select2MultipleWidget, Select2Widget, MartorWidget
 from martor.fields import MartorFormField
-from judge.widgets.select2 import HeavySelect2MultipleWidget, SemanticSelect, SemanticSelectMultiple, SemanticCheckboxSelectMultiple
+from judge.widgets.select2 import HeavySelect2MultipleWidget, Select, SemanticSelectMultiple, SemanticCheckboxSelectMultiple
 
 TOTP_CODE_LENGTH = 6
 
@@ -373,12 +373,12 @@ class ProblemUpdateForm(ModelForm):
             'banned_users': HeavySelect2MultipleWidget(data_view='profile_select2'),
             'organizations': SemanticSelectMultiple,
             'types': SemanticSelectMultiple,
-            'group': SemanticSelect,
-            'classes': SemanticSelect,
-            'submission_source_visibility_mode': SemanticSelect,
-            'testcase_visibility_mode': SemanticSelect,
+            'group': Select,
+            'classes': Select,
+            'submission_source_visibility_mode': Select,
+            'testcase_visibility_mode': Select,
             # 'summary': MartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
-            'license': SemanticSelect,
+            'license': Select,
             'description': MartorWidget(attrs={'data-markdownfy-url': reverse_lazy('problem_preview')}),
             'allowed_languages': SemanticCheckboxSelectMultiple
         }
