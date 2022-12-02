@@ -1,3 +1,4 @@
+import json
 from operator import attrgetter
 
 from django.conf import settings
@@ -47,6 +48,7 @@ class ProblemCategory(models.Model):
 class ProblemType(models.Model):
     name = models.CharField(max_length=20, verbose_name=_('problem type ID'), unique=True)
     full_name = models.CharField(max_length=100, verbose_name=_('problem type name'))
+    priority = models.BooleanField(_('priority'), default=False)
 
     def __str__(self):
         return user_gettext(self.full_name)
@@ -376,7 +378,10 @@ class Problem(models.Model):
         return cls.objects.filter(q)
 
     def __str__(self):
-        return self.name
+        if self.classes:
+            return "%s: %s - %s" % (self.classes.name.upper(), self.code, self.name)
+        else:
+            return "%s - %s" % (self.code, self.name)
 
     def get_absolute_url(self):
         return reverse('problem_detail', args=(self.code,))
@@ -491,6 +496,30 @@ class Problem(models.Model):
         result = self._get_limits('memory_limit')
         cache.set(key, result)
         return result
+    
+    @cached_property
+    def io_method(self):
+        if self.is_manually_managed or not hasattr(self, 'data_files'):
+            return {'method': 'unknown'}
+
+        # if self.data_files.grader != 'standard':
+        #     # File IO is only supported for the standard grader.
+        #     return {'method': 'standard'}
+
+        grader_args = self.data_files.grader_args
+        if grader_args:
+            grader_args = json.loads(grader_args)
+            if grader_args.get('io_method', '') == 'file':
+                if grader_args.get('io_input_file', '') == '' or grader_args.get('io_output_file', '') == '':
+                    return {'method': 'unknown'}
+
+                return {
+                    'method': 'file',
+                    'input': grader_args['io_input_file'],
+                    'output': grader_args['io_output_file'],
+                }
+
+        return {'method': 'standard'}
 
     @property
     def markdown_style(self):
@@ -509,7 +538,7 @@ class Problem(models.Model):
     save.alters_data = True
 
     class Meta:
-        ordering = ['code']
+        ordering = ['-pk']
         permissions = (
             ('see_private_problem', _('See hidden problems')),
             ('edit_own_problem', _('Edit own problems')),

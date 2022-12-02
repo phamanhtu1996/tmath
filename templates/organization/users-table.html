@@ -2,7 +2,7 @@
 
 {% block before_point_head %}
     {% if is_admin %}
-        <th class="header" style="background-color: black;"></th>
+        <th class="header"></th>
     {% endif %}
 {% endblock %}
 
@@ -13,7 +13,7 @@
             <form action="{{ kick_url }}" method="POST" class="ui form kick-form">
                 {% csrf_token %}
                 <input type="hidden" name="user" value="{{ user.id }}">
-                <a href="javascript:void(0)" class="ui primary button">{{ _('Kick') }}</a>
+                <a href="javascript:void(0)" class="text-white button bg-red-500 rounded-md p-2">{{ _('Kick') }}</a>
             </form>
             {% endif %}
         </td>

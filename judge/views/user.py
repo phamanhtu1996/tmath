@@ -449,7 +449,7 @@ class UserList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ListView):
     default_sort = '-performance_points'
 
     def get_queryset(self):
-        return (Profile.objects.filter(is_unlisted=False).order_by(self.order).select_related('user')
+        return (Profile.objects.filter(is_unlisted=False, user__is_active=True).order_by(self.order).select_related('user')
                 .only('display_rank', 'user__username', 'points', 'rating', 'performance_points',
                       'problem_count'))
 

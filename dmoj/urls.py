@@ -9,6 +9,7 @@ from django.urls import path, reverse, register_converter
 from django.utils.functional import lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import RedirectView
+from django.views.decorators.cache import cache_page
 from martor.views import markdown_search_user
 
 from judge.feed import AtomBlogFeed, AtomCommentFeed, AtomProblemFeed, BlogFeed, CommentFeed, ProblemFeed
@@ -118,6 +119,7 @@ urlpatterns = [
     path('problems/', problem.ProblemList.as_view(), name='problem_list'),
     path('problems/random/', problem.RandomProblem.as_view(), name='problem_random'),
 	path('problems/new/', problem.ProblemNew.as_view(), name='problem_new'),
+    path('problems/sb3/', problem.getScratch, name='scratch'),
 
     path('problem/<slug:problem>', include([
         path('/update', problem.ProblemEdit.as_view(), name='problem_edit'),
@@ -308,7 +310,7 @@ urlpatterns = [
     path('blog/', paged_list_view(blog.PostList, 'blog_post_list')),
     path('post/<int:id>-<slug:slug>', blog.PostView.as_view(), name='blog_post'),
 
-    path('license/<slug:key>', license.LicenseDetail.as_view(), name='license'),
+    path('license/<str:key>', license.LicenseDetail.as_view(), name='license'),
 
     path('mailgun/mail_activate/', mailgun.MailgunActivationView.as_view(), name='mailgun_activate'),
 

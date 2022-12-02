@@ -14,13 +14,14 @@ from judge.timezone import from_database_time
 from judge.utils.timedelta import nice_repr
 
 
-@register_contest_format('icpc')
-class ICPCContestFormat(DefaultContestFormat):
-    name = gettext_lazy('ICPC')
-    config_defaults = {'penalty': 20}
-    config_validators = {'penalty': lambda x: x >= 0}
+@register_contest_format('tmath_sol')
+class TmathContestFormat(DefaultContestFormat):
+    name = gettext_lazy('Tmath Solution')
+    config_defaults = {'penalty': 20, 'weight': 0.98}
+    config_validators = {'penalty': lambda x: x >= 0, 'weight': lambda x: x > 0 and x <= 1}
     '''
         penalty: Number of penalty minutes each incorrect submission adds. Defaults to 20.
+        weight: Points decrease after each failed submission.
     '''
 
     @classmethod
@@ -29,7 +30,7 @@ class ICPCContestFormat(DefaultContestFormat):
             return
 
         if not isinstance(config, dict):
-            raise ValidationError('ICPC-styled contest expects no config or dict as config')
+            raise ValidationError('Tmath-styled contest expects no config or dict as config')
 
         for key, value in config.items():
             if key not in cls.config_defaults:
@@ -78,6 +79,7 @@ class ICPCContestFormat(DefaultContestFormat):
                     if points:
                         prev = subs.filter(submission__date__lte=time).count() - 1
                         penalty += prev * self.config['penalty'] * 60
+                        points *= self.config['weight'] ** prev
                     else:
                         # We should always display the penalty, even if the user has a score of 0
                         prev = subs.count()
@@ -87,10 +89,12 @@ class ICPCContestFormat(DefaultContestFormat):
                 if points:
                     cumtime += dt
                     last = max(last, dt)
+                
+                
 
                 format_data[str(prob)] = {'time': dt, 'points': points, 'penalty': prev}
                 score += points
-                
+        # print(format_data)
         participation.cumtime = max(cumtime, 0) + penalty
         participation.score = round(score, self.contest.points_precision)
         participation.tiebreaker = last  # field is sorted from least to greatest
@@ -99,13 +103,14 @@ class ICPCContestFormat(DefaultContestFormat):
 
     def display_user_problem(self, participation, contest_problem):
         format_data = (participation.format_data or {}).get(str(contest_problem.id))
+        # print(format_data)
         if format_data:
             penalty = format_html('<small style="color:red"> ({penalty})</small>',
                                   penalty=floatformat(format_data['penalty'])) if format_data['penalty'] else ''
             return format_html(
                 '<td class="{state} icpc_format"><a href="{url}">{points}{penalty}<div class="solving-time">{time}</div></a></td>',
                 state=(('pretest-' if self.contest.run_pretests_only and contest_problem.is_pretested else '') +
-                       self.best_solution_state(format_data['points'], contest_problem.points, contest_problem.first_accept == participation)),
+                       self.best_solution_state(format_data['points'], contest_problem.points * (self.config['weight'] ** format_data['penalty']), contest_problem.first_accept == participation)),
                 url=reverse('contest_user_submissions',
                             args=[self.contest.key, participation.user.user.username, contest_problem.problem.code]),
                 points=floatformat(format_data['points']),

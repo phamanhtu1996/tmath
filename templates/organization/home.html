@@ -81,30 +81,26 @@
 {% block body %}
 <div class="flex flex-col lg:flex-row-reverse">
     <div class="lg:basis-1/4">
-        <div class="container ui fluid">
-            <div class="ui top attached secondary inverted black menu">
-                <h3 class="ui item header">{{ _('Manage') }}</h3>
-                <div class="right menu">
-                    <div class="icon item">
-                        <i class="edit icon"></i>
-                    </div>
-                </div>
+        <div class="w-full flex p-4 flex-col">
+            <div class="font-bold text-white bg-black flex p-2 rounded-t-md text-2xl">
+                <div class="flex-1 ">{{ _('Manage') }}</div>
+                <div class=""><i class="fa-solid fa-pen-to-square"></i></div>
             </div>
-            <ul class="flex flex-col">
+            <ul class="flex flex-col divide-y border rounded-b-md font-semibold">
                 {% if request.user.is_authenticated %}
                     {% if request.profile in organization %}
-                    <li class="item">
+                    <li class="p-2">
                         <form method="post" class="ui form" action="{{ url('leave_organization', organization.id, organization.slug) }}">
                             {% csrf_token %}
                             <div class="ui field">
-                                <button type="submit" class="ui fluid negative button leave-organization">
+                                <button type="submit" class="ui fluid text-red-500 button leave-organization">
                                     {{ _('Leave organization') }}
                                 </button>
                             </div>
                         </form>
                     </li>
                     {% elif organization.is_open %}
-                    <li class="item">
+                    <li class="p-2">
                         <form method="post" class="ui form" action="{{ url('join_organization', organization.id, organization.slug) }}">
                             {% csrf_token %}
                             <div class="ui field">
@@ -115,7 +111,7 @@
                         </form>
                     </li>
                     {% else %}
-                    <li class="item">
+                    <li class="p-2">
                         <a href="{{ url('request_organization', organization.id, organization.slug) }}"
                            class="ui fluid primary button">{{ _('Request membership') }}</a>
                     </li>
@@ -123,19 +119,19 @@
                 {% endif %}
         
                 {% if can_edit %}
-                <li class="item">
+                <li class="p-2">
                     <a class="ui fluid primary button" href="{{ url('edit_organization', organization.id, organization.slug) }}">{{ _('Edit organization') }}</a>
                 </li>
             
                 {% if not organization.is_open %}
-                <li class="item">
+                <li class="p-2">
                     <a class="ui fluid primary button" href="{{ url('organization_requests_pending', organization.id, organization.slug) }}">{{ _('View requests') }}</a>
                 </li>
                     
                 {% endif %}
         
                 {% if perms.judge.add_contest %}
-                <li class="item">
+                <li class="p-2">
                     <a class="ui fluid primary button" href="{{ url('admin:judge_contest_add') }}">{{ _('Create contest') }}</a>
                 </li>
                 {% endif %}
@@ -143,11 +139,11 @@
                 {% endif %}
             
                 {% if perms.judge.change_organization %}
-                <li class="item">
+                <li class="p-2">
                     <a class="ui fluid primary button" href="{{ url('admin:judge_organization_change', organization.id) }}">{{ _('Admin organization') }}</a>
                 </li>
                 {% endif %}
-                <li class="item">
+                <li class="p-2">
                     <a class="ui fluid primary button" href="{{ organization.get_users_url() }}">{{ _('View members') }}</a>
                 </li>
             </ul>

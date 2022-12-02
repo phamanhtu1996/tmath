@@ -1,4 +1,5 @@
 import json
+import datetime
 from collections import namedtuple
 from itertools import groupby
 from operator import attrgetter
@@ -235,7 +236,11 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         return self.request.profile.current_contest.contest
 
     def _get_queryset(self):
-        queryset = Submission.objects.all()
+        past_30days = timezone.now() - datetime.timedelta(days=30)
+        if self.request.user.is_authenticated and self.request.user.is_superuser:
+            queryset = Submission.objects.all()
+        else:
+            queryset = Submission.objects.filter(date__gt=past_30days)
         use_straight_join(queryset)
         queryset = submission_related(queryset.order_by('-id'))
         if self.show_problem:

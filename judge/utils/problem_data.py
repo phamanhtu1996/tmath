@@ -125,37 +125,25 @@ class ProblemDataCompiler(object):
                 raise ProblemDataError(_('Empty batches not allowed.'))
             cases.append(batch)
 
-        def make_checker_for_validator(case):
-            checker_name = "cppvalidator.py"
-            validator_path = split_path_first(case.custom_validator.name)
-
-            if len(validator_path) != 2:
-                raise ProblemDataError(_('How did you corrupt the custom checker path?'))
-
-            checker = os.path.join(settings.DMOJ_PROBLEM_DATA_ROOT, 
-                                   validator_path[0], 
-                                   checker_name)
-
-            validator_name = validator_path[1]
-            shutil.copy(VALIDATOR_TEMPLATE_PATH, checker)
-
-            # replace {{filecpp}} and {{problemid}} in checker file
-            filedata = open(checker, 'r').read()
-            filedata = filedata.replace('{{filecpp}}', "\'%s\'" % validator_name)
-            filedata = filedata.replace('{{problemid}}', "\'%s\'" % validator_path[0])
-            open(checker, 'w').write(filedata)
-
-            return checker_name
-
         def make_checker(case):
-            if (case.checker == 'custom'):
-                custom_checker_path = split_path_first(case.custom_checker.name)
+            if (case.checker == 'bridged'):
+                custom_checker_path = split_path_first(case.custom_validator.name)
                 if len(custom_checker_path) != 2:
                     raise ProblemDataError(_('How did you corrupt the custom checker path?'))
-                return(custom_checker_path[1])
+                try:
+                    checker_ext = custom_checker_path[1].split('.')[-1]
+                except Exception as e:
+                    raise ProblemDataError(e)
 
-            if (case.checker == 'customval'):
-                return make_checker_for_validator(case)
+                # Python checker doesn't need to use bridged
+                # so we return the name directly
+                if checker_ext == 'py':
+                    return custom_checker_path[1]
+
+                if checker_ext not in ['cpp']:
+                    raise ProblemDataError(_("Why don't you use a cpp/py checker?"))
+                # the cpp checker will be handled
+                # right below here, outside of this scope
 
             if case.checker_args:
                 return {
@@ -163,6 +151,25 @@ class ProblemDataCompiler(object):
                     'args': json.loads(case.checker_args),
                 }
             return case.checker
+        
+        def make_grader(init, case):
+            grader_args = {}
+            if case.grader_args:
+                grader_args = json.loads(case.grader_args)
+
+            if grader_args.get('io_method') == 'file':
+                if grader_args.get('io_input_file', '') == '' or grader_args.get('io_output_file', '') == '':
+                    raise ProblemDataError(_('You must specify both input and output files.'))
+
+                if not isinstance(grader_args['io_input_file'], str) or \
+                        not isinstance(grader_args['io_output_file'], str):
+                    raise ProblemDataError(_('Input/Output file must be a string.'))
+
+                init['file_io'] = {}
+                init['file_io']['input'] = grader_args['io_input_file']
+                init['file_io']['output'] = grader_args['io_output_file']
+
+            return
 
         for i, case in enumerate(self.cases, 1):
             if case.type == 'C':
@@ -268,6 +275,7 @@ class ProblemDataCompiler(object):
             init['checker'] = make_checker(self.data)
         else:
             self.data.checker_args = ''
+        make_grader(init, self.data)
         return init
 
     def compile(self):

@@ -16,6 +16,7 @@ from reversion import revisions
 
 from judge.forms import EditOrganizationForm
 from judge.models import Organization, OrganizationRequest, Profile
+from judge.models.profile import SchoolYear
 from judge.utils.ranker import ranker
 from judge.utils.views import TitleMixin, generic_message
 from chat.models import ChatMessage, ChatParticipation
@@ -71,8 +72,14 @@ class OrganizationList(TitleMixin, ListView):
     template_name = 'organization/list.html'
     title = gettext_lazy('Organizations')
 
+    def _get_queryset(self):
+        query = super().get_queryset()
+        if self.selected_year:
+            query = query.filter(year=self.selected_year)
+        return query
+
     def get_queryset(self):
-        return super(OrganizationList, self).get_queryset().exclude(member=self.request.profile).annotate(member_count=Count('member'))
+        return self._get_queryset().exclude(member=self.request.profile).annotate(member_count=Count('member'))
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -80,10 +87,29 @@ class OrganizationList(TitleMixin, ListView):
         user = self.request.user
         if user.is_authenticated:
             profile = self.request.profile
-            for org in Organization.objects.annotate(member_count=Count('member')).filter(member=profile):
+            query = Organization.objects.annotate(member_count=Count('member')).filter(member=profile)
+            if self.selected_year:
+                query = query.filter(year=self.selected_year)
+            for org in query:
                 my_org.append(org)
             context['my_org'] = my_org
+        context['list_years'] = SchoolYear.objects.all()
+        if self.selected_year:
+            context['selected_year'] = int(self.selected_year)
         return context
+    
+    def setup_year(self, request):
+        self.selected_year = None
+
+        if 'selected_year' in request.GET:
+            try:
+                self.selected_year = request.GET.get('selected_year')
+            except ValueError:
+                pass
+
+    def get(self, request, *args, **kwargs):
+        self.setup_year(request)
+        return super().get(request, *args, **kwargs)
 
 
 class OrganizationHome(OrganizationDetailView):
@@ -255,6 +281,8 @@ class OrganizationRequestView(OrganizationRequestBaseView):
 
             approved, rejected = 0, 0
             for obj in formset.save():
+                obj.admin = self.request.profile
+                obj.save()
                 if obj.state == 'A':
                     obj.user.organizations.add(obj.organization)
                     approved += 1
