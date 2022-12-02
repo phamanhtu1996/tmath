@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
-from django.forms import BaseModelFormSet, HiddenInput, ModelForm, NumberInput, Select, formset_factory
+from django.forms import BaseModelFormSet, CharField, ChoiceField, ModelForm, formset_factory
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -23,6 +23,8 @@ from judge.utils.problem_data import ProblemDataCompiler
 from judge.utils.unicode import utf8text
 from judge.utils.views import TitleMixin, add_file_response
 from judge.views.problem import ProblemMixin
+from judge.widgets.fields import Select, NumberInput, CheckboxInput, HiddenInput
+from judge.models.problem_data import IO_METHODS
 
 mimetypes.init()
 mimetypes.add_type('application/x-yaml', '.yml')
@@ -39,24 +41,40 @@ def checker_args_cleaner(self):
         raise ValidationError(_('Checker arguments is invalid JSON'))
     return data
 
+def grader_args_cleaner(self):
+    data = self.cleaned_data['grader_args']
+    if not data or data.isspace():
+        return ''
+    try:
+        if not isinstance(json.loads(data), dict):
+            raise ValidationError(_('Grader arguments must be a JSON object'))
+    except ValueError:
+        raise ValidationError(_('Grader arguments is invalid JSON'))
+    return data
 
 class ProblemDataForm(ModelForm):
+    io_method = ChoiceField(choices=IO_METHODS, label=_('IO Method'), initial='standard', required=False,
+                            widget=Select)
+    io_input_file = CharField(max_length=100, label=_('Input from file'), required=False)
+    io_output_file = CharField(max_length=100, label=_('Output to file'), required=False)
     def clean_zipfile(self):
         if hasattr(self, 'zip_valid') and not self.zip_valid:
             raise ValidationError(_('Your zip file is invalid!'))
         return self.cleaned_data['zipfile']
 
     clean_checker_args = checker_args_cleaner
+    clean_grader_args = grader_args_cleaner
 
     class Meta:
         model = ProblemData
-        fields = ['zipfile', 'checker', 'checker_args', 'custom_checker', 'custom_validator']
+        fields = ['zipfile', 'checker', 'checker_args', 'custom_validator', 'io_method', 'io_input_file', 'io_output_file', 'grader_args']
         widgets = {
             # 'zipfile': FineUploadFileInput,
             'checker_args': HiddenInput,
             'generator': HiddenInput,
             'output_limit': HiddenInput,
             'output_prefix': HiddenInput,
+            'checker': Select,
         }
 
 class ProblemCaseForm(ModelForm):
@@ -68,8 +86,10 @@ class ProblemCaseForm(ModelForm):
                   'is_pretest', 'checker', 'checker_args') #, 'output_limit', 'output_prefix', 'generator_args')
         widgets = {
             # 'generator_args': HiddenInput,
-            'type': Select(attrs={'style': 'width: 100%'}),
-            'points': NumberInput(attrs={'style': 'width: 4em'}),
+            'type': Select,
+            'checker': Select,
+            'points': NumberInput(attrs={'style': 'width: 4em; margin: 0 auto;'}),
+            'is_pretest': CheckboxInput(),
             # 'output_prefix': NumberInput(attrs={'style': 'width: 4.5em'}),
             # 'output_limit': NumberInput(attrs={'style': 'width: 6em'}),
             'checker_args': HiddenInput,

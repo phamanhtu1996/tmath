@@ -11,6 +11,7 @@ import webauthn
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F, Max
 from django.urls import reverse
@@ -40,6 +41,18 @@ class EncryptedNullCharField(EncryptedCharField):
         return super(EncryptedNullCharField, self).get_prep_value(value)
 
 
+class SchoolYear(models.Model):
+    start = models.DateField(_("year start"))
+    finish = models.DateField(_("year finish"))
+
+    def __str__(self):
+        return "%s - %s" % (self.start.year, self.finish.year)
+    
+    def clean(self) -> None:
+        if self.start and self.finish and self.start >= self.finish:
+            raise ValidationError('What is this? A school year that ended before it starts?')
+
+
 class Organization(models.Model):
     name = models.CharField(max_length=128, verbose_name=_('organization title'))
     slug = models.SlugField(max_length=128, verbose_name=_('organization slug'),
@@ -62,6 +75,7 @@ class Organization(models.Model):
                                            help_text=_('This image will replace the default site logo for users '
                                                        'viewing the organization.'))
     rate = models.IntegerField(_("Rate of Organization"), default=NEWBIE, choices=RATE)
+    year = models.ForeignKey(SchoolYear, verbose_name=_("school year"), on_delete=models.SET_NULL, null=True)
 
     def __contains__(self, item):
         if isinstance(item, int):
@@ -340,6 +354,7 @@ class WebAuthnCredential(models.Model):
 
 class OrganizationRequest(models.Model):
     user = models.ForeignKey(Profile, verbose_name=_('user'), related_name='requests', on_delete=models.CASCADE)
+    admin = models.ForeignKey(Profile, verbose_name=_('admin'), null=True, blank=True, related_name='actions', on_delete=models.SET_NULL)
     organization = models.ForeignKey(Organization, verbose_name=_('organization'), related_name='requests',
                                      on_delete=models.CASCADE)
     time = models.DateTimeField(verbose_name=_('request time'), auto_now_add=True)

@@ -1,5 +1,5 @@
-<div class="tabs">
-    <ul>
+<div class="tabs mt-4">
+    <ul class="flex items-baseline">
         <li{% if tab == 'pending' %} class="active"{% endif %}>
             <a href="{{ url('organization_requests_pending', object.id, object.slug) }}">{{ _('Pending') }}</a>
         </li>

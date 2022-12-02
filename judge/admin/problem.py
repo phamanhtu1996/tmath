@@ -172,7 +172,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         'license',
     ]
     list_display = ['code', 'name', 'show_authors', 'points', 'is_public', 'show_public', ]
-    ordering = ['code']
+    ordering = ['-pk']
     search_fields = ('code', 'name', 'authors__user__username', 'curators__user__username')
     inlines = [LanguageLimitInline, ProblemClarificationInline, ProblemSolutionInline, ProblemTranslationInline]
     list_max_show_all = 1000

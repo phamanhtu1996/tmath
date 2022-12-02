@@ -543,7 +543,7 @@ class ContestParticipation(models.Model):
     user = models.ForeignKey(Profile, verbose_name=_('user'), related_name='contest_history', on_delete=CASCADE)
     real_start = models.DateTimeField(verbose_name=_('start time'), default=timezone.now, db_column='start')
     score = models.FloatField(verbose_name=_('score'), default=0, db_index=True)
-    cumtime = models.PositiveIntegerField(verbose_name=_('cumulative time'), default=0)
+    cumtime = models.PositiveBigIntegerField(verbose_name=_('cumulative time'), default=0)
     is_disqualified = models.BooleanField(verbose_name=_('is disqualified'), default=False,
                                           help_text=_('Whether this participation is disqualified.'))
     tiebreaker = models.FloatField(verbose_name=_('tie-breaking field'), default=0.0)

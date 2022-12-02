@@ -209,6 +209,33 @@
             </div>
             {% endif %}
         </div>
+        {% if problem.io_method.method == 'standard' %}
+        <div class="relative pl-6">
+            <span class="absolute left-0 flex flex-col items-center justify-center w-4 h-4 top-1">
+                <i class="fa fa-keyboard fa-fw"></i>
+            </span>
+            <div class="font-semibold">{{ _('Input: ') }}stdin</div>
+        </div>
+        <div class="relative pl-6">
+            <span class="absolute left-0 flex flex-col items-center justify-center w-4 h-4 top-1">
+                <i class="fa fa-print"></i>
+            </span>
+            <div class="font-semibold">{{ _('Output: ') }}stdout</div>
+        </div>
+        {% elif problem.io_method.method == 'file' %}
+        <div class="relative pl-6">
+            <span class="absolute left-0 flex flex-col items-center justify-center w-4 h-4 top-1">
+                <i class="fa fa-keyboard fa-fw"></i>
+            </span>
+            <div class="font-semibold">{{ _('Input: ') }}<i>{{ problem.io_method.input }}</i></div>
+        </div>
+        <div class="relative pl-6">
+            <span class="absolute left-0 flex flex-col items-center justify-center w-4 h-4 top-1">
+                <i class="fa fa-print"></i>
+            </span>
+            <div class="font-semibold">{{ _('Output: ') }}<i>{{ problem.io_method.output }}</i></div>
+        </div>
+        {% endif %}
     </div>
 
     <hr class="pt-3">

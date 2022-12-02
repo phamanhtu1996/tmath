@@ -547,3 +547,8 @@ class ContestParticipationAdmin(admin.ModelAdmin):
         return obj.virtual or '-'
     show_virtual.short_description = _('virtual')
     show_virtual.admin_order_field = 'virtual'
+
+
+class ContestSubmissionAdmin(admin.ModelAdmin):
+    fields = ('problem', 'submission', 'participation', 'is_pretest', 'points')
+    readonly_fields = ('problem', 'submission', 'participation')

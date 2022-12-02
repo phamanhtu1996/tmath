@@ -165,8 +165,8 @@
                 <select class="block w-full px-4 py-1.5 mt-1 border border-gray-500 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-400 focus:ring-opacity-50" name='organizations' placehover="{{ _('Select organization') }}">
                     <option value="">--------</option>
                     {% for org in list_organizations %}
-                    <option class="item" value="{{ org.id }}" {% if organizations and org.id in organization %}selected{% endif %}>
-                        {{ org.short_name }}
+                    <option class="item" value="{{ org.id }}" {% if organizations and org.id == organizations %}selected{% endif %}>
+                        {{ org.name }}
                     </option>
                     {% endfor %}
                 </select>

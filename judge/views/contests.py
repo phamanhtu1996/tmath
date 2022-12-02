@@ -89,7 +89,7 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
     def _get_queryset(self):
         query = super().get_queryset().prefetch_related('tags', 'organizations', 'authors', 'curators', 'testers')
         if self.selected_org:
-            query = query.filter(organizations__in=self.selected_org)
+            query = query.exclude(is_private=True).filter(organizations=self.selected_org)
         return query
 
     def get_queryset(self):
@@ -122,7 +122,7 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
         context['future_contests'] = future
         context['list_organizations'] = Organization.objects.all()
         if self.selected_org:
-            context['organizations'] = self.selected_org
+            context['organizations'] = int(self.selected_org)
         context['now'] = self._now
         context['first_page_href'] = '.'
         context['page_suffix'] = '#past-contests'
@@ -131,13 +131,13 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
         return context
 
     def setup_contest_list(self, request):
-        self.selected_org = []
+        self.selected_org = None
 
         # This actually copies into the instance dictionary...
         self.all_sorts = set(self.all_sorts)
         if 'organizations' in request.GET:
             try:
-                self.selected_org = list(map(int, request.GET.get('organizations').split(',')))
+                self.selected_org = request.GET.get('organizations')
             except ValueError:
                 pass
 

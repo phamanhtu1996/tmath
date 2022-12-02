@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import shutil
@@ -8,12 +9,14 @@ from random import randrange
 
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core import serializers
 from django.db import transaction
 from django.db.models import Count, F, Prefetch, Q
 from django.db.utils import ProgrammingError
-from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
@@ -34,7 +37,8 @@ from judge.models import ContestSubmission, Judge, Language, Problem, ProblemGro
     ProblemTranslation, ProblemType, RuntimeVersion, Solution, Submission, SubmissionSource, \
     TranslatedProblemForeignKeyQuerySet, Profile
 from judge.models.contest import Contest
-from judge.models.problem_data import PublicSolution, SolutionVote
+from judge.models.problem import ProblemClass
+from judge.models.problem_data import ProblemData, ProblemTestCase, PublicSolution, SolutionVote
 from judge.pdf_problems import DefaultPdfMaker, HAS_PDF
 from judge.utils.diggpaginator import DiggPaginator
 from judge.utils.opengraph import generate_opengraph
@@ -304,7 +308,7 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
     manual_sort = frozenset(('name', 'group', 'solved', 'type'))
     all_sorts = sql_sort | manual_sort
     default_desc = frozenset(('points', 'ac_rate', 'user_count'))
-    default_sort = 'code'
+    default_sort = '-pk'
 
     def get_paginator(self, queryset, per_page, orphans=0,
                       allow_empty_first_page=True, **kwargs):
@@ -420,7 +424,7 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         context['category'] = self.category
         context['categories'] = ProblemGroup.objects.all()
         context['selected_types'] = self.selected_types
-        context['problem_types'] = ProblemType.objects.all()
+        context['problem_types'] = ProblemType.objects.filter(priority=True)
         context['has_fts'] = settings.ENABLE_FTS
         context['search_query'] = self.search_query
         context['completed_problem_ids'] = self.get_completed_problems()
@@ -477,6 +481,8 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         if 'type' in request.GET:
             try:
                 self.selected_types = list(map(int, request.GET.getlist('type')))
+                if not ProblemType.objects.filter(pk__in=self.selected_types, priority=True).exists():
+                    self.selected_types = None
             except ValueError:
                 pass
         self.point_start = safe_float_or_none(request.GET.get('point_start'))
@@ -1050,3 +1056,58 @@ def upvote_solution(request):
 
 def downvote_solution(request):
     return vote_solution(request, -1)
+
+def getScratch(request):
+    problems = Problem.objects.filter(code__startswith='sb3')
+    data = serializers.serialize('json', problems)
+    struct = json.loads(data)
+    cases_py = []
+    test_py = []
+    for i, e in enumerate(struct, start=2):
+        del e['fields']['user_count']
+        del e['fields']['ac_rate']
+        test_data = ProblemData.objects.filter(problem_id=e['pk'])
+        test_cases = ProblemTestCase.objects.filter(dataset_id=e['pk'])
+        cases = serializers.serialize('json', test_cases)
+        test = serializers.serialize('json', test_data)
+        tmp_test = json.loads(test)
+        tmp_case = json.loads(cases)
+        e['fields']['is_organization_private'] = False
+        e['fields']['organizations'] = []
+        e['fields']['allowed_languages'] = [1,2,3,4,5]
+        e['fields']['authors'] = [1]
+        e['fields']['points'] = 10
+        e['fields']['classes'] = 1
+        e['fields']['group'] = 1
+        e['fields']['types'] = [1]
+        e['fields']['is_public'] = True
+        e['pk'] = i
+        for test in tmp_test:
+            test['fields']['problem'] = i
+        for case in tmp_case:
+            case['fields']['dataset'] = i
+        cases_py += tmp_case
+        test_py += tmp_test
+        e['fields']['time_limit'] = 2
+        e['fields']['license'] = None
+    struct += cases_py + test_py
+    data = json.dumps(struct, ensure_ascii=False)
+    return HttpResponse(data, content_type="text/json;charset=UTF-8")
+
+    # import codecs
+    # response = HttpResponse()
+    # response['Content-Type'] = 'text/csv'
+    # response['Content-Disposition'] = 'inline; filename=email.csv'
+    # # response.write(codecs.BOM_UTF8)
+    # import csv
+    # writer = csv.writer(response)
+    # first_row = ['Email']
+    # writer.writerow(first_row)
+    # users = User.objects.all().exclude(email=None)[:1000]
+    # index = 0
+    # for user in users:
+    #     index += 1
+    #     row = [user.email]
+    #     writer.writerow(row)
+
+    # return response
