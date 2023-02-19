@@ -80,7 +80,7 @@
                     <span class="p-1 mr-1 rounded-md bg-slate-400">
                         <a class="relative pl-6" href="{{ org.get_absolute_url() }}">
                             <span class="absolute top-0.5 flex flex-col items-center w-4 h-4 left-1">
-                                <i class="fa-solid fa-lock"></i> 
+                                <i class="fa-duotone fa-lock"></i> 
                             </span>
                             {{ org.name }}
                         </a>
@@ -88,7 +88,7 @@
                 {% endfor %}
             {% elif contest.is_private %}
             <div class="inline-flex items-baseline px-2 py-0.5 mr-1 space-x-1 text-black rounded-md bg-slate-500">
-                <i class="fa-solid fa-lock"></i> 
+                <i class="fa-duotone fa-lock"></i> 
                 <span class="font-semibold text-white text-md">
                     {{ _('private') }}
                 </span>
@@ -96,7 +96,7 @@
             {% endif %}
             {% if contest.is_rated %}
                 <span class="p-1 font-semibold text-white bg-red-500 rounded-md">
-                    <i class="fa-solid fa-chart-column"></i> {{ _('rated') }}
+                    <i class="fa-duotone fa-chart-column"></i> {{ _('rated') }}
                 </span>
             {% endif %}
             {% for tag in contest.tags.all() %}

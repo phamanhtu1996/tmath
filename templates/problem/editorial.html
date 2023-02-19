@@ -33,7 +33,9 @@
                 </p>
             {% endif %}
         {% endwith %}
-        {{ solution.content|markdown(solution.markdown_style, MATH_ENGINE)|reference|str|safe }}
+        <div class="prose text-black max-w-none">
+            {{ solution.content|markdown(solution.markdown_style, MATH_ENGINE)|reference|str|safe }}
+        </div>
     </div>
     <hr>
     {% include "comments/list.html" %}

@@ -36,7 +36,7 @@
                 {% if not request.in_contest and submission.contest_object_id %}
                     <a href="{{ url('contest_view', submission.contest_object.key) }}"
                         class="submission-contest">
-                        <i title="{{ submission.contest_object.name }}" class="fa-solid fa-circle-dot"></i>
+                        <i title="{{ submission.contest_object.name }}" class="fa-duotone fa-circle-dot"></i>
                     </a>
                 {% endif %}
             </div>
@@ -54,7 +54,7 @@
             <div class="flex items-center justify-start py-1 space-x-4 lg:justify-end w-80 min-h-[1rem]" id="manage">
                 <a class="relative pl-5" href="{{ url('submission_status', submission.id) }}">
                     <span class="absolute top-0.5 left-0 flex flex-col items-center justify-center w-4 h-full text-sm">
-                        <i class="fa-solid fa-eye"></i>
+                        <i class="fa-duotone fa-eye"></i>
                     </span>
                     <div class="hidden text-base md:block">{{ _('view') }}</div>
                 </a>
@@ -62,14 +62,14 @@
                     {% if not submission.is_locked %}
                     <a class="relative pl-5" items-center href="javascript:void(0)" onclick="rejudge_submission({{ submission.id }}, event);return false">
                         <span class="absolute top-0.5 left-0 flex flex-col items-center justify-center w-4 h-full text-sm">
-                            <i class="fa-solid fa-arrows-rotate"></i>
+                            <i class="fa-duotone fa-arrows-rotate"></i>
                         </span>
                         <div class="hidden text-base md:block">{{ _('rejudge') }}</div>
                     </a>
                     {% else %}
                     <div class="relative pl-5">
                         <span class="absolute top-0.5 left-0 flex flex-col items-center justify-center w-4 h-full text-sm">
-                            <i class="text-gray-500 fa-solid fa-arrows-rotate"></i>
+                            <i class="text-gray-500 fa-duotone fa-arrows-rotate"></i>
                         </span>
                         <div class="hidden text-base md:block">{{ _('locked') }}</div>
                     </div>
@@ -78,7 +78,7 @@
                 {% if can_edit %}
                     <a class="relative pl-5" href="{{ url('admin:judge_submission_change', submission.id) }}">
                         <span class="absolute top-0.5 left-0 flex flex-col items-center justify-center w-4 h-full text-sm">
-                            <i class="fa-solid fa-gear"></i>
+                            <i class="fa-duotone fa-gear"></i>
                         </span>
                         <div class="hidden text-base md:block">{{ _('admin') }}</div>
                     </a>

@@ -226,19 +226,8 @@
                                 </td>
                             {% endif %}
                         {% endif %}
-                        <td class="">
-                            <div class="flex items-center px-2">
-                                <div class="flex-1 py-2 font-bold">
-                                    <a href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
-                                </div>
-                                {% if not request.in_contest %}
-                                <div class="hidden lg:block text-sm text-gray-400">
-                                    {% for type in problem.types.all() %}
-                                        <a href="{{ url('problem_list') }}?type={{ type.id }}" class="hover:underline cursor-pointer">{{ type }}</a>{% if not loop.last %}, {% endif %}
-                                    {% endfor %}
-                                </div> 
-                                {% endif %}
-                            </div>
+                        <td class="font-bold p-2">
+                            <a href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
                         </td>
                         {% if not request.in_contest %}
                         <td class="hidden lg:table-cell">

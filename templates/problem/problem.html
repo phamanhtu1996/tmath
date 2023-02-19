@@ -56,17 +56,17 @@
                     {% if problem.id in completed_problem_ids %}
                         <a class="text-3xl" href="{{ url('user_submissions', problem.code, request.user.username) }}">
                             {% if problem.is_public or request.in_contest %}
-                                <i class="text-green-500 fa-solid fa-check-circle"></i>
+                                <i class="text-green-500 fa-duotone fa-check-circle"></i>
                             {% else %}
-                                <i class="text-red-500 fa-solid fa-lock"></i>
+                                <i class="text-red-500 fa-duotone fa-lock"></i>
                             {% endif %}
                         </a>
                     {% elif problem.id in attempted_problems %}
                         <a class="text-3xl" href="{{ url('user_submissions', problem.code, request.user.username) }}">
                             {% if problem.is_public or request.in_contest %}
-                                <i class="text-yellow-500 fa-solid fa-minus-circle"></i>
+                                <i class="text-yellow-500 fa-duotone fa-minus-circle"></i>
                             {% else %}
-                                <i class="text-red-500 fa-solid fa-lock"></i>
+                                <i class="text-red-500 fa-duotone fa-lock"></i>
                             {% endif %}
                         </a>
                     {% endif %}
@@ -78,7 +78,7 @@
                     {% for org in problem.organizations.all() %}
                         <a class="relative p-1 pl-6 rounded-md bg-slate-400" href="{{ org.get_absolute_url() }}">
                             <span class="absolute flex items-center w-4 h-4 top-1 left-1">
-                                <i class="fa-solid fa-lock"></i> 
+                                <i class="fa-duotone fa-lock"></i> 
                             </span>
                             {{ org.name }}
                         </a>
@@ -88,7 +88,7 @@
         </div>
         {% if has_pdf_render %}
         <a href="{{ url('problem_pdf', problem.code) }}" class="flex items-center space-x-3">
-            <i class="text-3xl text-red-500 fa-solid fa-file-pdf"></i>
+            <i class="text-3xl text-red-500 fa-duotone fa-file-pdf"></i>
             <span class="text-xl font-bold">
                 {{ _('View as PDF') }}
             </span>
@@ -168,7 +168,7 @@
     <div class="flex flex-col mt-2">
         <div class="relative pl-6">
             <span class="absolute left-0 flex flex-col items-center justify-center w-4 h-4 top-1">
-                <i class="fa-solid fa-check"></i>
+                <i class="fa-duotone fa-check"></i>
             </span>
             <div class="font-semibold">
                 {{ _('Points:') }}
@@ -181,7 +181,7 @@
         </div>
         <div class="relative pl-6">
             <span class="absolute left-0 flex flex-col items-center justify-center w-4 h-4 top-1">
-                <i class="fa-solid fa-clock"></i>
+                <i class="fa-duotone fa-clock"></i>
             </span>
             <div class="font-semibold">{{ _('Time limit: ') }}{{ problem.time_limit }}s</div>
             {% if problem.language_time_limit %}
@@ -196,7 +196,7 @@
         </div>
         <div class="relative pl-6">
             <span class="absolute left-0 flex flex-col items-center justify-center w-4 h-4 top-1">
-                <i class="fa-solid fa-sd-card"></i>
+                <i class="fa-duotone fa-sd-card"></i>
             </span>
             <div class="font-semibold">{{ _('Memory limit: ') }}{{ problem.memory_limit|kbsimpleformat }}</div>
             {% if problem.language_memory_limit %}
@@ -244,7 +244,7 @@
         {% with authors=problem.authors.all() %}
             {% if authors %}
             <div class="relative flex flex-col pl-6">
-                <span class="absolute left-0 flex flex-col items-center justify-center w-4 h-4 top-1"><i class="fa-solid fa-edit"></i></span>
+                <span class="absolute left-0 flex flex-col items-center justify-center w-4 h-4 top-1"><i class="fa-duotone fa-edit"></i></span>
                 <div class="font-semibold">
                     {% trans trimmed count=authors|length %}
                         Author:
@@ -264,7 +264,7 @@
             {% with types=problem.types_list %}
             <div class="relative flex flex-col pl-6 group">
                 <span class="absolute left-0 flex flex-col items-center justify-center w-4 h-4 transition-all top-1 group-hover:rotate-90">
-                    <i class="fa-solid fa-play"></i>
+                    <i class="fa-duotone fa-play"></i>
                 </span>
                 <div class="font-semibold">
                     {% trans trimmed count=problem.types_list|length %}
@@ -282,7 +282,7 @@
         {% if show_languages %}
             <div class="relative flex flex-col pl-6">
                 <span class="absolute left-0 flex flex-col items-center justify-center w-4 h-4 rotate-90 top-1">
-                    <i class="fa-solid fa-play"></i>
+                    <i class="fa-duotone fa-play"></i>
                 </span>
                 <div class="font-semibold">
                     {{ _('Allowed languages') }}
@@ -304,7 +304,7 @@
         {% if problem.is_editable_by(request.user) %}
             <div class="relative flex flex-col pl-6">
                 <span class="absolute left-0 flex flex-col items-center justify-center w-4 h-4 top-1">
-                    <i class="fa-solid fa-database"></i>
+                    <i class="fa-duotone fa-database"></i>
                 </span>
                 <div class="font-semibold">
                     {% trans trimmed count=available_judges|length %}

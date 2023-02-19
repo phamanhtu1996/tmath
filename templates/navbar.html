@@ -28,7 +28,7 @@
     <div class="flex items-center justify-between px-1.5 lg:px-6 py-1.5 mx-auto lg:py-0 max-w-8xl">
         <a id="sidebar_button" class="flex flex-col items-center justify-center h-full lg:hidden">
             <span class="relative p-5 border border-gray-600 rounded-md">
-                <i class="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 fa-solid fa-bars"></i>
+                <i class="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 fa-duotone fa-bars"></i>
             </span>
         </a>
         <ul class="items-stretch hidden lg:flex [&>*]:px-5">
@@ -44,7 +44,7 @@
                     <a class="flex flex-col justify-center h-full" href="{{ node.path }}">
                         <span class="flex items-center space-x-2">
                             <span>{{ _(node.label) }}</span>
-                            <i class="fa-solid fa-caret-down"></i>
+                            <i class="fa-duotone fa-caret-down"></i>
                         </span>
                     </a>
                     <ul class="absolute flex-col left-0 items-stretch justify-start hidden group-hover:flex w-full bg-black [&>*]:py-2 [&>*]:px-5 [&>li:last-child]:rounded-b-md">
@@ -84,7 +84,7 @@
                                 Hello, <b>{{ username }}</b>
                             {%- endtrans %}
                         </span>
-                        <i class="fa-solid fa-caret-down"></i>
+                        <i class="fa-duotone fa-caret-down"></i>
                     </span>
                 </a> 
                 <ul class="absolute left-0 flex-col bg-gray-700/90 [&>*]:px-5 [&>*]:py-2 items-stretch justify-start hidden w-full group-hover:flex">
