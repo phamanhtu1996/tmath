@@ -129,12 +129,12 @@ class TmathDashboard(Dashboard):
             limit=20,
         ))
 
-        self.children.append(modules.Feed(
-            title=_('Latest Django News'),
-            feed_url='http://www.djangoproject.com/rss/weblog/',
-            column=3,
-            limit=20,
-        ))
+        # self.children.append(modules.Feed(
+        #     title=_('Latest Django News'),
+        #     feed_url='http://www.djangoproject.com/rss/weblog/',
+        #     column=3,
+        #     limit=20,
+        # ))
 
     # def init_with_context(self, context):
         # site_name = get_admin_site_name(context)
