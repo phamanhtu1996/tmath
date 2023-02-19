@@ -149,7 +149,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
             'fields': (
                 'code', 'name', 'is_public', 'is_manually_managed', 'date', 'authors', 'curators', 'testers',
                 'is_organization_private', 'organizations', 'submission_source_visibility_mode', 'is_full_markup',
-                'description', 'license', 'testcase_visibility_mode',
+                'public_description', 'description', 'license', 'testcase_visibility_mode',
             ),
         }),
         (_('Social Media'), {'classes': ('grp-collapse grp-open',), 'fields': ('og_image', 'summary')}),
@@ -171,7 +171,7 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         'group',
         'license',
     ]
-    list_display = ['code', 'name', 'show_authors', 'points', 'is_public', 'show_public', ]
+    list_display = ['code', 'name', 'show_authors', 'classes', 'is_public', 'show_public', ]
     ordering = ['-pk']
     search_fields = ('code', 'name', 'authors__user__username', 'curators__user__username')
     inlines = [LanguageLimitInline, ProblemClarificationInline, ProblemSolutionInline, ProblemTranslationInline]
