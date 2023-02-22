@@ -167,6 +167,7 @@ class Contest(models.Model):
                                            help_text=_('Number of digits to round points to.'))
     add_solution = models.BooleanField(_('can add solution'), default=False)
     limit_solution = models.IntegerField(_("limit solution"), default=0)
+    pre_time = models.DateTimeField(_("Pre-time"), auto_now=False, auto_now_add=False, null=True)
 
     @property
     def markdown_style(self):
@@ -192,6 +193,8 @@ class Contest(models.Model):
 
     def clean(self):
         # Django will complain if you didn't fill in start_time or end_time, so we don't have to.
+        if self.pre_time and self.start_time and self.pre_time > self.start_time:
+            raise ValidationError("What is this? A contest that started before it pre-open?")
         if self.start_time and self.end_time and self.start_time >= self.end_time:
             raise ValidationError('What is this? A contest that ended before it starts?')
         self.format_class.validate(self.format_config)
@@ -276,6 +279,8 @@ class Contest(models.Model):
 
     @cached_property
     def can_join(self):
+        if self.pre_time:
+            return self.pre_time <= self._now
         return self.start_time <= self._now
 
     @property

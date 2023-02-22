@@ -112,7 +112,7 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
         (_('Settings'), {'fields': ('is_visible', 'use_clarifications', 'hide_problem_tags', 'hide_problem_authors',
                                     'run_pretests_only', 'locked_after', 'scoreboard_visibility',
                                     'points_precision', 'add_solution', 'limit_solution')}),
-        (_('Scheduling'), {'fields': ('start_time', 'end_time', 'time_limit')}),
+        (_('Scheduling'), {'fields': ('start_time', 'end_time', 'time_limit', 'pre_time')}),
         (_('Details'), {'fields': ('is_full_markup', 'description', 'og_image', 'logo_override_image', 'tags', 'summary')}),
         (_('Format'), {'fields': ('format_name', 'format_config', 'problem_label_script')}),
         (_('Rating'), {'fields': ('is_rated', 'rate_all', 'rating_floor', 'rating_ceiling', 'rate_exclude')}),

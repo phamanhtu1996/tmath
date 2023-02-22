@@ -20,7 +20,7 @@ from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpRespon
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
-from django.utils import translation
+from django.utils import translation, timezone
 from django.utils.functional import cached_property
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
@@ -734,6 +734,10 @@ class ProblemSubmit(LoginRequiredMixin, ProblemMixin, TitleMixin, SingleObjectFo
                 raise PermissionDenied()
         else:
             self.old_submission = None
+        
+        if request.in_contest and request.participation.contest.start_time > timezone.now():
+            return generic_message(request, _('Contest not ongoing'),
+                                   _('You cannot submit now.'), status=403)
 
         return super().dispatch(request, *args, **kwargs)
 
