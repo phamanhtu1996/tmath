@@ -211,6 +211,7 @@ MIDDLEWARE = (
     'judge.social_auth.SocialAuthExceptionMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'judge.middleware.OneSessionPerUser',
 )
 
 IMPERSONATE_REQUIRE_SUPERUSER = True

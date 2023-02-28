@@ -133,16 +133,9 @@ class CustomLoginView(LoginView):
     authentication_form = CustomAuthenticationForm
     redirect_authenticated_user = True
 
-    # def form_valid(self, form):
-    #     password = form.cleaned_data['password']
-    #     validator = PwnedPasswordsValidator()
-    #     try:
-    #         validator.validate(password)
-    #     except ValidationError:
-    #         self.request.session['password_pwned'] = True
-    #     else:
-    #         self.request.session['password_pwned'] = False
-    #     return super().form_valid(form)
+    def form_valid(self, form):
+        self.request.session.set_expiry(21600)
+        return super().form_valid(form)
 
 
 class CustomPasswordChangeView(PasswordChangeView):
@@ -554,3 +547,22 @@ class CreateManyUser(TitleMixin, FormView):
             writer.writerow([username, password])
 
         return response
+    
+
+def userCSV(request):
+    response = HttpResponse(content_type='text/csv',)
+    response['Content-Disposition'] = 'attachment; filename="VOI_info.csv"'
+    response.write(u'\ufeff'.encode('utf8'))
+    writer = csv.writer(response)
+    csv_path = settings.BASE_DIR / 'user.csv'
+    prefix = 'VOI'
+    language = Language.get_default_language()
+    with open(csv_path, 'r') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        writer.writerow(['ID', 'Fullname', 'Phone', 'School'])
+        for index, row in enumerate(csv_reader):
+            if index == 0:
+                continue
+            writer.writerow([index, row[1], "'" + row[2], row[4]])
+    
+    return response

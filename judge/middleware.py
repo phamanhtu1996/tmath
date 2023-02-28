@@ -6,12 +6,32 @@ from urllib.parse import quote as urlquote
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.auth import logout
+from django.contrib.sessions.models import Session
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import Resolver404, resolve, reverse
 from django.utils.encoding import force_bytes
 from django.db import transaction
 from requests.exceptions import HTTPError
 from typeracer.models import TypoRoom
+
+
+# One session_key to one Person anytime
+class OneSessionPerUser(object):
+    def __init__(self, get_response) -> None:
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.user.is_authenticated:
+            current_session_key = request.user.logged_in_user.session_key
+
+            if current_session_key and current_session_key != request.session.session_key:
+                Session.objects.filter(session_key=current_session_key).delete()
+
+            request.user.logged_in_user.session_key = request.session.session_key
+            request.user.logged_in_user.save()
+        
+        return self.get_response(request)
 
 
 class ShortCircuitMiddleware:

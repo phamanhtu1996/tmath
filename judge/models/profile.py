@@ -10,6 +10,7 @@ import pyotp
 import webauthn
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -32,6 +33,26 @@ from judge.utils.two_factor import webauthn_decode
 from typeracer.models import TypoResult
 
 __all__ = ['Organization', 'Profile', 'OrganizationRequest', 'WebAuthnCredential']
+
+
+# class CustomSession(Session):
+#     device_id = models.CharField(_("device ID"), max_length=255, null=True, blank=True)
+
+#     class Meta:
+#         db_table = 'custom_session'
+
+
+class LoggedInUser(models.Model):
+
+    user = models.OneToOneField(User, related_name='logged_in_user', on_delete=models.CASCADE)
+    session_key = models.CharField(max_length=32, blank=True, null=True)
+
+    class Meta:
+        verbose_name = _("loggedinuser")
+        verbose_name_plural = _("loggedinusers")
+
+    def __str__(self):
+        return self.user.username
 
 
 class EncryptedNullCharField(EncryptedCharField):
