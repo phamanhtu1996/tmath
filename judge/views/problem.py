@@ -694,7 +694,11 @@ class ProblemSubmit(LoginRequiredMixin, ProblemMixin, TitleMixin, SingleObjectFo
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['langs'] = Language.objects.all()
+        if self.request.in_contest and self.request.participation.contest.is_limit_language:
+            lang = self.request.participation.contest.limit_language
+            context['langs'] = Language.objects.filter(pk=lang.pk)
+        else:
+            context['langs'] = Language.objects.all()
         context['no_judges'] = not context['form'].fields['language'].queryset
         context['submission_limit'] = self.contest_problem and self.contest_problem.max_submissions
         context['submissions_left'] = self.remaining_submission_count

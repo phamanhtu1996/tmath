@@ -169,6 +169,9 @@ class Contest(models.Model):
     limit_solution = models.IntegerField(_("limit solution"), default=0)
     pre_time = models.DateTimeField(_("Pre-time"), auto_now=False, auto_now_add=False, null=True, blank=True)
 
+    is_limit_language = models.BooleanField(_("language restriction"), default=False)
+    limit_language = models.ForeignKey("judge.Language", verbose_name=_("limit language"), on_delete=models.SET_NULL, null=True, blank=True)
+
     @property
     def markdown_style(self):
         return 'contest-full' if self.is_full_markup else 'contest'
