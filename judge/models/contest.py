@@ -167,7 +167,7 @@ class Contest(models.Model):
                                            help_text=_('Number of digits to round points to.'))
     add_solution = models.BooleanField(_('can add solution'), default=False)
     limit_solution = models.IntegerField(_("limit solution"), default=0)
-    pre_time = models.DateTimeField(_("Pre-time"), auto_now=False, auto_now_add=False, null=True)
+    pre_time = models.DateTimeField(_("Pre-time"), auto_now=False, auto_now_add=False, null=True, blank=True)
 
     @property
     def markdown_style(self):
