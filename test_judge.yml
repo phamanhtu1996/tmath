@@ -34,14 +34,14 @@ gamma:
         run -p "9999" -c /problems/gamma.yml \
         "123.30.234.95"
 
-judge:
+delta:
     docker run \
-        --name judge \
+        --name delta \
         -p "$(ip addr show dev eth1 | perl -ne 'm@inet (.*)/.*@ and print$1 and exit')":9991:9991 \
         -v /mnt/problems:/problems \
         --cap-add=SYS_PTRACE \
         -d \
         --restart=always \
-        vnoj/judge-tier1:latest \
-        run -p 9999 -c /problems/judge.yml \
+        dmoj/judge-tier1:latest \
+        run -p 9999 -c /problems/delta.yml \
         "123.30.234.95"

@@ -66,10 +66,15 @@
             {% endif %}
         </div>
         {% if contest.is_rated and contest.rating_ceiling %}
-        <div id="rate-contest" class="p-5 text-center text-red-500"> 
+        <div id="rate-contest" class="p-5 text-center text-red-500 text-lg"> 
             {% trans trimmed ceiling=contest.rating_ceiling|floatformat(0) %}
                 <h4>The contest will be rated for participants with rating lower than {{ ceiling }}</h4>
             {% endtrans %}
+        </div>
+        {% endif %}
+        {% if contest.is_limit_language %}
+        <div class="p-5 text-center text-red-500 font-bold text-lg">
+            This contest only accepts the <span class="text-black">{{ contest.limit_language.name }}</span> programming language.
         </div>
         {% endif %}
     </div>
@@ -80,7 +85,7 @@
         {% endcache %}
     </div>
 
-    {% if contest.ended or request.user.is_superuser or is_editor or is_tester %}
+    {% if contest.ended or (contest.started and contest.is_public_contest) or request.user.is_superuser or is_editor or is_tester %}
         <hr>
         <div>
             <div class="flex items-center my-3 space-x-4 text-3xl">

@@ -599,10 +599,17 @@ class ProblemSubmit(LoginRequiredMixin, ProblemMixin, TitleMixin, SingleObjectFo
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
 
-        form.fields['language'].queryset = (
-            self.object.usable_languages.order_by('name', 'key')
-            .prefetch_related(Prefetch('runtimeversion_set', RuntimeVersion.objects.order_by('priority')))
-        )
+        if self.request.in_contest and self.request.participation.contest.is_limit_language:
+            lang = self.request.participation.contest.limit_language
+            form.fields['language'].queryset = (
+                self.object.usable_languages.filter(pk=lang.pk).order_by('name', 'key')
+                .prefetch_related(Prefetch('runtimeversion_set', RuntimeVersion.objects.order_by('priority')))
+            )
+        else:
+            form.fields['language'].queryset = (
+                self.object.usable_languages.order_by('name', 'key')
+                .prefetch_related(Prefetch('runtimeversion_set', RuntimeVersion.objects.order_by('priority')))
+            )
 
         form_data = getattr(form, 'cleaned_data', form.initial)
         if 'language' in form_data:
@@ -694,11 +701,7 @@ class ProblemSubmit(LoginRequiredMixin, ProblemMixin, TitleMixin, SingleObjectFo
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.in_contest and self.request.participation.contest.is_limit_language:
-            lang = self.request.participation.contest.limit_language
-            context['langs'] = Language.objects.filter(pk=lang.pk)
-        else:
-            context['langs'] = Language.objects.all()
+        context['langs'] = Language.objects.all()
         context['no_judges'] = not context['form'].fields['language'].queryset
         context['submission_limit'] = self.contest_problem and self.contest_problem.max_submissions
         context['submissions_left'] = self.remaining_submission_count

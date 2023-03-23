@@ -172,6 +172,8 @@ class Contest(models.Model):
     is_limit_language = models.BooleanField(_("language restriction"), default=False)
     limit_language = models.ForeignKey("judge.Language", verbose_name=_("limit language"), on_delete=models.SET_NULL, null=True, blank=True)
 
+    is_public_contest = models.BooleanField(_("Public contest"), default=False)
+
     @property
     def markdown_style(self):
         return 'contest-full' if self.is_full_markup else 'contest'
@@ -305,6 +307,10 @@ class Contest(models.Model):
         return self.end_time < self._now
 
     @cached_property
+    def started(self):
+        return self.start_time < self._now
+    
+    @cached_property
     def author_ids(self):
         return Contest.authors.through.objects.filter(contest=self).values_list('profile_id', flat=True)
 
@@ -386,13 +392,18 @@ class Contest(models.Model):
                 return
             raise self.PrivateContest()
 
-    def is_accessible_by(self, user):
+    def is_joinable_by(self, user):
         try:
             self.access_check(user)
         except (self.Inaccessible, self.PrivateContest):
             return False
         else:
             return True
+        
+    def is_accessible_by(self, user):
+        if self.is_public_contest:
+            return True
+        return self.is_joinable_by(user)
 
     def is_editable_by(self, user):
         # If the user can edit all contests
@@ -408,13 +419,14 @@ class Contest(models.Model):
     @classmethod
     def get_visible_contests(cls, user):
         if not user.is_authenticated:
-            return cls.objects.filter(is_visible=True, is_organization_private=False, is_private=False) \
-                              .defer('description').distinct()
+            q = Q(is_visible=True, is_organization_private=False, is_private=False) | Q(is_visible=True, is_public_contest=True)
+            return cls.objects.filter(q).defer('description').distinct()
 
         queryset = cls.objects.defer('description')
         if not (user.has_perm('judge.see_private_contest') or user.has_perm('judge.edit_all_contest')):
             q = Q(is_visible=True)
             q &= (
+                Q(is_public_contest=True) |
                 Q(view_contest_scoreboard=user.profile) |
                 Q(is_organization_private=False, is_private=False) |
                 Q(is_organization_private=False, is_private=True, private_contestants=user.profile) |

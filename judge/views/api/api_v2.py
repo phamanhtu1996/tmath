@@ -236,7 +236,7 @@ class APIContestDetail(APIDetailView):
 
     def get_object(self, queryset=None):
         contest = super().get_object(queryset)
-        if not contest.is_accessible_by(self.request.user):
+        if not contest.is_joinable_by(self.request.user):
             raise Http404()
         return contest
 

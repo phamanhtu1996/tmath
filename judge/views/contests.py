@@ -220,7 +220,8 @@ class ContestMixin(object):
         if (profile is not None and
                 ContestParticipation.objects.filter(id=profile.current_contest_id, contest_id=contest.id).exists()):
             return contest
-
+        if contest.is_accessible_by(self.request.user):
+            return contest
         try:
             contest.access_check(self.request.user)
         except Contest.PrivateContest:

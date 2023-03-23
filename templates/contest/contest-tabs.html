@@ -29,7 +29,7 @@
 
     <li class="">
     {% if request.user.is_authenticated %}
-        {% if contest.can_join or is_editor or is_tester %}
+        {% if (contest.can_join or is_editor or is_tester) and contest.is_joinable_by(request.user) %}
             {% set in_contest = contest.is_in_contest(request.user) %}
             {% if contest.ended %}
                 {# Allow users to leave the virtual contest #}
@@ -76,7 +76,7 @@
                 {% endif %}
             {% endif %}
         {% endif %}
-    {% elif contest.can_join %}
+    {% elif contest.can_join and contest.is_joinable_by(request.user) %}
         <form action="{{ url('auth_login') }}" method="get"
               class="h-full">
             <input type="hidden" name="next" value="{{ LOGIN_RETURN_PATH|urlencode }}">

@@ -138,23 +138,23 @@
 {% endmacro %}
 
 {% macro contest_join(contest, request) %}
-    {% if not request.in_contest %}
-        <td class="text-center">
-            {% if request.profile in contest.authors.all() or request.profile in contest.curators.all() or request.profile in contest.testers.all() %}
-                <form action="{{ url('contest_join', contest.key) }}" method="post">
-                    {% csrf_token %}
-                    <input type="submit" class="px-4 py-2 font-bold text-white bg-blue-500 rounded-md cursor-pointer hover:bg-blue-600"
-                           value="{{ _('Spectate') }}">
-                </form>
-            {% else %}
-                <form action="{{ url('contest_join', contest.key) }}" method="post">
-                    {% csrf_token %}
-                    <input type="submit" class="px-4 py-2 font-bold text-white bg-blue-500 rounded-md cursor-pointer hover:bg-blue-600 join-warning"
-                           value="{{ _('Join') }}">
-                </form>
-            {% endif %}
-        </td>
+<td class="text-center">
+    {% if (not request.in_contest) and contest.is_joinable_by(request.user) %}
+        {% if request.profile in contest.authors.all() or request.profile in contest.curators.all() or request.profile in contest.testers.all() %}
+            <form action="{{ url('contest_join', contest.key) }}" method="post">
+                {% csrf_token %}
+                <input type="submit" class="px-4 py-2 font-bold text-white bg-blue-500 rounded-md cursor-pointer hover:bg-blue-600"
+                        value="{{ _('Spectate') }}">
+            </form>
+        {% else %}
+            <form action="{{ url('contest_join', contest.key) }}" method="post">
+                {% csrf_token %}
+                <input type="submit" class="px-4 py-2 font-bold text-white bg-blue-500 rounded-md cursor-pointer hover:bg-blue-600 join-warning"
+                        value="{{ _('Join') }}">
+            </form>
+        {% endif %}
     {% endif %}
+</td>
 {% endmacro %}
 
 {% block body %}

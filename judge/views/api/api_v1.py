@@ -32,7 +32,7 @@ def api_v1_contest_list(request):
 def api_v1_contest_detail(request, contest):
     contest = get_object_or_404(Contest, key=contest)
 
-    if not contest.is_accessible_by(request.user):
+    if not contest.is_joinable_by(request.user):
         raise Http404()
 
     in_contest = contest.is_in_contest(request.user)
