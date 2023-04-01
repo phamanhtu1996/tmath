@@ -10,7 +10,7 @@
             {%- endif -%}
         </div>
         {%- else -%}
-        <div class="inline ui active small loader"></div>
+        <i class="fa-duotone fa-spinner-third fa-spin fa-lg"></i>
         {%- endif -%}
         <div class="text-xs">
             <span title="{{ submission.long_status }}" class="{{ submission.result_class }}"><b>{{ submission.short_status }} | {{ submission.language.short_display_name }}</b></span>

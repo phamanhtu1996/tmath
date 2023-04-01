@@ -1,38 +1,38 @@
 alpha:
     docker run \
         --name alpha \
-        -p "$(ip addr show dev eth1 | perl -ne 'm@inet (.*)/.*@ and print$1 and exit')":9998:9998 \
+        -p 0.0.0.0:9990:9990 \
         -v /mnt/problems:/problems \
         --cap-add=SYS_PTRACE \
         -d \
         --restart=always \
         vnoj/judge-tier1:latest \
-        run -p "9999" -c /problems/alpha.yml \
-        "123.30.234.95"
+        run -p 9999 -c /problems/alpha.yml \
+        171.244.63.31
 
 beta:
     docker run \
         --name beta \
-        -p "$(ip addr show dev eth1 | perl -ne 'm@inet (.*)/.*@ and print$1 and exit')":9997:9997 \
+        -p "$(ip addr show dev eth0 | perl -ne 'm@inet (.*)/.*@ and print$1 and exit')":9997:9997 \
         -v /mnt/problems:/problems \
         --cap-add=SYS_PTRACE \
         -d \
         --restart=always \
         vnoj/judge-tier1:latest \
         run -p "9999" -c /problems/beta.yml \
-        "123.30.234.95"
+        "171.244.63.31"
 
 gamma:
     docker run \
         --name gamma \
-        -p "$(ip addr show dev eth1 | perl -ne 'm@inet (.*)/.*@ and print$1 and exit')":9996:9996 \
+        -p "$(ip addr show dev eth0 | perl -ne 'm@inet (.*)/.*@ and print$1 and exit')":9996:9996 \
         -v /mnt/problems:/problems \
         --cap-add=SYS_PTRACE \
         -d \
         --restart=always \
         vnoj/judge-tier1:latest \
         run -p "9999" -c /problems/gamma.yml \
-        "123.30.234.95"
+        "171.244.63.31"
 
 delta:
     docker run \

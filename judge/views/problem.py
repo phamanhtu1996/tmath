@@ -404,11 +404,11 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
                     queryset = queryset.filter(
                         Q(code__icontains=query) | Q(name__icontains=query) |
                         Q(translations__name__icontains=query, translations__language=self.request.LANGUAGE_CODE))
-        self.prepoint_queryset = queryset
-        if self.point_start is not None:
-            queryset = queryset.filter(points__gte=self.point_start)
-        if self.point_end is not None:
-            queryset = queryset.filter(points__lte=self.point_end)
+        # self.prepoint_queryset = queryset
+        # if self.point_start is not None:
+        #     queryset = queryset.filter(points__gte=self.point_start)
+        # if self.point_end is not None:
+        #     queryset = queryset.filter(points__lte=self.point_end)
         return queryset.distinct()
 
     def get_queryset(self):
@@ -434,32 +434,32 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         if not self.in_contest:
             context.update(self.get_sort_context())
             context['hot_problems'] = hot_problems(timedelta(days=1), settings.DMOJ_PROBLEM_HOT_PROBLEM_COUNT)
-            context['point_start'], context['point_end'], context['point_values'] = self.get_noui_slider_points()
+            # context['point_start'], context['point_end'], context['point_values'] = self.get_noui_slider_points()
         else:
             context['hot_problems'] = None
-            context['point_start'], context['point_end'], context['point_values'] = 0, 0, {}
+            # context['point_start'], context['point_end'], context['point_values'] = 0, 0, {}
             context['hide_contest_scoreboard'] = self.contest.scoreboard_visibility in \
                 (self.contest.SCOREBOARD_AFTER_CONTEST, self.contest.SCOREBOARD_AFTER_PARTICIPATION)
         return context
 
-    def get_noui_slider_points(self):
-        points = sorted(self.prepoint_queryset.values_list('points', flat=True).distinct())
-        if not points:
-            return 0, 0, {}
-        if len(points) == 1:
-            return points[0], points[0], {
-                'min': points[0] - 1,
-                'max': points[0] + 1,
-            }
+    # def get_noui_slider_points(self):
+    #     points = sorted(self.prepoint_queryset.values_list('points', flat=True).distinct())
+    #     if not points:
+    #         return 0, 0, {}
+    #     if len(points) == 1:
+    #         return points[0], points[0], {
+    #             'min': points[0] - 1,
+    #             'max': points[0] + 1,
+    #         }
 
-        start, end = points[0], points[-1]
-        if self.point_start is not None:
-            start = self.point_start
-        if self.point_end is not None:
-            end = self.point_end
-        points_map = {0.0: 'min', 1.0: 'max'}
-        size = len(points) - 1
-        return start, end, {points_map.get(i / size, '%.2f%%' % (100 * i / size,)): j for i, j in enumerate(points)}
+    #     start, end = points[0], points[-1]
+    #     if self.point_start is not None:
+    #         start = self.point_start
+    #     if self.point_end is not None:
+    #         end = self.point_end
+    #     points_map = {0.0: 'min', 1.0: 'max'}
+    #     size = len(points) - 1
+    #     return start, end, {points_map.get(i / size, '%.2f%%' % (100 * i / size,)): j for i, j in enumerate(points)}
 
     def GET_with_session(self, request, key):
         if not request.GET:
@@ -485,8 +485,8 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
                     self.selected_types = None
             except ValueError:
                 pass
-        self.point_start = safe_float_or_none(request.GET.get('point_start'))
-        self.point_end = safe_float_or_none(request.GET.get('point_end'))
+        # self.point_start = safe_float_or_none(request.GET.get('point_start'))
+        # self.point_end = safe_float_or_none(request.GET.get('point_end'))
 
     def get(self, request, *args, **kwargs):
         self.setup_problem_list(request)

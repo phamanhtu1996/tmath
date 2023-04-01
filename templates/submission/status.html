@@ -1,15 +1,21 @@
 {% extends "submission/info-base.html" %}
+{% block media %}
+    <link rel="stylesheet" href="{{ static('semantic/components/accordion.min.css') }}">
+{% endblock media %}
 {% block js_media %}
     <script type="text/javascript" src="{{ static('event.js') }}?1"></script>
     <script src="{{ static('semantic/components/accordion.min.js') }}"></script>
     <script src="{{ static('semantic/components/dropdown.min.js') }}"></script>
     <script src="{{ static('semantic/components/transition.min.js') }}"></script>
-    {% if not submission.is_graded and EVENT_LAST_MSG %}
+    {% if not submission.is_graded %}
         <script type="text/javascript">
             $(function () {
                 var blocked = false, request = false;
                 var list = $('#test-cases');
-
+                var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+                var ws_path = ws_scheme + '://' + window.location.host + '/ws/submission/{{ submission.id_secret }}/';
+                var ws = new ReconnectingWebSocket(ws_path);
+                
                 function update() {
                     if (blocked) {
                         request = true;
@@ -35,20 +41,20 @@
                         $("html, body").animate({scrollTop: $(document).height()}, 0);
                 }
 
-                event_dispatcher.on('sub_{{ submission.id_secret }}', function (message) {
-                        switch (message.type) {
-                            case 'internal-error':
-                            case 'grading-end':
-                            case 'compile-error':
-                                $('#abort-button').remove();
-                                $('#grading-label').remove();
-                            case 'test-case':
-                            case 'grading-begin':
-                            case 'processing':
-                                update();
-                        }
+                ws.onmessage = function (event) {
+                    var data = JSON.parse(event.data);
+                    switch (data['type']) {
+                        case 'internal-error':
+                        case 'grading-end':
+                        case 'compile-error':
+                            $('#abort-button').remove();
+                            $('#grading-label').remove();
+                        case 'test-case':
+                        case 'grading-begin':
+                        case 'processing':
+                            update();
                     }
-                )
+                };
             });
         </script>
     {% endif %}

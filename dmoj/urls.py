@@ -95,7 +95,12 @@ def exception(request):
     raise RuntimeError('@Xyene asked me to cause this')
 
 
-def paged_list_view(view, name):
+def paged_list_view(view, name, template=None):
+    if template is not None:
+        return include([
+            path('', view.as_view(template_name=template), name=name),
+            path('<int:page>', view.as_view(template_name=template), name=name),
+        ])
     return include([
         path('', view.as_view(), name=name),
         path('<int:page>', view.as_view(), name=name),
@@ -185,6 +190,7 @@ urlpatterns = [
 
     path('user', user.UserAboutPage.as_view(), name='user_page'),
     path('edit/profile/', user.edit_profile, name='user_edit_profile'),
+    path('edit/<int:user>', user.EditProfile.as_view(), name='edit_profile'),
     path('data/prepare/', user.UserPrepareData.as_view(), name='user_prepare_data'),
     path('data/download/', user.UserDownloadData.as_view(), name='user_download_data'),
     path('user/<str:user>', include([
@@ -212,6 +218,7 @@ urlpatterns = [
     ])),
 
     path('contests/', paged_list_view(contests.ContestList, 'contest_list')),
+    path('contests1/', paged_list_view(contests.ContestList, 'contest_new_list', 'contest/new_list.html')),
     # path('contests/create', contests.ContestAdd.as_view(), name='contest_add'),
     path('contests/<slug:year>/<slug:month>/', contests.ContestCalendar.as_view(), name='contest_calendar'),
     path('contests/tag/<slug:name>', include([

@@ -186,6 +186,7 @@ INSTALLED_APPS = (
     'martor',
     # "corsheaders",
     # 'channels',
+    'django_cleanup.apps.CleanupConfig',
 )
 
 MIDDLEWARE = (
@@ -241,7 +242,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 ROOT_URLCONF = 'dmoj.urls'
 LOGIN_REDIRECT_URL = '/user'
 WSGI_APPLICATION = 'dmoj.wsgi.application'
-# ASGI_APPLICATION = 'dmoj.asgi.application'
+ASGI_APPLICATION = 'dmoj.asgi.application'
 
 TEMPLATES = [
     {

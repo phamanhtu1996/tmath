@@ -144,6 +144,7 @@ class ProblemTranslationInline(admin.StackedInline):
 
 
 class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
+    change_form_template = 'admin/judge/problem/change_form.html'
     fieldsets = (
         (None, {
             'fields': (

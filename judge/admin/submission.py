@@ -56,7 +56,7 @@ class SubmissionResultFilter(admin.SimpleListFilter):
 
 class SubmissionTestCaseInline(admin.TabularInline):
     fields = ('case', 'batch', 'status', 'time', 'memory', 'points', 'total')
-    readonly_fields = ('case', 'batch', 'total')
+    readonly_fields = ('case', 'batch', 'total', 'status', 'time', 'memory',)
     model = SubmissionTestCase
     can_delete = False
     max_num = 0
@@ -108,7 +108,21 @@ class SubmissionSourceInline(admin.StackedInline):
 
 
 class SubmissionAdmin(admin.ModelAdmin):
-    readonly_fields = ('user', 'problem', 'date', 'judged_date')
+    change_form_template = 'admin/judge/submission/change_form.html'
+    readonly_fields = (
+        'user', 
+        'problem', 
+        'date', 
+        'judged_date',
+        'time', 
+        'memory', 
+        'points',
+        'status',
+        'result', 
+        'case_points', 
+        'case_total', 
+        'judged_on',
+    )
     fields = ('user', 'problem', 'date', 'judged_date', 'locked_after', 'time', 'memory', 'points', 'language',
               'status', 'result', 'case_points', 'case_total', 'judged_on', 'error')
     actions = ('judge', 'recalculate_score')

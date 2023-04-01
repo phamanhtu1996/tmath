@@ -1,16 +1,19 @@
 Django>3,<4
+django-cleanup
 django_compressor
 django-mptt
 django-pagedown<2
 django-registration-redux
 django-reversion
 django-social-share
-django-sortedm2m @ git+https://github.com/DMOJ/django-sortedm2m.git
+django-sortedm2m
 django-impersonate
 django-grappelli
+django-redis
 lxml
 Pygments
 social-auth-app-django
+social-auth-core==4.3.0
 pytz
 django-statici18n
 pika
@@ -38,4 +41,5 @@ django-admin-sortable2
 pandoc
 pymdown-extensions
 FeedParser
+channels
 # django-semantic-admin @ git+https://github.com/patpro28/semantic-admin.git

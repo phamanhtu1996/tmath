@@ -304,9 +304,11 @@
             var $grader_args = $('#id_problem-data-grader_args');
 
             var $tr_io_method = $io_method.parent().parent();
-            var $tr_io_input_file = $io_input_file.parent().parent();
-            var $tr_io_output_file = $io_output_file.parent().parent();
+            var $tr_io_input_file = $io_input_file.parent().parent().parent();
+            var $tr_io_output_file = $io_output_file.parent().parent().parent();
             var $tr_grader_args = $grader_args.parent().parent();
+
+            $('#id_problem-data-checker').select2();
 
             function clean_io_method() {
                 var old_args = try_parse_json($grader_args.val());
@@ -507,11 +509,21 @@
                 </tr>
                 <tr class="hidden [&>*]:p-2">
                     <th class="w-1/4">{{ data_form.io_input_file.label }}</th>
-                    <td>{{ data_form.io_input_file }}</td>
+                    <td>
+                        <div class="w-full pr-10">
+                            <input type="text" name="io_input_file" id="{{ data_form.io_input_file.id_for_label }}" 
+                            class="w-1/2 rounded-lg border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        </div>
+                    </td>
                 </tr>
                 <tr class="hidden [&>*]:p-2">
                     <th class="w-1/4">{{ data_form.io_output_file.label }}</th>
-                    <td>{{ data_form.io_output_file }}</td>
+                    <td>
+                        <div class="w-full pr-10">
+                            <input type="text" name="io_output_file" id="{{ data_form.io_output_file.id_for_label }}" 
+                            class="w-1/2 rounded-lg border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        </div>
+                    </td>
                 </tr>
                 <tr class="hidden [&>*]:p-2">
                     <th class="w-1/4">{{ data_form.grader_args.label }}</th>
