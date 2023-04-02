@@ -200,6 +200,8 @@ class Profile(models.Model):
 
     last_name = models.CharField(_("prev name"), max_length=255, null=True, default=None)
 
+    verified = models.BooleanField(_("verified"), default=False)
+
     @cached_property
     def organization(self):
         # We do this to take advantage of prefetch_related
@@ -327,7 +329,7 @@ class Profile(models.Model):
         pass
 
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if self.name != self.last_name:
+        if not self.verified and self.name != self.last_name:
             self.last_change_name = timezone.now() - datetime.timedelta(days=30) * (self.last_name is None)
             self.last_name = self.name
         return super().save(force_insert, force_update, *args, **kwargs)

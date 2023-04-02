@@ -107,6 +107,8 @@ class ContestForm(ModelForm):
 
 
 class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
+    change_form_template = 'admin/judge/contest/change_form.html'
+    change_list_template = 'admin/judge/contest/change_list.html'
     fieldsets = (
         (None, {'fields': ('key', 'name', 'authors', 'curators', 'testers')}),
         (_('Settings'), {'fields': ('is_visible', 'is_public_contest', 'use_clarifications', 'hide_problem_tags', 'hide_problem_authors',
@@ -137,7 +139,6 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
     actions_on_top = True
     actions_on_bottom = True
     form = ContestForm
-    change_list_template = 'admin/judge/contest/change_list.html'
     filter_horizontal = ['rate_exclude']
     date_hierarchy = 'start_time'
 
