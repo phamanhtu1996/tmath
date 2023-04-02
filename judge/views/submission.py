@@ -328,14 +328,10 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         check = self.access_check(request)
         if check is not None:
             return check
-        if 'language' in request.GET and request.GET.get('language'):
-            self.selected_languages = set(request.GET.get('language').split(','))
-        else:
-            self.selected_languages = None
-        if 'status' in request.GET and request.GET.get('status'):
-            self.selected_statuses = set(request.GET.get('status').split(','))
-        else:
-            self.selected_statuses = None
+        
+        self.selected_languages = set(request.GET.getlist('language'))
+        self.selected_statuses = set(request.GET.getlist('status'))
+
         if 'results' in request.GET:
             return JsonResponse(self.get_result_data())
 

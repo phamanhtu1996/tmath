@@ -186,6 +186,7 @@ INSTALLED_APPS = (
     'martor',
     # "corsheaders",
     # 'channels',
+    'django_cleanup.apps.CleanupConfig',
 )
 
 MIDDLEWARE = (
