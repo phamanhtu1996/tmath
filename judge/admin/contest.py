@@ -3,7 +3,7 @@ from django import forms
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
 from django.db import connection, transaction
-from django.db.models import Q, TextField
+from django.db.models import Q, TextField, Count
 from django.forms import ModelForm, ModelMultipleChoiceField
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -57,7 +57,9 @@ class ContestProblemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
               'rejudge_column')
     readonly_fields = ('rejudge_column',)
     sortable_field_name = 'order'
-    autocomplete_fields = ['problem', ]
+    autocomplete_fields = [
+        'problem', 
+    ]
     # form = ContestProblemInlineForm
 
     def rejudge_column(self, obj):
@@ -75,6 +77,14 @@ class ContestProblemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
                 return 0
             return extra - current
         return extra
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'problem':
+            kwargs['queryset'] = Problem.objects.annotate(case_count=Count('cases')).filter(case_count__gt=0).order_by('-pk')
+            # kwargs['queryset'] = Problem.objects.filter(is_public=True)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    
 
 
 class ContestForm(ModelForm):
