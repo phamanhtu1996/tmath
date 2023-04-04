@@ -37,6 +37,7 @@ martor @ git+https://github.com/patpro28/martor
 netaddr
 webauthn
 bleach==4.1.0
+django-admin-sortable2
 pandoc
 pymdown-extensions
 FeedParser
