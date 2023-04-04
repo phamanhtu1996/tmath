@@ -40,4 +40,5 @@ bleach==4.1.0
 pandoc
 pymdown-extensions
 FeedParser
+channels
 # django-semantic-admin @ git+https://github.com/patpro28/semantic-admin.git
