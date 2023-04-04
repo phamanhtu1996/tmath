@@ -7,8 +7,6 @@ from judge.models.profile import Profile
 from .models import ChatMessage, ChatParticipation
 from judge.models import Organization
 
-from judge import event_poster as event
-
 # Create your views here.
 
 def make_message(request): 
@@ -28,8 +26,8 @@ def make_message(request):
     message = ChatMessage(room=user.room, msg=msg, user=user)
     message.save()
     data = {'id': message.id,}
-    if event.real:
-      event.post('messages_%s' % room.id,  data)
+    # if event.real:
+    #   event.post('messages_%s' % room.id,  data)
   return JsonResponse(data)
 
 

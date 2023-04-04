@@ -1,70 +1,4 @@
 {% extends "base.html" %}
-{% block media %}
-    <style>
-        #ticket-list .fa-check-circle-o {
-            color: #00a900;
-        }
-
-        #ticket-list .fa-exclamation-circle {
-            color: darkred;
-        }
-
-        @media (min-width: 500px) {
-            #container {
-                display: flex;
-                flex-direction: row-reverse;
-            }
-
-            #container > main {
-                flex: 1;
-            }
-
-            #container > aside {
-                flex: 1;
-                max-width: 200px;
-                margin-left: 1em;
-            }
-
-            #container > aside > div {
-                position: sticky;
-                top: 60px;
-            }
-        }
-
-        .select2-selection__arrow {
-            display: none;
-        }
-
-        .select2-selection__rendered {
-            cursor: text;
-        }
-
-        .select2-results__option {
-            position: relative;
-        }
-
-        .select2-results__option--highlighted {
-            background-color: #DEDEDE !important;
-        }
-
-        li.select2-results__option--highlighted a.user-redirect {
-            display: inline-block;
-        }
-
-        a.user-redirect {
-            color: #2980b9;
-            vertical-align: middle;
-            font-size: 1.2em;
-            position: absolute;
-            right: 0.8em;
-            display: none;
-        }
-
-        a.user-redirect:hover {
-            text-shadow: 0 0 2px blue;
-        }
-    </style>
-{% endblock %}
 
 {% block js_media %}
     <script type="text/javascript">
@@ -72,24 +6,17 @@
         window.filter_own_id = {{filter_status.own_id}};
         window.filter_assignee_ids = {{filter_status.assignee_id}};
     </script>
-    <script type="text/javascript" src="{{ static('event.js') }}?1"></script>
     <script type="text/javascript">
         $(function () {
+            var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+            var ws_path = ws_scheme + '://' + window.location.host + '/ws/tickets/';
+            var ws = new WebSocket(ws_path);
+
             $('input#own').click(function () {
                 ($('<form>').attr('action', window.location.pathname + '?' + $('form#filter-form').serialize())
                     .append($('<input>').attr('type', 'hidden').attr('name', 'csrfmiddlewaretoken')
                         .attr('value', $.cookie('csrftoken')))
                     .attr('method', 'POST').appendTo($('body')).submit());
-            });
-
-            register_notify('ticket', {
-                $checkbox: $('#notification'),
-                change: function (enabled) {
-                    if (!enabled)
-                        for (key in localStorage)
-                            if (key.startsWith('ticket:open:'))
-                                delete localStorage[key];
-                }
             });
 
             function main_list_notify(id) {
@@ -143,25 +70,25 @@
             window.load_dynamic_update = function () {
                 var $assignees = $(filter_assignee_ids);
 
-                event_dispatcher.on('tickets', function (message) {
-                        console.log(message);
-                        if (filter_own_id != null && message.user != filter_own_id &&
-                            !~message.assignees.indexOf(filter_own_id))
-                            return;
-                        if (filter_user_ids.length && !~filter_user_ids.indexOf(message.user))
-                            return;
-                        if ($assignees.length && !$assignees.filter(message.assignees).length)
-                            return;
-                        switch (message.type) {
-                            case 'new-ticket':
-                                new_ticket(message);
-                                break;
-                            case 'ticket-status':
-                                ticket_status(message);
-                                break;
-                        }
+                ws.onmessage = function (event) {
+                    var data = JSON.parse(event.data);
+                    message = data.message
+                    if (filter_own_id != null && message.user != filter_own_id &&
+                        !~message.assignees.indexOf(filter_own_id))
+                        return;
+                    if (filter_user_ids.length && !~filter_user_ids.indexOf(message.user))
+                        return;
+                    if ($assignees.length && !$assignees.filter(message.assignees).length)
+                        return;
+                    switch (data.type) {
+                        case 'new-ticket':
+                            new_ticket(message);
+                            break;
+                        case 'ticket-status':
+                            ticket_status(message);
+                            break;
                     }
-                );
+                };
             };
 
             var user_select2 = {
@@ -198,13 +125,11 @@
         });
     </script>
 
-    {% if EVENT_LAST_MSG %}
-        <script type="text/javascript">
-            $(function () {
-                load_dynamic_update();
-            });
-        </script>
-    {% endif %}
+    <script type="text/javascript">
+        $(function () {
+            load_dynamic_update();
+        });
+    </script>
 {% endblock %}
 
 {% block body %}

@@ -7,7 +7,6 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.cache import cache
 from django.utils.functional import SimpleLazyObject, new_method_proxy
 
-from judge import event_poster as event
 from judge.utils.caniuse import CanIUse, SUPPORT
 from .models import MiscConfig, NavigationBar, Profile
 # from emath.models.interface import Navigation
@@ -43,18 +42,6 @@ def get_profile(request):
     if request.user.is_authenticated:
         return Profile.objects.get_or_create(user=request.user)[0]
     return None
-
-
-def comet_location(request):
-    if request.is_secure():
-        websocket = getattr(settings, 'EVENT_DAEMON_GET_SSL', settings.EVENT_DAEMON_GET)
-        poll = getattr(settings, 'EVENT_DAEMON_POLL_SSL', settings.EVENT_DAEMON_POLL)
-    else:
-        websocket = settings.EVENT_DAEMON_GET
-        poll = settings.EVENT_DAEMON_POLL
-    return {'EVENT_DAEMON_LOCATION': websocket,
-            'EVENT_DAEMON_POLL_LOCATION': poll,
-            'EVENT_LAST_MSG': event.last()}
 
 
 def __nav_tab(path):

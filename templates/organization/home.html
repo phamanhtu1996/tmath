@@ -32,7 +32,6 @@
                 }
             })
         }
-        {% if EVENT_LAST_MSG %}
         $(function () {
             var blocked = false, request = false;
 
@@ -63,7 +62,6 @@
                 update(message.id)
             })
         });
-        {% endif %}
     {% endif %}
     </script>
 {% endblock %}

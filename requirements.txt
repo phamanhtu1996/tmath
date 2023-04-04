@@ -41,4 +41,5 @@ pandoc
 pymdown-extensions
 FeedParser
 channels
+daphne
 # django-semantic-admin @ git+https://github.com/patpro28/semantic-admin.git

@@ -20,7 +20,6 @@ from django.utils.translation import gettext as _, gettext_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 
-from judge import event_poster as event
 from judge.highlight_code import highlight_code
 from judge.models import Contest, Language, Problem, ProblemTranslation, Profile, Submission, Log
 from judge.utils.infinite_paginator import InfinitePaginationMixin
@@ -329,7 +328,7 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         if check is not None:
             return check
         
-        self.selected_languages = set(request.GET.getlist('language'))
+        self.selected_languages = set(request.GET.getlist('language_code'))
         self.selected_statuses = set(request.GET.getlist('status'))
 
         if 'results' in request.GET:

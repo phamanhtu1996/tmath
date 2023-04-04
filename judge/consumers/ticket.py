@@ -1,10 +1,10 @@
 import json
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
-class SubmissionConsumer(AsyncWebsocketConsumer):
+class TicketConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
-        self.room_name = 'submissions'
-        self.room_group_name = 'submission'
+        self.room_name = 'tickets'
+        self.room_group_name = 'tickets'
 
         # Join room group
         await self.channel_layer.group_add(
@@ -28,12 +28,25 @@ class SubmissionConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(
             self.room_group_name, message
         )
+    
+    async def ticket_message(self, event):
+        await self.send_json({
+            "type": "ticket-message",
+            "message": event['message'],
+        })
+    
+    async def ticket_status(self, event):
+        await self.send_json({
+            "type": "ticket-status",
+            "message": event['message'],
+        })
 
 
-class DetailSubmission(AsyncWebsocketConsumer):
+class DetailTicketConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         id = self.scope['url_route']['kwargs']['id']
-        self.room_group_name = 'sub_%s' % id
+        # self.room_name = 'ticket'
+        self.room_group_name = 'ticket-%d' % id
 
         # Join room group
         await self.channel_layer.group_add(
@@ -57,3 +70,15 @@ class DetailSubmission(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(
             self.room_group_name, message
         )
+    
+    async def ticket_message(self, event):
+        await self.send_json({
+            "type": "ticket-message",
+            "message": event['message'],
+        })
+    
+    async def ticket_status(self, event):
+        await self.send_json({
+            "type": "ticket-status",
+            "message": event['message'],
+        })

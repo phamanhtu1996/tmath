@@ -1,8 +1,12 @@
+upstream dev-server {
+    server unix:///tmp/dev-site.sock;
+}
+
 server {
     listen       80;
-    listen [::]:80;    
+    listen [::]:80 default_server;    
 
-    client_max_body_size 1G;        
+    client_max_body_size 75M;        
    
     server_name dev.tmath.vn;
     
@@ -10,39 +14,25 @@ server {
     add_header X-Content-Type-Options nosniff;
     add_header X-XSS-Protection "1; mode=block";
 
+    access_log  /var/log/nginx/access.log;
+
     charset utf-8;
-    try_files $uri @icons;
-    error_page 502 504 /502.html;
 
-    location ~ ^/502\.html$|^/logo\.png$|^/robots\.txt$ {
-        root /home/ubuntu/dev;
-    }
-	
-    location @icons {
-        root /home/ubuntu/dev/static/icons;
-        error_page 403 = @uwsgi;
-        error_page 404 = @uwsgi;
-    }
-
-    location @uwsgi {
-        uwsgi_connect_timeout 180;
-        uwsgi_read_timeout 180;
-        uwsgi_send_timeout 180;
-        # Change this path if you did so in uwsgi.ini
-        uwsgi_pass unix:///tmp/dev-site.sock;
-        include uwsgi_params;
-        uwsgi_param SERVER_SOFTWARE nginx/$nginx_version;
-        uwsgi_ignore_client_abort on;
+    location / {
+        proxy_pass http://dev-server;
+        proxy_set_header Host $host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     location /static {
-        gzip_static on;
-        expires max;
-        root /home/ubuntu/dev/;
+        root /home/ubuntu/python/tmath/;
     }
 
     location /media {
-        root /home/ubuntu/dev/;
+        root /home/ubuntu/python/tmath/;
     }
 
 }

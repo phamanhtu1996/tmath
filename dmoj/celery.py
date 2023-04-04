@@ -1,21 +1,26 @@
 import logging
 import socket
+import os
 
 from celery import Celery
 from celery.signals import task_failure
 
 app = Celery('dmoj')
 
-from django.conf import settings  # noqa: E402, I202, django must be imported here
+# from django.conf import settings  # noqa: E402, I202, django must be imported here
 # app.config_from_object(settings, namespace='CELERY')
 
-app.conf.broker_url = settings.CELERY_BROKER_URL
-app.conf.result_backend = settings.CELERY_RESULT_BACKEND
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dmoj.settings')
 
-if hasattr(settings, 'CELERY_BROKER_URL_SECRET'):
-    app.conf.broker_url = settings.CELERY_BROKER_URL_SECRET
-if hasattr(settings, 'CELERY_RESULT_BACKEND_SECRET'):
-    app.conf.result_backend = settings.CELERY_RESULT_BACKEND_SECRET
+# settings.configure()
+
+app.conf.broker_url = 'redis://localhost:6379'
+app.conf.result_backend = 'redis://localhost:6379'
+
+# if hasattr(settings, 'CELERY_BROKER_URL_SECRET'):
+#     app.conf.broker_url = settings.CELERY_BROKER_URL_SECRET
+# if hasattr(settings, 'CELERY_RESULT_BACKEND_SECRET'):
+#     app.conf.result_backend = settings.CELERY_RESULT_BACKEND_SECRET
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()

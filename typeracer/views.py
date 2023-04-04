@@ -8,7 +8,6 @@ from .models import *
 from judge.utils.views import TitleMixin, generic_message
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from judge import event_poster as event
 from judge.models import Profile
 import datetime
 from random import randint
@@ -31,10 +30,10 @@ def updateProgress(request):
     user = request.POST.get('user')
     progress = request.POST.get('progress')
     contest = request.POST.get('contest')
-    event.post('typocontest_%s' % contest, {
-      'user': user,
-      'progress': progress,
-    })
+    # event.post('typocontest_%s' % contest, {
+    #   'user': user,
+    #   'progress': progress,
+    # })
   return JsonResponse({
     'result': 'success',
     'status': 200
@@ -68,10 +67,10 @@ def finishTypoContest(request):
     result.order = rank + 1
     result.is_finish = True
     result.save()
-    event.post('typocontestresult_%s' % contest, {
-      'user': user,
-      'ranking': get_rank(rank),
-    })
+    # event.post('typocontestresult_%s' % contest, {
+    #   'user': user,
+    #   'ranking': get_rank(rank),
+    # })
   return JsonResponse({
     'result': 'success',
     'status': 200,
@@ -179,9 +178,10 @@ class JoinRoom(LoginRequiredMixin, RoomMixin, SingleObjectMixin, View):
       return generic_message(request, 'Can\'t join room', 'Room is full', 403)
     participation = TypoResult.objects.get_or_create(user=profile, contest=contest)
     if participation[1]:
-      event.post('typopartipation_%s' % contest.id, {
-        'user': participation[0].id,
-      })
+      pass
+      # event.post('typopartipation_%s' % contest.id, {
+      #   'user': participation[0].id,
+      # })
     elif participation[0].is_finish:
       return HttpResponseRedirect(reverse('typeracer:typo_ranking', args=(contest.id, )))
     return HttpResponseRedirect(reverse('typeracer:room_detail', args=(room.id, )))

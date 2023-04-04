@@ -1,12 +1,8 @@
 {% extends "submission/info-base.html" %}
 {% block media %}
-    <link rel="stylesheet" href="{{ static('semantic/components/accordion.min.css') }}">
 {% endblock media %}
 {% block js_media %}
     <script type="text/javascript" src="{{ static('event.js') }}?1"></script>
-    <script src="{{ static('semantic/components/accordion.min.js') }}"></script>
-    <script src="{{ static('semantic/components/dropdown.min.js') }}"></script>
-    <script src="{{ static('semantic/components/transition.min.js') }}"></script>
     {% if not submission.is_graded %}
         <script type="text/javascript">
             $(function () {
@@ -14,7 +10,7 @@
                 var list = $('#test-cases');
                 var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
                 var ws_path = ws_scheme + '://' + window.location.host + '/ws/submission/{{ submission.id_secret }}/';
-                var ws = new ReconnectingWebSocket(ws_path);
+                var ws = new WebSocket(ws_path);
                 
                 function update() {
                     if (blocked) {

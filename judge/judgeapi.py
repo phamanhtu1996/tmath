@@ -10,18 +10,17 @@ from django.utils import timezone
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-from judge import event_poster as event
-
 logger = logging.getLogger('judge.judgeapi')
 size_pack = struct.Struct('!I')
 
+channel_layer = get_channel_layer()
 
 def _post_update_submission(submission, done=False):
     if submission.problem.is_public:
-        async_to_sync(get_channel_layer().group_send)(
+        async_to_sync(channel_layer.group_send)(
             'submissions', 
             {
-                'type': 'done-submission' if done else 'update-submission',
+                'type': 'done.submission' if done else 'update.submission',
                 'message': {
                     'id': submission.id,
                     'contest': submission.contest_key,
@@ -32,11 +31,6 @@ def _post_update_submission(submission, done=False):
                 }
             }
         )
-        # event.post('submissions', {'type': 'done-submission' if done else 'update-submission',
-        #                            'id': submission.id,
-        #                            'contest': submission.contest_key,
-        #                            'user': submission.user_id, 'problem': submission.problem_id,
-        #                            'status': submission.status, 'language': submission.language.key})
 
 
 def judge_request(packet, reply=True):
@@ -132,12 +126,11 @@ def abort_submission(submission):
     # and returns a bad-request, the submission is not falsely shown as "Aborted" when it will still be judged.
     if not response.get('judge-aborted', True):
         Submission.objects.filter(id=submission.id).update(status='AB', result='AB', points=0)
-        async_to_sync(get_channel_layer().group_send)(
+        async_to_sync(channel_layer.group_send)(
             'sub_%s' % Submission.get_id_secret(submission.id),
             {
-                'type': 'aborted-submission',
+                'type': 'aborted.submission',
                 'message': 'Aborted'
             }
         )
-        # event.post('sub_%s' % Submission.get_id_secret(submission.id), {'type': 'aborted-submission'})
         _post_update_submission(submission, done=True)
