@@ -3,7 +3,9 @@
     {% if profile.name and not noname %}{{ profile.name }} {% else %}{{ user.username }}{% endif %}
     </a>
     {% if profile.verified %}
-    <i class="fa-solid fa-shield-check fa-lg text-blue-500" title="{{ _('Verified') }}"></i>
+    <div class="flex flex-col items-center justify-center h-full">
+        <i class="fa-solid fa-circle-check text-blue-500" title="{{ _('Verified') }}"></i>
+    </div>
     {% endif %}
 </span>
     
