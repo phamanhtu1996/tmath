@@ -10,7 +10,7 @@
     {% if meta_description %}
         <meta name="description" content="{{ meta_description }}">
     {% endif %}
-    <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1">
+    <meta id="viewport" name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
     <!-- Favicons-->
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
@@ -63,28 +63,6 @@
     <link rel="stylesheet" href="{{ static('navbar.css') }}">
     <link rel="canonical"
           href="{{ DMOJ_SCHEME }}://{{ DMOJ_CANONICAL|default(site.domain) }}{{ request.get_full_path() }}">
-    <style>
-        html {
-            font-size: 14px;
-        }
-        table *, table :after, table :before, nav *, nav :after, nav :before {
-            -webkit-box-sizing: unset !important;
-            box-sizing: unset !important;
-        }
-        body ::-webkit-scrollbar-thumb {
-            cursor: unset !important;
-        }
-        .comment pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            margin: 1.5em 0 1.5em 0;
-            padding: 1em;
-            border: 1px solid #ccc;
-            background-color: #f8f8f8;
-            color: black;
-            border-radius: 4px;
-        }
-    </style>
     {% if request.user.is_impersonate %}
         <style>
             #nav-container {
@@ -317,7 +295,7 @@
             <div id="noscript">{{ _('This site works best with JavaScript enabled.') }}</div>
         </noscript>
         <br>
-        <main class="flex flex-col flex-1 w-11/12 mx-auto mt-12 mb-auto">
+        <main class="flex flex-col flex-1 w-auto md:w-11/12 md:mx-auto mx-4 mt-12 mb-auto">
             <div class="flex items-center">
                 {% block title_row %}
                     <div class="flex-1 text-3xl font-bold text-black">
@@ -341,29 +319,20 @@
         {% block bodyend %}{% endblock %}
     </div>
 </div>
-<div class="w-full py-10 bg-slate-700 ">
-    <div class="max-w-4xl mx-auto ">
-        <div class="flex items-center justify-center space-x-4">
-            <div class="flex items-baseline">
-                <p style="height: 100%">
-                <a style="color: #808080;" href="https://dmoj.ca">proudly powered by <b>DMOJ</b></a>
-                {% if i18n_config.footer %}
-                    {{ i18n_config.footer|safe }} |
-                {% endif %}
-                </p>
-            </div>
-            <form action="{{ url('set_language') }}" method="post" id="set_language">
-                {% csrf_token %}
-                <select name="language" id="language" onchange="this.form.submit()" class="block w-full p-2 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    {% for language in language_info_list(LANGUAGES) %}
-                    <option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %}selected{% endif %}>
-                        {{ language.name_local }} ({{ language.code }})
-                    </option>
-                    {% endfor %}
-                </select>
-                <input name="next" type="hidden" value="{{ request.get_full_path() }}">
-            </form>
-        </div>
+<form action="{{ url('set_language') }}" method="post" id="set_language">
+    {% csrf_token %}
+    <select name="language" id="language" onchange="this.form.submit()" class="hidden">
+        {% for language in language_info_list(LANGUAGES) %}
+        <option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %}selected{% endif %}>
+            {{ language.name_local }} ({{ language.code }})
+        </option>
+        {% endfor %}
+    </select>
+    <input name="next" type="hidden" value="{{ request.get_full_path() }}">
+</form>
+<div class="w-full py-4 bg-slate-700 ">
+    <div class="max-w-4xl mx-auto flex items-center justify-center">
+        <a class="text-indigo-500" href="https://dmoj.ca">proudly powered by <b>DMOJ</b></a>
     </div>
 </div>
 </body>

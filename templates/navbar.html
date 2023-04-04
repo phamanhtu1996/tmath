@@ -3,18 +3,18 @@
     {% for node in mptt_tree(nav_bar) recursive %}
         {% if not node.is_admin or request.user.is_staff or request.user.is_superuser %}
             {% if not node.is_leaf_node() %}
-            <li class="relative font-bold uppercase">
-                <a class="flex flex-col justify-center h-full" href="{{ node.path }}">
+            <li class="relative font-bold uppercase ">
+                <a class="flex flex-col justify-center h-full {% if node.key in nav_tab %} bg-blue-600 text-white {% else %} hover:!bg-gray-200/25 {% endif %}" href="{{ node.path }}">
                     {{ _(node.label) }}
                 </a>
-                <ul class="flex flex-col items-stretch justify-start pl-2 [&>*]:py-0.5 text-sm text-gray-500 w-full bg-black [&>li:nth-last-child(1)]:rounded-b-md">
+                <ul class="flex flex-col items-stretch justify-start pl-2 [&>*]:py-0.5 text-sm text-gray-500 w-full bg-black [&>li:nth-last-child(1)]:rounded-b-lg">
                     {% with children=node.get_children() %}
                         {{ loop(children) }}
                     {% endwith %}
                 </ul>
             </li>
             {% else %}
-            <li class="font-bold uppercase header"> 
+            <li class="font-bold uppercase header {% if node.key in nav_tab %} text-white bg-blue-600 {% else %} hover:!bg-gray-200/25 {% endif %}"> 
                 <a class="flex flex-col justify-center h-full" href="{{ node.path }}">
                     {{ _(node.label) }}
                 </a>
@@ -31,8 +31,8 @@
                 <i class="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 fa-duotone fa-bars"></i>
             </span>
         </a>
-        <ul class="items-stretch hidden lg:flex [&>*]:px-5">
-            <li class="flex flex-col justify-center min-h-full">
+        <ul class="items-stretch hidden lg:flex [&>*]:px-3">
+            <li class="flex flex-col justify-center min-h-full !px-5">
                 <a class="" href="/">
                     {% include 'site-logo-fragment.html' %}
                 </a>
@@ -40,22 +40,22 @@
             {% for node in mptt_tree(nav_bar) recursive %}
             {% if not node.is_admin or request.user.is_staff or request.user.is_superuser %}
                 {% if not node.is_leaf_node() %}
-                <li class="relative font-bold text-white uppercase group  {% if node.key in nav_tab %} bg-blue-600 rounded-md {% else %} hover:!bg-gray-200/25 {% endif %}">
-                    <a class="flex flex-col justify-center h-full" href="{{ node.path }}">
+                <li class="relative font-semibold py-4 text-white uppercase group rounded-lg {% if node.key in nav_tab %} bg-blue-600 {% else %} hover:!bg-gray-200/25 {% endif %}">
+                    <a class="flex flex-col justify-center whitespace-nowrap h-full rounded-lg" href="{{ node.path }}">
                         <span class="flex items-center space-x-2">
                             <span>{{ _(node.label) }}</span>
                             <i class="fa-duotone fa-caret-down"></i>
                         </span>
                     </a>
-                    <ul class="absolute flex-col left-0 items-stretch justify-start hidden group-hover:flex w-full bg-black [&>*]:py-2 [&>*]:px-5 [&>li:last-child]:rounded-b-md">
+                    <ul class="absolute flex-col left-0 items-stretch justify-start hidden group-hover:flex w-full bg-black [&>*]:py-2 [&>*]:px-2 [&>li:last-child]:rounded-b-lg">
                         {% with children=node.get_children() %}
                             {{ loop(children) }}
                         {% endwith %}
                     </ul>
                 </li>
                 {% else %}
-                <li class="font-bold  group text-white uppercase  {% if node.key in nav_tab %} bg-blue-600 rounded-md {% else %} hover:!bg-gray-200/25 {% endif %} header"> 
-                    <a class="flex flex-col justify-center h-full {% if node.key in nav_tab %} group-hover:text-black {% endif %}" href="{{ node.path }}">
+                <li class="font-semibold py-4 group text-white uppercase rounded-lg  {% if node.key in nav_tab %} bg-blue-600 {% else %} hover:!bg-gray-200/25 {% endif %} header"> 
+                    <a class="flex flex-col whitespace-nowrap justify-center h-full rounded-lg {% if node.key in nav_tab %} group-hover:text-black {% endif %}" href="{{ node.path }}">
                         {{ _(node.label) }}
                     </a>
                 </li>
@@ -109,10 +109,10 @@
             </li>
             {% else %}
             <li class="!ml-4">
-                <a href="{{ url('auth_login') }}?next={{ LOGIN_RETURN_PATH|urlencode }}" class="font-bold text-white"> {{ _('Login') }}</a>
+                <a href="{{ url('auth_login') }}?next={{ LOGIN_RETURN_PATH|urlencode }}" class="font-bold whitespace-nowrap text-white"> {{ _('Login') }}</a>
             </li>
             <li class="!ml-4">
-                <a href="{{ url('registration_register') }}" class="font-bold text-white">{{ _('Sign up') }}</a>
+                <a href="{{ url('registration_register') }}" class="font-bold whitespace-nowrap text-white">{{ _('Sign up') }}</a>
             </li>
             {% endif %}
         </ul>
