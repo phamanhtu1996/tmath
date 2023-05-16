@@ -1,6 +1,8 @@
+@import './select2-custom.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 :root {
   --newbie: theme('colors.gray.500');
@@ -11,6 +13,27 @@
   --grandmaster: theme('colors.red.500');
   --target: theme('colors.red.500');
 }
+
+@layer components {
+  .btn-default {
+    background-image: linear-gradient(to right, #25aae1, #4481eb, #04befe, #3f86ed);
+    box-shadow: 0 4px 15px 0 rgba(65, 132, 234, 0.75);
+    background-size: 300% 100%;
+  }
+  
+  .btn-purple-red {
+    background-size: 300% 100%;
+    background-image: linear-gradient(to right, #6253e1, #852D91, #A3A1FF, #F24645);
+    box-shadow: 0 4px 15px 0 rgba(126, 52, 161, 0.75);
+  }
+
+  .btn-light-red {
+    background-size: 300% 100%;
+    background-image: linear-gradient(to right, #ed6ea0, #ec8c69, #f7186a , #FBB03B);
+    box-shadow: 0 4px 15px 0 rgba(236, 116, 149, 0.75);
+  }
+}
+
 
 .bg-gray-500 {
   --tw-bg-opacity: 1;
@@ -42,8 +65,12 @@
   padding-bottom: 0.25rem/* 4px */;
 }
 
+.content_title {
+  @apply text-blue-500 cursor-pointer hover:text-blue-600
+}
+
 .atcoder_format {
-  @apply border-l min-w-[5rem] w-24 py-1 text-center bg-white 
+  @apply border-l min-w-[5rem] w-24 py-1 text-center bg-white
 }
 
 .default_format {
@@ -60,40 +87,6 @@
 
 .ioi_format {
   @apply border-l min-w-[5rem] w-24 py-1 text-center bg-white
-}
-
-.prose .table {
-  @apply table-fixed
-}
-
-.prose .table thead th:nth-child(1) {
-  @apply !rounded-tl-none
-}
-
-.prose .table thead th:nth-last-child(1) {
-  @apply !rounded-tr-none
-}
-
-.prose img.emojione {
-  @apply inline-flex h-5 align-text-top my-0
-}
-
-.tabs {
-  @apply border-b flex w-full mb-2
-}
-
-.tabs > ul {
-  @apply m-0 p-0 flex overflow-x-auto overflow-y-hidden list-outside
-}
-
-.tabs > ul > li {
-  @apply -mb-px relative block
-}
-.tabs > ul > li > a {
-  @apply mr-0.5 leading-5 rounded-t-md relative block px-4 py-3 whitespace-nowrap text-gray-700
-}
-.tabs > ul > li.active > a {
-  @apply text-black cursor-default bg-white border border-red-50 border-b-transparent border-t-[3px] border-t-blue-500
 }
 
 .solved-problem-color {
@@ -115,12 +108,6 @@
 .bottom-pagination-bar {
   @apply mt-3
 }
-
-#content-body {
-  @apply pb-16
-}
-
-/* Rating */
 
 .rating {
   @apply font-bold
@@ -156,94 +143,6 @@
 
 .rate-box {
   @apply w-5 
-}
-
-.rate-box.rate-none {
-  @apply invisible
-}
-
-.rate-box circle {
-  fill: none;
-  @apply stroke-2
-}
-
-.rate-box.rate-newbie circle {
-  stroke: var(--newbie);
-}
-.rate-box.rate-amateur circle {
-  stroke: var(--amateur);
-}
-.rate-box.rate-expert circle {
-  stroke: var(--expert);
-}
-.rate-box.rate-candidate-master circle {
-  stroke: var(--candidate-master);
-}
-.rate-box.rate-master circle {
-  stroke: var(--master);
-}
-.rate-box.rate-grandmaster circle {
-  stroke: var(--grandmaster);
-}
-.rate-box.rate-target circle {
-  stroke: var(--target);
-}
-.rate-box.rate-newbie path {
-  fill: var(--newbie);
-}
-.rate-box.rate-amateur path {
-  fill: var(--amateur);
-}
-.rate-box.rate-expert path {
-  fill: var(--expert);
-}
-.rate-box.rate-candidate-master path {
-  fill: var(--candidate-master);
-}
-.rate-box.rate-master path {
-  fill: var(--master);
-}
-.rate-box.rate-grandmaster path {
-  fill: var(--grandmaster);
-}
-.rate-box.rate-target path {
-  fill: var(--target);
-}
-
-.sidebox {
-  @apply px-1.5 pb-6 !important
-}
-
-.btn-clipboard {
-  @apply absolute top-0 right-0
-}
-
-.scrollbar::-webkit-scrollbar { 
-  @apply w-2.5 h-2.5
-}
-
-.scrollbar::-webkit-scrollbar-track {
-  @apply rounded-full bg-gray-500
-}
-
-.scrollbar::-webkit-scrollbar-thumb {
-  @apply rounded-full m-px bg-gray-700
-}
-
-.scrollbar::-webkit-scrollbar-thumb:hover {
-  @apply bg-indigo-500
-}
-
-.correct {
-  @apply text-green-500
-}
-
-.incorrect {
-  @apply underline text-red-500
-}
-
-input.incorrect {
-  @apply bg-red-500 text-white
 }
 
 /* Result */
@@ -302,4 +201,202 @@ input.incorrect {
 
 .activity-4 {
   @apply bg-[#216e39]
+}
+
+
+.prose .table {
+  @apply table-fixed
+}
+
+.prose .table thead th:nth-child(1) {
+  @apply !rounded-tl-none
+}
+
+.prose .table thead th:nth-last-child(1) {
+  @apply !rounded-tr-none
+}
+
+.prose img.emojione {
+  @apply inline-flex h-5 align-text-top my-0
+}
+
+.tabs {
+  @apply border-b flex w-full mb-2
+}
+
+.tabs > ul {
+  @apply m-0 p-0 flex overflow-x-auto overflow-y-hidden list-outside
+}
+
+.tabs > ul > li {
+  @apply -mb-px relative block
+}
+.tabs > ul > li > a {
+  @apply mr-0.5 leading-5 rounded-t-md relative block px-4 py-3 whitespace-nowrap text-gray-700
+}
+.tabs > ul > li.active > a {
+  @apply text-black cursor-default bg-white border border-red-50 border-b-transparent border-t-[3px] border-t-blue-500
+}
+
+
+
+#content-body {
+  @apply pb-16
+}
+
+/* Rating */
+
+
+.rate-box.rate-none {
+  @apply invisible
+}
+
+.rate-box circle {
+  fill: none;
+  @apply stroke-2
+}
+
+.rate-box.rate-newbie circle {
+  stroke: var(--newbie);
+}
+.rate-box.rate-amateur circle {
+  stroke: var(--amateur);
+}
+.rate-box.rate-expert circle {
+  stroke: var(--expert);
+}
+.rate-box.rate-candidate-master circle {
+  stroke: var(--candidate-master);
+}
+.rate-box.rate-master circle {
+  stroke: var(--master);
+}
+.rate-box.rate-grandmaster circle {
+  stroke: var(--grandmaster);
+}
+.rate-box.rate-target circle {
+  stroke: var(--target);
+}
+.rate-box.rate-newbie path {
+  fill: var(--newbie);
+}
+.rate-box.rate-amateur path {
+  fill: var(--amateur);
+}
+.rate-box.rate-expert path {
+  fill: var(--expert);
+}
+.rate-box.rate-candidate-master path {
+  fill: var(--candidate-master);
+}
+.rate-box.rate-master path {
+  fill: var(--master);
+}
+.rate-box.rate-grandmaster path {
+  fill: var(--grandmaster);
+}
+.rate-box.rate-target path {
+  fill: var(--target);
+}
+
+.sidebox {
+  @apply mb-6 !important
+}
+
+.btn-clipboard {
+  @apply absolute top-0 right-0
+}
+
+.scrollbar::-webkit-scrollbar { 
+  @apply w-2.5 h-2.5
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  @apply rounded-full bg-gray-500
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  @apply rounded-full m-px bg-gray-700
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-indigo-500
+}
+
+.correct {
+  @apply text-green-500
+}
+
+.incorrect {
+  @apply underline text-red-500
+}
+
+input.incorrect {
+  @apply bg-red-500 text-white
+}
+
+.prose details.note {
+  @apply block rounded-xl border-2 border-blue-600 px-3 [&>*:last-child]:mb-4 [&>*:nth-child(2)]:mt-3
+}
+
+.prose details.note summary {
+  @apply -mx-3 rounded-lg bg-blue-300 p-3 text-lg font-bold text-black marker:content-none focus:outline-none cursor-pointer
+}
+
+.prose details[open].note summary {
+  @apply rounded-b-none bg-blue-600 text-white
+} 
+
+.prose details.success {
+  @apply block rounded-xl border-2 border-green-600 px-3 [&>*:last-child]:mb-4 [&>*:nth-child(2)]:mt-3;
+}
+
+.prose details.success summary {
+  @apply p-3 -mx-3 text-lg font-bold text-black rounded-lg cursor-pointer bg-lime-300 marker:content-none focus:outline-none;
+}
+
+.prose details[open].success summary {
+  @apply text-white bg-green-600 rounded-b-none;
+}
+
+details summary:focus {
+  @apply outline-none;
+}
+
+details summary {
+  @apply flex justify-between;
+}
+
+details summary::-webkit-details-marker {
+  @apply hidden;
+}
+
+/* Attach the "no-details" class to details tags
+   in browsers that do not support them to get
+   open/show functionality. */
+details.no-details:not([open]) > * {
+  @apply hidden;
+}
+
+details.no-details:not([open]) summary {
+  @apply block;
+}
+
+details.success>summary {
+  border-color: #52fa7c;
+  color: #52fa7c;
+  @apply bg-[#111217] ;
+}
+
+details>summary::after {
+  content: '\f054';
+  @apply transition-all duration-300 ease-in-out font-awesome;
+}
+
+details[open]>summary::after {
+  @apply rotate-90;
+}
+
+details[open]>summary {
+  @apply text-white bg-black;
 }
