@@ -103,7 +103,7 @@
                     {{ _('News') }} 
                 </div>
                 <div class="">
-                    <i class="fa-solid fa-terminal"></i>
+                    <i class="fa-duotone fa-terminal"></i>
                 </div>
             </div>
             <div class="flex flex-col gap-6 mt-4">
@@ -121,7 +121,7 @@
                                 {{ relative_time(post.publish_on, abs=_('posted on {time}'), rel=_('posted {time}')) -}}
                                 <span class="comment-data">
                                     <a href="{{ url('blog_post', post.id, post.slug) }}#comments" class="comment-count-link">
-                                        <i class="fa-solid fa-comments"></i>
+                                        <i class="fa-duotone fa-comments"></i>
                                         <span class="comment-count">
                                             {{- post_comment_counts[post.id] or 0 -}}
                                         </span>
@@ -150,7 +150,7 @@
                             {{ _('Clarifications') }}
                         </div>
                         <div class="">
-                            <i class="fa-solid fa-circle-question"></i>
+                            <i class="fa-duotone fa-circle-question"></i>
                         </div>
                     </div>
                     <div class="border border-black rounded-b-md">
@@ -185,14 +185,20 @@
                             {{ _('Ongoing contests') }}
                         </div>
                         <div class="">
-                            <i class="fa-solid fa-trophy"></i>
+                            <i class="fa-duotone fa-trophy"></i>
                         </div>
                     </div>
                     <div class="px-2 overflow-y-auto border border-black rounded-b-md sidebox-ongoing-contest max-h-96 scrollbar">
                         {% for contest in current_contests %}
                             <div class="py-5 text-center border-b border-red-50">
                                 <div class="text-xl font-semibold">
-                                    <a href="{{ url('contest_view', contest.key) }}">{{ contest.name }}</a>
+                                    <a href="{{ url('contest_view', contest.key) }}">
+                                        {% if contest.is_joinable_by(request.user) %}
+                                            {{- contest.full_name -}}
+                                        {% else %}
+                                            {{- contest.name -}}
+                                        {% endif %}
+                                    </a>
                                 </div>
                                 <div class="text-gray-500 time">
                                     {{ _('Ends in %(countdown)s.', countdown=contest.time_before_end|as_countdown) }}
@@ -210,14 +216,20 @@
                             {{ _('Upcomming contests') }}
                         </div>
                         <div class="">
-                            <i class="fa-solid fa-trophy"></i>
+                            <i class="fa-duotone fa-trophy"></i>
                         </div>
                     </div>
                     <div class="px-2 overflow-y-auto border border-black rounded-b-md max-h-96 scrollbar">
                         {% for contest in future_contests %}
                             <div class="py-5 text-center border-b border-red-50">
                                 <div class="text-xl font-semibold">
-                                    <a href="{{ url('contest_view', contest.key) }}">{{ contest.name }}</a>
+                                    <a href="{{ url('contest_view', contest.key) }}">
+                                        {% if contest.is_joinable_by(request.user) %}
+                                            {{- contest.full_name -}}
+                                        {% else %}
+                                            {{- contest.name -}}
+                                        {% endif %}
+                                    </a>
                                 </div>
                                 <div class="text-gray-500 time">
                                     {{ _('Starting in %(countdown)s.', countdown=contest.time_before_start|as_countdown) }}
@@ -234,14 +246,14 @@
                         {{ _('Comment stream') }}
                     </div>
                     <div class="">
-                        <i class="fa-solid fa-comments"></i>
+                        <i class="fa-duotone fa-comments"></i>
                     </div>
                 </div>
                 <div class="p-2 border border-black rounded-b-md">
                     <div class="flex flex-col divide-y">
                         {% for comment in comments %}
                             <div class="flex items-center gap-2">
-                                <img class="w-10 h-10" src="{{ gravatar(comment.author.user, 80)}}" alt="{{ comment.author.user.username }}">
+                                <img loading="lazy" class="w-10 h-10" src="{{ gravatar(comment.author.user, 80)}}" alt="{{ comment.author.user.username }}">
                                 <div class="flex flex-col flex-1">
                                     <a class="w-full font-semibold line-clamp-1" href="{{ comment.link }}#comment-{{ comment.id }}" >
                                         {{ comment.page_title }}
@@ -266,7 +278,7 @@
                         {{ _('New problems') }}
                     </div>
                     <div class="">
-                        <i class="fa-solid fa-puzzle-piece"></i>
+                        <i class="fa-duotone fa-puzzle-piece"></i>
                     </div>
                 </div>
                 <div class="p-2 border border-black rounded-b-md">
@@ -289,7 +301,7 @@
                             {{ _('My open tickets') }}
                         </div>
                         <div class="">
-                            <i class="fa-solid fa-circle-question"></i>
+                            <i class="fa-duotone fa-circle-question"></i>
                         </div>
                     </div>
                     <div class="p-2 border border-black rounded-b-md">
@@ -317,7 +329,7 @@
                             {{ _('New tickets') }}
                         </div>
                         <div class="">
-                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <i class="fa-duotone fa-circle-exclamation"></i>
                         </div>
                     </div>
                     <div class="p-2 border border-black rounded-b-md">

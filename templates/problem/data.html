@@ -304,9 +304,11 @@
             var $grader_args = $('#id_problem-data-grader_args');
 
             var $tr_io_method = $io_method.parent().parent();
-            var $tr_io_input_file = $io_input_file.parent().parent();
-            var $tr_io_output_file = $io_output_file.parent().parent();
+            var $tr_io_input_file = $io_input_file.parent().parent().parent();
+            var $tr_io_output_file = $io_output_file.parent().parent().parent();
             var $tr_grader_args = $grader_args.parent().parent();
+
+            $('#id_problem-data-checker').select2();
 
             function clean_io_method() {
                 var old_args = try_parse_json($grader_args.val());
@@ -507,11 +509,21 @@
                 </tr>
                 <tr class="hidden [&>*]:p-2">
                     <th class="w-1/4">{{ data_form.io_input_file.label }}</th>
-                    <td>{{ data_form.io_input_file }}</td>
+                    <td>
+                        <div class="w-full pr-10">
+                            <input type="text" name="io_input_file" id="{{ data_form.io_input_file.id_for_label }}" 
+                            class="w-1/2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        </div>
+                    </td>
                 </tr>
                 <tr class="hidden [&>*]:p-2">
                     <th class="w-1/4">{{ data_form.io_output_file.label }}</th>
-                    <td>{{ data_form.io_output_file }}</td>
+                    <td>
+                        <div class="w-full pr-10">
+                            <input type="text" name="io_output_file" id="{{ data_form.io_output_file.id_for_label }}" 
+                            class="w-1/2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        </div>
+                    </td>
                 </tr>
                 <tr class="hidden [&>*]:p-2">
                     <th class="w-1/4">{{ data_form.grader_args.label }}</th>
@@ -534,12 +546,14 @@
                     <td class="border">{{ _('Type') }}</td>
                     <td class="border">{{ _('Input file') }}</td>
                     <td class="border">{{ _('Output file') }}</td>
-                    <td class="border">{{ _('Points') }}</td>
-                    <td class="border">{{ _('Pretest?') }}</td>
+                    <td class="w-1/12 border">{{ _('Points') }}</td>
+                    <td class="w-1/12 border">{{ _('Pretest?') }}</td>
                     <td class="hidden border checker">{{ _('Checker')}}</td>
-                    <td class="flex items-center justify-center gap-3 p-2 border">
-                        {{ _('Delete?') }}
-                        <input type="checkbox" name="delete_all" id="delete_all" />
+                    <td class="w-1/6 border">
+                        <div class="flex items-center justify-center gap-3">
+                            <span>{{ _('Delete?') }}</span>
+                            <input class="rounded-md ring" type="checkbox" name="delete_all" id="delete_all" />
+                        </div>
                     </td>
                 </tr>
             </thead>
@@ -571,8 +585,10 @@
                             {{ form.output_file.errors }}{{ form.output_file }}
                         </td>
                         <td>
-                            {{ form.points.errors }}
-                            {{ form.points }}
+                            <div class="">
+                                {{ form.points.errors }}
+                                {{ form.points }}
+                            </div>
                         </td>
                         <td>{{ form.is_pretest.errors }}{{ form.is_pretest }}</td>
                         <td class="checker">
@@ -587,7 +603,7 @@
         </table>
         <div class="mt-4">
             <input type="submit" value="{{ _('Submit!') }}" class="px-4 py-2 text-white bg-blue-500 rounded-md hover:text-blue-600">
-            <a id="add-case-row" class="font-semibold text-blue-500" href="javascript:void(0)"><i class="fa-solid fa-plus"></i> {{ _('Add new case') }}</a>
+            <a id="add-case-row" class="font-semibold text-blue-500" href="javascript:void(0)"><i class="fa-duotone fa-plus"></i> {{ _('Add new case') }}</a>
         </div>
     </form>
 {% endblock %}

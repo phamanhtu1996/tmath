@@ -26,7 +26,7 @@
                     {% if model.admin_url %}<a class="flex-1 font-bold hover:text-indigo-500" href="{{ model.admin_url }}">{{ model.name }}</a>{% else %}<span class="flex-1 font-bold">{{ model.name }}</span>{% endif %}
                     {% if model.perms.add %}
                         <ul class="grp-actions">
-                            {% if model.perms.add %}<li class="grp-icon grp-add-link"><a class="group hover:text-indigo-500" href="{{ model.add_url }}" title="{% trans 'Add' %}"><i class="fa-solid fa-circle-plus group-hover:scale-125"></i></a></li>{% endif %}
+                            {% if model.perms.add %}<li class="grp-icon grp-add-link"><a class="group hover:text-indigo-500" href="{{ model.add_url }}" title="{% trans 'Add' %}"><i class="fa-duotone fa-circle-plus group-hover:scale-125"></i></a></li>{% endif %}
                         </ul>
                     {% endif %}
                 </div>

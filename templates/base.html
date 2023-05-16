@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
 <head>
+    <link rel="preload" href="{{ static('full_style.css') }}" as="style">
+    <link rel="preload" href="{{ static('libs/jquery-3.6.0.min.js') }}" as="script">
     <title>{% block title %}{{ title }} - {{ SITE_LONG_NAME }}{% endblock %}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     {% if misc_config.meta_keywords %}
@@ -29,7 +31,7 @@
     <meta name="msapplication-TileImage" content="/mstile-144x144.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Mono:wght@500&family=Inter:wght@400;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
     {# Chrome 39 for Android colour #}
     <meta name="theme-color" content="#FFBB33">
     {% if og_image %}
@@ -50,18 +52,16 @@
     {% if not INLINE_FONTAWESOME %}
         <link rel="stylesheet" href="{{ FONTAWESOME_CSS }}">
     {% endif %}
-    {% compress css %}
-        {% if PYGMENT_THEME %}
-            <link rel="stylesheet" href="{{ static(PYGMENT_THEME) }}">
-        {% endif %}
-        {% if INLINE_FONTAWESOME %}
-        <link rel="stylesheet" href="{{ static('fontawesome/css/all.min.css') }}">
-        {% endif %}
-        <link rel="stylesheet" type="text/css" href="{{ static('libs/featherlight/featherlight.min.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ static('libs/clipboard/tooltip.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ static('libs/select2/select2.css') }}">
-        <link rel="stylesheet" href="{{ static('navbar.css') }}">
-    {% endcompress %}
+    {% if INLINE_FONTAWESOME %}
+    <link rel="stylesheet" href="{{ static('fontawesome/css/all.css') }}">
+    {% endif %}
+    {% if PYGMENT_THEME %}
+        <link rel="stylesheet" href="{{ static(PYGMENT_THEME) }}">
+    {% endif %}
+    <link rel="stylesheet" type="text/css" href="{{ static('libs/featherlight/featherlight.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ static('libs/clipboard/tooltip.css') }}">
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css">
+    <link rel="stylesheet" href="{{ static('navbar.css') }}">
     <link rel="canonical"
           href="{{ DMOJ_SCHEME }}://{{ DMOJ_CANONICAL|default(site.domain) }}{{ request.get_full_path() }}">
     <style>
@@ -94,23 +94,17 @@
         </style>
     {% endif %}
     {% block media %}{% endblock %}
-    <link rel="stylesheet" href="{{ static('full_style.css') }}?v={{ version }}">
-    {% if not INLINE_JQUERY %}
-        <script src="{{ JQUERY_JS }}"></script>
-    {% endif %}
+    <link rel="stylesheet" href="{{ static('full_style.css') }}">
+    <script>{{ inlinei18n(LANGUAGE_CODE)|safe }}</script>
+    <script src="{{ static('libs/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ static('libs/jquery-cookie.js') }}"></script>
+    <script src="{{ static('libs/jquery-taphold.js') }}"></script>
+    <script src="{{ static('libs/jquery.unveil.js') }}"></script>
+    <script src="{{ static('libs/moment.js') }}"></script>
+    <script src="{{ static('libs/select2/select2.js') }}"></script>
+    {% include "extra_js.html" %}
+    <script src="{{ static('event.js') }}"></script>
     {% compress js %}
-        <script>{{ inlinei18n(LANGUAGE_CODE)|safe }}</script>
-        {% if INLINE_JQUERY %}
-            <script src="{{ static('libs/jquery-3.6.0.min.js') }}"></script>
-        {% endif %}
-        <script src="{{ static('libs/jquery-cookie.js') }}"></script>
-        <script src="{{ static('libs/jquery-taphold.js') }}"></script>
-        <script src="{{ static('libs/jquery.unveil.js') }}"></script>
-        <script src="{{ static('libs/moment.js') }}"></script>
-        <script src="{{ static('libs/select2/select2.js') }}"></script>
-        <script src="{{ static('semantic/semantic.min.js')}}"></script>
-        {% include "extra_js.html" %}
-        <script src="{{ static('event.js') }}"></script>
         <script>
             moment.locale('{{ LANGUAGE_CODE }}');
             $(function () {
@@ -313,7 +307,7 @@
         </style>
     </noscript>
 </head>
-<body class="min-w-full">
+<body class="min-w-full bg-gray-100 tmath">
 <svg width="0" height="0" style="display: block">
     <defs>
         <clipPath id="rating-clip"><circle cx="8" cy="8" r="7"/></clipPath>

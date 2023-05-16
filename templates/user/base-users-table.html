@@ -21,7 +21,7 @@
         {% block after_rank scoped %}{% endblock %}
         <td>
             <div class="flex items-center space-x-2">
-                <img src="{{ gravatar(user.user, 200) }}" class="rounded-full h-11 w-11" alt="">
+                <img loading="lazy" src="{{ gravatar(user.user, 200) }}" class="rounded-full h-11 w-11" alt="">
                 <div class="whitespace-nowrap">
                     {{ link_user(user) }}
                     <div class="text-sm font-medium text-gray-500">

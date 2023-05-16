@@ -32,7 +32,7 @@
             <div class="">
                 {% for case in statuses %}
                     {% if case.status == "AC" %}
-                        <i class="font-bold text-green-500 fa-solid fa-check"></i>
+                        <i class="font-bold text-green-500 fa-duotone fa-check"></i>
                     {% elif case.status == "SC" %}
                         <span class="case-SC">&ndash;</span>
                     {% else %}
@@ -45,7 +45,7 @@
                                 text-orange-500
                             {%- elif case.status in ['MLE', 'OLE', 'IR'] -%}
                                 text-blue-500
-                            {%- endif %} fa-solid fa-xmark font-bold"></i>
+                            {%- endif %} fa-duotone fa-xmark font-bold"></i>
                         </a>
                     {% endif %}
                     {% if case.num_combined > 1 %}

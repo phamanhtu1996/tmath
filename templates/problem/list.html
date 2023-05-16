@@ -1,12 +1,6 @@
 {% extends "common-content.html" %}
 
 {% block media %}
-    <link rel="stylesheet" href="{{ static('libs/nouislider.min.css') }}">
-    <link rel="stylesheet" href="{{ static('semantic/components/form.min.css') }}">
-    <link rel="stylesheet" href="{{ static('semantic/components/dropdown.min.css') }}">
-    <link rel="stylesheet" href="{{ static('semantic/components/search.min.css') }}">
-    <link rel="stylesheet" href="{{ static('semantic/components/transition.min.css') }}">
-    <link rel="stylesheet" href="{{ static('semantic/components/checkbox.min.css') }}">
     <noscript>
         <style>#category, #types {
             visibility: visible;
@@ -45,22 +39,15 @@
 {% endblock %}
 
 {% block js_media %}
-    <script>
-        window.point_start = {{point_start}};
-        window.point_end = {{point_end}};
-        window.point_values = {{point_values|json|safe}};
-    </script>
     {% compress js %}
-        <script src="{{ static('libs/nouislider.min.js') }}" type="text/javascript"></script>
-        <script src="{{ static('libs/wNumb.min.js') }}" type="text/javascript"></script>
-        <script src="{{ static('semantic/components/dropdown.min.js') }}" type="text/javascript"></script>
-        <script src="{{ static('semantic/components/search.min.js') }}" type="text/javascript"></script>
-        <script src="{{ static('semantic/components/transition.min.js') }}" type="text/javascript"></script>
-        <script src="{{ static('semantic/components/checkbox.min.js') }}" type="text/javascript"></script>
         <script>
             $(function () {
                 var $form = $('form#filter-form');
                 var $search = $('#search');
+
+                $('#category').select2({
+                    placeholder: "{{ _('Select category') }}"
+                });
 
                 function prep_form() {
                     $search.prop('disabled', !$search.val());
@@ -143,7 +130,7 @@
             <div class="mb-8 lg:w-1/4">
                 {% include "problem/search-form.html" %}
                 {% if hot_problems %}
-                    <div class="sidebox">
+                    <div class="bg-white">
                         <h3>{{ _('Hot problems') }} <i class="fa fa-fire"></i></h3>
                         <div class="sidebox-content">
                             <ul class="problem-list">{% for problem in hot_problems %}
@@ -156,8 +143,8 @@
                 {% endif %}
             </div>
         {% endif %}
-        <div id="content-left" class="flex-1 overflow-x-auto lg:pr-10">
-            <table class="w-full border border-collapse border-black">
+        <div id="content-left" class="flex-1 overflow-x-auto lg:pr-10 ">
+            <table class="w-full bg-white border border-collapse border-black">
                 <thead>
                 <tr class="[&>*]:text-center [&>*]:bg-black [&>*]:text-white [&>*]:py-3 divide-x divide-white">
                     {% if request.in_contest %}
@@ -226,19 +213,8 @@
                                 </td>
                             {% endif %}
                         {% endif %}
-                        <td class="">
-                            <div class="flex items-center px-2">
-                                <div class="flex-1 py-2 font-bold">
-                                    <a href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
-                                </div>
-                                {% if not request.in_contest %}
-                                <div class="hidden lg:block text-sm text-gray-400">
-                                    {% for type in problem.types.all() %}
-                                        <a href="{{ url('problem_list') }}?type={{ type.id }}" class="hover:underline cursor-pointer">{{ type }}</a>{% if not loop.last %}, {% endif %}
-                                    {% endfor %}
-                                </div> 
-                                {% endif %}
-                            </div>
+                        <td class="p-2 font-bold">
+                            <a href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
                         </td>
                         {% if not request.in_contest %}
                         <td class="hidden lg:table-cell">

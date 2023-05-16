@@ -84,7 +84,7 @@
         <div class="w-full flex p-4 flex-col">
             <div class="font-bold text-white bg-black flex p-2 rounded-t-md text-2xl">
                 <div class="flex-1 ">{{ _('Manage') }}</div>
-                <div class=""><i class="fa-solid fa-pen-to-square"></i></div>
+                <div class=""><i class="fa-duotone fa-pen-to-square"></i></div>
             </div>
             <ul class="flex flex-col divide-y border rounded-b-md font-semibold">
                 {% if request.user.is_authenticated %}
@@ -174,7 +174,7 @@
                 {% for message in msg|reverse %}
                     <div class="comment">
                         <a href="{{ url('user_page', message.user.user.user.username) }}" class="avatar">
-                            <img src="{{ gravatar(message.user.user) }}">
+                            <img loading="lazy" src="{{ gravatar(message.user.user) }}">
                         </a>
                         <div class="content">
                             {{ link_user(message.user.user) }}

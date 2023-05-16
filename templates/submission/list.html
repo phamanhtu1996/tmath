@@ -1,9 +1,5 @@
 {% extends "common-content.html" %}
 {% block js_media %}
-<script src="{{ static('semantic/components/form.min.js') }}"></script>
-<script src="{{ static('semantic/components/dropdown.min.js') }}"></script>
-<script src="{{ static('semantic/components/transition.min.js') }}"></script>
-<script src="{{ static('semantic/components/search.min.js') }}"></script>
     <script type="text/javascript">
         {% if dynamic_update and EVENT_LAST_MSG %}
             {% if dynamic_contest_id %}
@@ -50,7 +46,7 @@
         {% endif %}
 
         <script src="{{ static('libs/chart.js/Chart.js') }}"></script>
-        {% endcompress %}
+    {% endcompress %}
         
     <script type="text/javascript">
         $(function () {
@@ -71,7 +67,7 @@
                 matcher: idAndTextMatcher,
             }).css({'visibility': 'visible'});
 
-            $('#language').select2({
+            $('#language_code').select2({
                 multiple: 1,
                 placeholder: '{{ _('Filter by language...') }}',
                 matcher: idAndTextMatcher,
@@ -127,12 +123,9 @@
             var _collect = function (e) {
                 return e.value;
             };
-            var language_filter = $('input[name=language]').val().split(',');
-            var status_filter = $('input[name=status]').val().split(',');
-            if ($('input[name=language]').val() === "")
-                language_filter = []
-            if ($('input[name=status]').val() === "")
-                status_filter = []
+            var language_filter = $.map($('select#language_code option[selected]'), _collect);
+            var status_filter = $.map($('select#status option[selected]'), _collect);
+
             var table = $('#submissions-table');
             var statistics = $("#statistics-table");
             var doing_ajax = false;
@@ -151,7 +144,7 @@
                     if (id < first)
                         return;
                     first = id;
-                    row = $('<tr>', {id: id, 'class': 'transition-all bg-white shadow-md [&>td:nth-child(1)]:rounded-l-md [&>td:nth-last-child(1)]:rounded-r-md'}).hide().prependTo(table);
+                    row = $('<tr>', {id: id, 'class': 'transition-all rounded-xl bg-white shadow-md [&>td:nth-child(1)]:rounded-l-xl [&>td:nth-last-child(1)]:rounded-r-xl'}).hide().prependTo(table);
                     if (table.find('>tr').length >= {{ paginator.per_page }})
                         table.find('>tr:last-child').slideUp('slow', function () {
                             $(this).remove();
@@ -252,10 +245,6 @@
 {% endblock %}
 
 {% block media %}
-<link rel="stylesheet" href="{{ static('semantic/components/form.min.css') }}">
-<link rel="stylesheet" href="{{ static('semantic/components/dropdown.min.css') }}">
-<link rel="stylesheet" href="{{ static('semantic/components/search.min.css') }}">
-<link rel="stylesheet" href="{{ static('semantic/components/transition.min.css') }}">
     {% if perms.judge.change_submission and perms.judge.rejudge_submission %}
         <style>
             td.sub-prop, col.sub-prop {
@@ -266,7 +255,7 @@
                 width: 78%
             }
 
-            #status, #language {
+            #status, #language_code {
                 visibility: hidden;
             }
         </style>
@@ -291,46 +280,41 @@
 
     <div class="flex flex-col lg:space-x-reverse lg:space-x-8 lg:flex-row-reverse">
         <div class="flex flex-col mb-8 space-y-6 lg:basis-1/4">
-            <div class="flex flex-col border rounded-t-md">
+            <div class="flex flex-col bg-white border rounded-xl">
                 <div class="flex items-center p-4 -m-px text-white bg-black rounded-t-md">
                     <div class="flex-1 text-xl font-bold">{{ _('Filter submissions') }}</div>
                     <div class="">
                         <i class="search icon"></i>
                     </div>
                 </div>
-                <form name="form" class="p-2 ui form" action="" method="get">
-                    <div class="field">
-                        <label for="status">{{ _('Status') }}</label>
-                        <div class="ui fluid multiple search normal selection dropdown">
-                            <input type="hidden" name="status" {% if selected_statuses %}value="{{ selected_statuses|join(',') }}"{% endif %}>
-                            <div class="default text">{{ _('Filter by status...')}}</div>
-                            <div class="menu">
-                                {% for id, name in all_statuses %}
-                                    <div class="item" data-value="{{ id }}">{{ name }}</div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label for="language">{{ _('Language') }}</label>
-                        <div class="ui fluid multiple search normal selection dropdown">
-                            <input type="hidden" name="language" {% if selected_languages %}value="{{ selected_languages|join(',') }}"{% endif %}>
-                            <div class="default text">{{ _('Filter by language...') }}</div>
-                            <div class="menu">
-                                {% for code, name in all_languages %}
-                                    <div class="item" data-value="{{ code }}">{{ name }}</div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
+                <form name="form" class="p-2" action="" method="get">
+                    <label class="block mb-2" for="status">
+                        <span class="font-bold text-gray-700">
+                            {{ _('Status') }}
+                        </span>
+                        <select class="w-full" id="status" name="status" multiple>
+                            <option value=""></option>
+                            {% for id, name in all_statuses %}
+                                <option value="{{ id }}" {% if selected_statuses and id in selected_statuses %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="block mb-2" for="language_code">
+                        <span class="font-bold text-gray-700">
+                            {{ _('Language') }}
+                        </span>
+                        <select class="w-full" id="language_code" name="language" multiple>
+                            <option value=""></option>
+                            {% for code, name in all_languages %}
+                                <option value="{{ code }}" {% if selected_languages and code in selected_languages %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
                     <button class="w-full p-2 font-bold text-white bg-blue-500 rounded-md">{{ _('Go') }}</button>
-                    <script>
-                        $('.selection.dropdown').dropdown();
-                    </script>
                 </form>
             </div>
 
-            <div class="flex flex-col border rounded-t-md" id="statistics-table">
+            <div class="flex flex-col bg-white border rounded-xl" id="statistics-table">
                 <div class="flex items-center p-4 -m-px text-white bg-black rounded-t-md">
                     <div class="flex-1 text-xl font-bold">{{ _('Statistics') }} </div>
                     <div class="">
@@ -356,7 +340,7 @@
             <table id="submissions-table" class="w-full -mt-2 border border-separate border-transparent border-spacing-y-2">
                 {% set profile_id = request.profile.id if request.user.is_authenticated else 0 %}
                 {% for submission in submissions %}
-                    <tr class="bg-white transition-all shadow-md [&>td:nth-child(1)]:rounded-l-md [&>td:nth-last-child(1)]:rounded-r-md" id="{{ submission.id }}">
+                    <tr class="bg-white rounded-xl transition-all shadow-md [&>td:nth-child(1)]:rounded-l-xl [&>td:nth-last-child(1)]:rounded-r-xl" id="{{ submission.id }}">
                         {% with problem_name=show_problem and (submission.problem.i18n_name or submission.problem.name) %}
                             {% include "submission/row.html" %}
                         {% endwith %}

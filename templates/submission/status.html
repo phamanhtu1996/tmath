@@ -1,4 +1,7 @@
 {% extends "submission/info-base.html" %}
+{% block media %}
+    <link rel="stylesheet" href="{{ static('semantic/components/accordion.min.css') }}">
+{% endblock media %}
 {% block js_media %}
     <script type="text/javascript" src="{{ static('event.js') }}?1"></script>
     <script src="{{ static('semantic/components/accordion.min.js') }}"></script>
@@ -9,7 +12,7 @@
             $(function () {
                 var blocked = false, request = false;
                 var list = $('#test-cases');
-
+                
                 function update() {
                     if (blocked) {
                         request = true;
@@ -36,19 +39,18 @@
                 }
 
                 event_dispatcher.on('sub_{{ submission.id_secret }}', function (message) {
-                        switch (message.type) {
-                            case 'internal-error':
-                            case 'grading-end':
-                            case 'compile-error':
-                                $('#abort-button').remove();
-                                $('#grading-label').remove();
-                            case 'test-case':
-                            case 'grading-begin':
-                            case 'processing':
-                                update();
-                        }
+                    switch (message.type) {
+                        case 'internal-error':
+                        case 'grading-end':
+                        case 'compile-error':
+                            $('#abort-button').remove();
+                            $('#grading-label').remove();
+                        case 'test-case':
+                        case 'grading-begin':
+                        case 'processing':
+                            update();
                     }
-                )
+                });
             });
         </script>
     {% endif %}

@@ -19,9 +19,9 @@
       {{ link_user(solution.author) }}
     </div>
     <div class="flex flex-col items-center gap-4 text-5xl" id=vote>
-      <a href="javascript:solution_upvote({{ solution.id }})" class="{% if vote == 1 %}text-green-50{%else%}text-green-500{% endif %} upvote-link"><i class="-rotate-90 fa-solid fa-play"></i></a>
+      <a href="javascript:solution_upvote({{ solution.id }})" class="{% if vote == 1 %}text-green-50{%else%}text-green-500{% endif %} upvote-link"><i class="-rotate-90 fa-duotone fa-play"></i></a>
       <span class="score">{{ solution.score }}</span>
-      <a href="javascript:solution_downvote({{ solution.id }})" class="{% if vote == -1 %}text-red-50{%else%}text-red-500{% endif %} downvote-link"><i class="rotate-90 fa-solid fa-play"></i></a>
+      <a href="javascript:solution_downvote({{ solution.id }})" class="{% if vote == -1 %}text-red-50{%else%}text-red-500{% endif %} downvote-link"><i class="rotate-90 fa-duotone fa-play"></i></a>
     </div>
   </div>
   <div class="flex-1 border rounded-md content-description">

@@ -7,9 +7,6 @@
             text-align: left;
         }
 
-        #users-table th a {
-            color: white;
-        }
     </style>
 {% endblock %}
 
@@ -32,7 +29,7 @@
         </div>
         <div class="p-4 -mt-10 bg-transparent">
             <div class="text-center">
-                <img src="{{ gravatar(silver.user, 200) }}" class="inline-block w-16 h-16 border-4 border-white rounded-full" alt="">
+                <img loading="lazy" src="{{ gravatar(silver.user, 200) }}" class="inline-block w-16 h-16 border-4 border-white rounded-full" alt="">
                 <div class="text-xl font-semibold">
                     {% if silver.name %}{{silver.name}}{% else %}{{ silver.username}}{% endif %}
                 </div>
@@ -41,7 +38,7 @@
                 </div>
                 <hr class="my-4">
                 <div class="flex items-center justify-between">
-                    <div class="text-2xl font-bold"><span class="rating {{ rating_class(silver) }}">{{ silver.rating }}</span></div>
+                    <div class="text-2xl font-bold"><span class="rating {{ rating_class(silver) }}">{{ silver.rating or '' }}</span></div>
                     <a href="{{ url('user_page', silver.username) }}" class="p-2 text-blue-500 border border-blue-500 rounded-md">View profile</a>
                 </div>
             </div>
@@ -55,16 +52,16 @@
         </div>
         <div class="p-4 -mt-10 bg-transparent">
             <div class="text-center">
-                <img src="{{ gravatar(gold.user, 200) }}" class="inline-block w-16 h-16 border-4 border-white rounded-full" alt="">
+                <img loading="lazy" src="{{ gravatar(gold.user, 200) }}" class="inline-block w-16 h-16 border-4 border-white rounded-full" alt="">
                 <div class="text-xl font-semibold">
-                    {% if gold.name %}{{gold.name}}{% else %}{{ gold.username}}{% endif %}
+                    {% if gold.name %}{{gold.name}}{% else %}{{ gold.username }}{% endif %}
                 </div>
                 <div class="text-gray-600">
                     @{{gold.username}}
                 </div>
                 <hr class="my-4">
                 <div class="flex items-center justify-between">
-                    <div class="text-2xl font-bold"><span class="rating {{ rating_class(gold) }}">{{ gold.rating }}</span></div>
+                    <div class="text-2xl font-bold"><span class="rating {{ rating_class(gold) }}">{{ gold.rating or '' }}</span></div>
                     <a href="{{ url('user_page', gold.username) }}" class="p-2 text-blue-500 border border-blue-500 rounded-md">View profile</a>
                 </div>
             </div>
@@ -79,7 +76,7 @@
         </div>
         <div class="p-4 -mt-10 bg-transparent">
             <div class="text-center">
-                <img src="{{ gravatar(bronze.user, 200) }}" class="inline-block w-16 h-16 border-4 border-white rounded-full" alt="">
+                <img loading="lazy" src="{{ gravatar(bronze.user, 200) }}" class="inline-block w-16 h-16 border-4 border-white rounded-full" alt="">
                 <div class="text-xl font-semibold">
                     {% if bronze.name %}{{bronze.name}}{% else %}{{ bronze.username}}{% endif %}
                 </div>
@@ -88,7 +85,7 @@
                 </div>
                 <hr class="my-4">
                 <div class="flex items-center justify-between">
-                    <div class="text-2xl font-bold"><span class="rating {{ rating_class(bronze) }}">{{ bronze.rating }}</span></div>
+                    <div class="text-2xl font-bold"><span class="rating {{ rating_class(bronze) }}">{{ bronze.rating or '' }}</span></div>
                     <a href="{{ url('user_page', bronze.username) }}" class="p-2 text-blue-500 border border-blue-500 rounded-md">View profile</a>
                 </div>
             </div>
