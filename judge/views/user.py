@@ -1,6 +1,7 @@
 import itertools
 import json
 import os
+import datetime as dt
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
 
@@ -133,16 +134,13 @@ class CustomLoginView(LoginView):
     authentication_form = CustomAuthenticationForm
     redirect_authenticated_user = True
 
-    # def form_valid(self, form):
-    #     password = form.cleaned_data['password']
-    #     validator = PwnedPasswordsValidator()
-    #     try:
-    #         validator.validate(password)
-    #     except ValidationError:
-    #         self.request.session['password_pwned'] = True
-    #     else:
-    #         self.request.session['password_pwned'] = False
-    #     return super().form_valid(form)
+    def form_valid(self, form):
+        remember_me = form.cleaned_data['remember_me']
+        if remember_me:
+            self.request.session.set_expiry(1209600)
+        else:
+            self.request.session.set_expiry(21600)
+        return super().form_valid(form)
 
 
 class CustomPasswordChangeView(PasswordChangeView):
@@ -153,7 +151,7 @@ class CustomPasswordChangeView(PasswordChangeView):
         return super().form_valid(form)
 
 
-EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+EPOCH = datetime(1970, 1, 1, tzinfo=dt.timezone.utc)
 
 
 class UserAboutPage(UserPage):

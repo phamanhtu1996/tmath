@@ -167,6 +167,8 @@ RATING_CLASS = ['rate-newbie', 'rate-amateur', 'rate-expert', 'rate-candidate-ma
 
 
 def rating_level(rating):
+    if rating is None:
+        return 0
     return bisect(RATING_VALUES, rating)
 
 
@@ -179,7 +181,7 @@ def rating_class(rating):
 
 
 def rating_progress(rating):
-    level = bisect(RATING_VALUES, rating)
+    level = rating_level(rating)
     if level == len(RATING_VALUES):
         return 1.0
     prev = 0 if not level else RATING_VALUES[level - 1]

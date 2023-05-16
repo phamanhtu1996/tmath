@@ -22,7 +22,7 @@ from django.views.generic import DetailView, ListView
 
 from judge import event_poster as event
 from judge.highlight_code import highlight_code
-from judge.models import Contest, Language, Problem, ProblemTranslation, Profile, Submission
+from judge.models import Contest, Language, Problem, ProblemTranslation, Profile, Submission, Log
 from judge.utils.infinite_paginator import InfinitePaginationMixin
 from judge.utils.problem_data import get_problem_testcases_data
 from judge.utils.problems import get_result_data, user_completed_ids, user_editable_ids, user_tester_ids
@@ -80,6 +80,13 @@ class SubmissionSource(SubmissionDetailBase):
     def get_context_data(self, **kwargs):
         context = super(SubmissionSource, self).get_context_data(**kwargs)
         submission = self.object
+        Log.objects.create(
+            user = self.request.user.profile,
+            title = 'View source code',
+            message = 'View source code of submission\'s problem "%s"' % (submission.problem),
+            object_id = submission.pk,
+            object_title = submission
+        )
         context['raw_source'] = submission.source.source.rstrip('\n')
         context['highlighted_source'] = highlight_code(submission.source.source, submission.language.pygments)
         return context
@@ -321,14 +328,10 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         check = self.access_check(request)
         if check is not None:
             return check
-        if 'language' in request.GET and request.GET.get('language'):
-            self.selected_languages = set(request.GET.get('language').split(','))
-        else:
-            self.selected_languages = None
-        if 'status' in request.GET and request.GET.get('status'):
-            self.selected_statuses = set(request.GET.get('status').split(','))
-        else:
-            self.selected_statuses = None
+        
+        self.selected_languages = set(request.GET.getlist('language'))
+        self.selected_statuses = set(request.GET.getlist('status'))
+
         if 'results' in request.GET:
             return JsonResponse(self.get_result_data())
 
@@ -371,7 +374,7 @@ class AllUserSubmissions(ConditionalUserTabMixin, UserMixin, SubmissionsListBase
     def get_content_title(self):
         if self.is_own:
             return format_html('All my submissions')
-        return format_html('All submissions by <a href="{1}">{0}</a>', self.username,
+        return format_html('All submissions by <a class="content_title" href="{1}">{0}</a>', self.username,
                            reverse('user_page', args=[self.username]))
 
     def get_my_submissions_page(self):
@@ -400,7 +403,7 @@ class ProblemSubmissionsBase(SubmissionsListBase):
         return _('All submissions for %s') % self.problem_name
 
     def get_content_title(self):
-        return format_html('All submissions for <a href="{1}">{0}</a>', self.problem_name,
+        return format_html('All submissions for <a class="content_title" href="{1}">{0}</a>', self.problem_name,
                            reverse('problem_detail', args=[self.problem.code]))
 
     def access_check_contest(self, request):
@@ -464,10 +467,10 @@ class UserProblemSubmissions(ConditionalUserTabMixin, UserMixin, ProblemSubmissi
 
     def get_content_title(self):
         if self.request.user.is_authenticated and self.request.profile == self.profile:
-            return format_html('''My submissions for <a href="{3}">{2}</a>''',
+            return format_html('''My submissions for <a class="content_title" href="{3}">{2}</a>''',
                                self.username, reverse('user_page', args=[self.username]),
                                self.problem_name, reverse('problem_detail', args=[self.problem.code]))
-        return format_html('''<a href="{1}">{0}</a>'s submissions for <a href="{3}">{2}</a>''',
+        return format_html('''<a class="content_title" href="{1}">{0}</a>'s submissions for <a class="content_title" href="{3}">{2}</a>''',
                            self.username, reverse('user_page', args=[self.username]),
                            self.problem_name, reverse('problem_detail', args=[self.problem.code]))
 
@@ -579,9 +582,9 @@ class UserAllContestSubmissions(ForceContestMixin, AllUserSubmissions):
 
     def get_content_title(self):
         if self.is_own:
-            return format_html(_('My submissions in <a href="{1}">{0}</a>'),
+            return format_html(_('My submissions in <a class="content_title" href="{1}">{0}</a>'),
                                self.contest.name, reverse("contest_view", args=[self.contest.key]))
-        return format_html(_('<a href="{1}">{0}</a>\'s submissions in <a href="{3}">{2}</a>'),
+        return format_html(_('<a class="content_title" href="{1}">{0}</a>\'s submissions in <a href="{3}">{2}</a>'),
                            self.username, reverse('user_page', args=[self.username]),
                            self.contest.name, reverse('contest_view', args=[self.contest.key]))
 
