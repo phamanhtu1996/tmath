@@ -2,13 +2,13 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models, transaction
 from django.db.models import CASCADE, Q
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext, gettext_lazy as _
 from jsonfield import JSONField
-from lupa import LuaRuntime
+# from lupa import LuaRuntime
 from moss import MOSS_LANG_C, MOSS_LANG_CC, MOSS_LANG_JAVA, MOSS_LANG_PYTHON
 
 from judge import contest_format
@@ -80,7 +80,8 @@ class Contest(models.Model):
     )
     key = models.CharField(max_length=20, verbose_name=_('contest id'), unique=True,
                            validators=[RegexValidator('^[a-z0-9]+$', _('Contest id must be ^[a-z0-9]+$'))])
-    name = models.CharField(max_length=100, verbose_name=_('contest name'), db_index=True)
+    name = models.CharField(max_length=20, verbose_name=_('contest name'), db_index=True)
+    topic = models.CharField(max_length=100, verbose_name=_('contest topic'), blank=True)
     authors = models.ManyToManyField(Profile, help_text=_('These users will be able to edit the contest.'),
                                      related_name='authors+')
     curators = models.ManyToManyField(Profile, help_text=_('These users will be able to edit the contest, '
@@ -167,6 +168,12 @@ class Contest(models.Model):
                                            help_text=_('Number of digits to round points to.'))
     add_solution = models.BooleanField(_('can add solution'), default=False)
     limit_solution = models.IntegerField(_("limit solution"), default=0)
+    pre_time = models.DateTimeField(_("Pre-time"), auto_now=False, auto_now_add=False, null=True, blank=True)
+
+    is_limit_language = models.BooleanField(_("language restriction"), default=False)
+    limit_language = models.ForeignKey("judge.Language", verbose_name=_("limit language"), on_delete=models.SET_NULL, null=True, blank=True)
+
+    is_public_contest = models.BooleanField(_("Public contest"), default=False)
 
     @property
     def markdown_style(self):
@@ -182,16 +189,18 @@ class Contest(models.Model):
 
     @cached_property
     def get_label_for_problem(self):
-        if not self.problem_label_script:
-            return self.format.get_label_for_problem
+        # if not self.problem_label_script:
+        return self.format.get_label_for_problem
 
-        def DENY_ALL(obj, attr_name, is_setting):
-            raise AttributeError()
-        lua = LuaRuntime(attribute_filter=DENY_ALL, register_eval=False, register_builtins=False)
-        return lua.eval(self.problem_label_script)
+        # def DENY_ALL(obj, attr_name, is_setting):
+        #     raise AttributeError()
+        # lua = LuaRuntime(attribute_filter=DENY_ALL, register_eval=False, register_builtins=False)
+        # return lua.eval(self.problem_label_script)
 
     def clean(self):
         # Django will complain if you didn't fill in start_time or end_time, so we don't have to.
+        if self.pre_time and self.start_time and self.pre_time > self.start_time:
+            raise ValidationError("What is this? A contest that started before it pre-open?")
         if self.start_time and self.end_time and self.start_time >= self.end_time:
             raise ValidationError('What is this? A contest that ended before it starts?')
         self.format_class.validate(self.format_config)
@@ -276,6 +285,8 @@ class Contest(models.Model):
 
     @cached_property
     def can_join(self):
+        if self.pre_time:
+            return self.pre_time <= self._now
         return self.start_time <= self._now
 
     @property
@@ -297,6 +308,10 @@ class Contest(models.Model):
         return self.end_time < self._now
 
     @cached_property
+    def started(self):
+        return self.start_time < self._now
+    
+    @cached_property
     def author_ids(self):
         return Contest.authors.through.objects.filter(contest=self).values_list('profile_id', flat=True)
 
@@ -310,6 +325,12 @@ class Contest(models.Model):
         return Contest.testers.through.objects.filter(contest=self).values_list('profile_id', flat=True)
 
     def __str__(self):
+        return self.full_name
+
+    @property
+    def full_name(self):
+        if self.topic:
+            return f'{self.name} - {self.topic}'
         return self.name
 
     def get_absolute_url(self):
@@ -378,13 +399,18 @@ class Contest(models.Model):
                 return
             raise self.PrivateContest()
 
-    def is_accessible_by(self, user):
+    def is_joinable_by(self, user):
         try:
             self.access_check(user)
         except (self.Inaccessible, self.PrivateContest):
             return False
         else:
             return True
+        
+    def is_accessible_by(self, user):
+        if self.is_public_contest:
+            return True
+        return self.is_joinable_by(user)
 
     def is_editable_by(self, user):
         # If the user can edit all contests
@@ -400,13 +426,14 @@ class Contest(models.Model):
     @classmethod
     def get_visible_contests(cls, user):
         if not user.is_authenticated:
-            return cls.objects.filter(is_visible=True, is_organization_private=False, is_private=False) \
-                              .defer('description').distinct()
+            q = Q(is_visible=True, is_organization_private=False, is_private=False) | Q(is_visible=True, is_public_contest=True)
+            return cls.objects.filter(q).defer('description').distinct()
 
         queryset = cls.objects.defer('description')
         if not (user.has_perm('judge.see_private_contest') or user.has_perm('judge.edit_all_contest')):
             q = Q(is_visible=True)
             q &= (
+                Q(is_public_contest=True) |
                 Q(view_contest_scoreboard=user.profile) |
                 Q(is_organization_private=False, is_private=False) |
                 Q(is_organization_private=False, is_private=True, private_contestants=user.profile) |
