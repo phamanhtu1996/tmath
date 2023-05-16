@@ -3,6 +3,7 @@ from operator import attrgetter
 from django import forms
 from django.contrib import admin
 from django.db import transaction
+from django.db.models import Count
 from django.forms import ModelForm
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -143,13 +144,31 @@ class ProblemTranslationInline(admin.StackedInline):
     has_add_permission = has_change_permission = has_delete_permission = has_permission_full_markup
 
 
+class HasTestCaseFilter(admin.SimpleListFilter):
+    title = 'has test cases'
+    parameter_name = 'has_test_cases'
+    
+    def lookups(self, request, model_admin):
+        return (
+            ('1', _('Has test cases')),
+            ('0', _('No test cases')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == '1':
+            return queryset.annotate(testcase_count=Count('cases')).filter(testcase_count__gt=0)
+        if self.value() == '0':
+            return queryset.annotate(testcase_count=Count('cases')).filter(testcase_count=0)
+
+
 class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
+    change_form_template = 'admin/judge/problem/change_form.html'
     fieldsets = (
         (None, {
             'fields': (
                 'code', 'name', 'is_public', 'is_manually_managed', 'date', 'authors', 'curators', 'testers',
                 'is_organization_private', 'organizations', 'submission_source_visibility_mode', 'is_full_markup',
-                'description', 'license', 'testcase_visibility_mode',
+                'public_description', 'description', 'license', 'testcase_visibility_mode',
             ),
         }),
         (_('Social Media'), {'classes': ('grp-collapse grp-open',), 'fields': ('og_image', 'summary')}),
@@ -171,14 +190,26 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         'group',
         'license',
     ]
-    list_display = ['code', 'name', 'show_authors', 'points', 'is_public', 'show_public', ]
+    list_display = ['code', 'name', 'show_authors', 'classes', 'is_public', 'show_public', ]
     ordering = ['-pk']
     search_fields = ('code', 'name', 'authors__user__username', 'curators__user__username')
-    inlines = [LanguageLimitInline, ProblemClarificationInline, ProblemSolutionInline, ProblemTranslationInline]
+    inlines = [
+        LanguageLimitInline, 
+        ProblemClarificationInline, 
+        ProblemSolutionInline, 
+        ProblemTranslationInline,
+    ]
     list_max_show_all = 1000
     actions_on_top = True
     actions_on_bottom = True
-    list_filter = ('is_public', ProblemCreatorListFilter, ProblemClassFilter, ProblemGroupFilter, ProblemTypeFilter)
+    list_filter = (
+        'is_public', 
+        ProblemCreatorListFilter, 
+        ProblemClassFilter, 
+        ProblemGroupFilter, 
+        ProblemTypeFilter, 
+        HasTestCaseFilter,
+    )
     form = ProblemForm
     date_hierarchy = 'date'
 
@@ -281,6 +312,13 @@ class ProblemAdmin(NoBatchDeleteMixin, VersionAdmin):
         if form.cleaned_data.get('change_message'):
             return form.cleaned_data['change_message']
         return super(ProblemAdmin, self).construct_change_message(request, form, *args, **kwargs)
+
+    
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        if 'autocomplete' in request.path and request.GET.get('model_name') == 'contestproblem' and request.GET.get('field_name') == 'problem':
+            queryset = queryset.annotate(case_count=Count('cases')).filter(case_count__gt=0).order_by('-pk')
+        return queryset, use_distinct
 
 
 class PublicSolutionAdminForm(ModelForm):

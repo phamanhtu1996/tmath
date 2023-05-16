@@ -140,6 +140,17 @@ class UserListFilter(admin.SimpleListFilter):
             return queryset.filter(user_id=self.value(), user__is_staff=True)
         return queryset
 
+class UserListFilter2(admin.SimpleListFilter):
+    title = _('user')
+    parameter_name = 'user'
+
+    def lookups(self, request, model_admin):
+        return User.objects.filter(is_staff=True).values_list('id', 'username')
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(user__user_id=self.value(), user__user__is_staff=True)
+        return queryset
 
 class LogEntryAdmin(admin.ModelAdmin):
     readonly_fields = ('user', 'content_type', 'object_id', 'object_repr', 'action_flag', 'change_message')
@@ -180,7 +191,7 @@ class LogAdmin(admin.ModelAdmin):
     readonly_fields = ('user', 'title', 'object_id', 'object_title', 'message', 'time')
     list_display = ('message', 'title', 'user', 'object_title', 'time')
     search_fields = ('object_title', 'title')
-    list_filter = (UserListFilter,)
+    list_filter = (UserListFilter2,)
     list_display_links = None
     actions = None
 

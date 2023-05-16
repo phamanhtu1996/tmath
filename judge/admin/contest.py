@@ -3,7 +3,7 @@ from django import forms
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
 from django.db import connection, transaction
-from django.db.models import Q, TextField
+from django.db.models import Q, TextField, Count
 from django.forms import ModelForm, ModelMultipleChoiceField
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -57,7 +57,9 @@ class ContestProblemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
               'rejudge_column')
     readonly_fields = ('rejudge_column',)
     sortable_field_name = 'order'
-    autocomplete_fields = ['problem', ]
+    autocomplete_fields = [
+        'problem', 
+    ]
     # form = ContestProblemInlineForm
 
     def rejudge_column(self, obj):
@@ -75,6 +77,14 @@ class ContestProblemInline(GrappelliSortableHiddenMixin, admin.TabularInline):
                 return 0
             return extra - current
         return extra
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'problem':
+            kwargs['queryset'] = Problem.objects.annotate(case_count=Count('cases')).filter(case_count__gt=0).order_by('-pk')
+            # kwargs['queryset'] = Problem.objects.filter(is_public=True)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    
 
 
 class ContestForm(ModelForm):
@@ -107,22 +117,24 @@ class ContestForm(ModelForm):
 
 
 class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
+    change_form_template = 'admin/judge/contest/change_form.html'
+    change_list_template = 'admin/judge/contest/change_list.html'
     fieldsets = (
-        (None, {'fields': ('key', 'name', 'authors', 'curators', 'testers')}),
-        (_('Settings'), {'fields': ('is_visible', 'use_clarifications', 'hide_problem_tags', 'hide_problem_authors',
+        (None, {'fields': ('key', 'name', 'topic', 'authors', 'curators', 'testers')}),
+        (_('Settings'), {'fields': ('is_visible', 'is_public_contest', 'use_clarifications', 'hide_problem_tags', 'hide_problem_authors',
                                     'run_pretests_only', 'locked_after', 'scoreboard_visibility',
                                     'points_precision', 'add_solution', 'limit_solution')}),
-        (_('Scheduling'), {'fields': ('start_time', 'end_time', 'time_limit')}),
+        (_('Scheduling'), {'fields': ('start_time', 'end_time', 'time_limit', 'pre_time')}),
         (_('Details'), {'fields': ('is_full_markup', 'description', 'og_image', 'logo_override_image', 'tags', 'summary')}),
-        (_('Format'), {'fields': ('format_name', 'format_config', 'problem_label_script')}),
+        (_('Format'), {'fields': ('format_name', 'format_config', 'is_limit_language', 'limit_language', 'problem_label_script')}),
         (_('Rating'), {'fields': ('is_rated', 'rate_all', 'rating_floor', 'rating_ceiling', 'rate_exclude')}),
         (_('Access'), {'fields': ('access_code', 'is_private', 'private_contestants', 'is_organization_private',
                                   'organizations', 'view_contest_scoreboard')}),
         (_('Justice'), {'fields': ('banned_users',)}),
     )
-    list_display = ('key', 'name', 'is_visible', 'is_rated', 'locked_after', 'start_time', 'end_time', 'time_limit',
+    list_display = ('key', 'name', 'topic', 'is_visible', 'is_rated', 'locked_after', 'start_time', 'end_time', 'time_limit',
                     'user_count', 'show_word')
-    search_fields = ('key', 'name')
+    search_fields = ('key', 'name', 'topic')
     inlines = [ContestProblemInline]
     autocomplete_fields = [
         'authors', 
@@ -137,7 +149,6 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
     actions_on_top = True
     actions_on_bottom = True
     form = ContestForm
-    change_list_template = 'admin/judge/contest/change_list.html'
     filter_horizontal = ['rate_exclude']
     date_hierarchy = 'start_time'
 

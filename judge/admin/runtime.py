@@ -62,13 +62,14 @@ class JudgeAdminForm(ModelForm):
 
 
 class JudgeAdmin(VersionAdmin):
+    change_form_template = 'admin/judge/judge/change_form.html'
     form = JudgeAdminForm
-    readonly_fields = ('created', 'online', 'start_time', 'ping', 'load', 'last_ip', 'runtimes', 'problems')
+    readonly_fields = ('created', 'online', 'start_time', 'ping', 'load', 'last_ip', 'runtimes',)
     fieldsets = (
         (None, {'fields': ('name', 'auth_key', 'is_blocked')}),
         (_('Description'), {'fields': ('description',)}),
         (_('Information'), {'fields': ('created', 'online', 'last_ip', 'start_time', 'ping', 'load')}),
-        (_('Capabilities'), {'fields': ('runtimes', 'problems')}),
+        (_('Capabilities'), {'fields': ('runtimes',)}),
     )
     list_display = ('name', 'online', 'start_time', 'ping', 'load', 'last_ip')
     ordering = ['-online', 'name']

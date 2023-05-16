@@ -48,10 +48,52 @@ class WebAuthnInline(admin.TabularInline):
 
 
 class ProfileAdmin(NoBatchDeleteMixin, VersionAdmin):
-    fields = ('user', 'name', 'display_rank', 'about', 'organizations', 'timezone', 'language', 'ace_theme',
-              'math_engine', 'last_access', 'ip', 'mute', 'is_unlisted', 'notes', 'is_totp_enabled', 'user_script',
-              'current_contest')
-    readonly_fields = ('user', 'organizations')
+    change_form_template = 'admin/judge/profile/change_form.html'
+    fieldsets = (
+        (None, {
+            "fields": (
+                'user', 
+                'name',
+            ),
+        }),
+        (_('Settings'), {
+            "fields": (
+                'verified',
+                'display_rank',
+                'is_unlisted', 
+                'timezone', 
+                'language', 
+                'ace_theme',
+                'math_engine', 
+                'mute',
+            ),
+        }),
+        (_('Information'), {
+            "fields": (
+                'about', 
+                'organizations', 
+                'last_access', 
+                'ip',
+                'current_contest',
+            ),
+        }),
+        (_('Authorized'), {
+            "fields" : (
+                'notes',
+                'is_totp_enabled', 
+                'user_script',
+            ),
+        }),
+    )
+    
+    readonly_fields = (
+        'user', 
+        'organizations', 
+        'about', 
+        'last_access', 
+        'ip', 
+        'current_contest'
+    )
     list_display = ('admin_user_admin', 'email', 'is_totp_enabled', 'timezone_full',
                     'date_joined', 'last_access', 'ip', 'show_public')
     ordering = ('user__username',)
@@ -61,7 +103,9 @@ class ProfileAdmin(NoBatchDeleteMixin, VersionAdmin):
     actions_on_top = True
     actions_on_bottom = True
     form = ProfileForm
-    autocomplete_fields = ['organizations', 'language', 'current_contest']
+    autocomplete_fields = [
+        'language',
+    ]
     inlines = [WebAuthnInline]
 
     def get_queryset(self, request):
@@ -80,6 +124,8 @@ class ProfileAdmin(NoBatchDeleteMixin, VersionAdmin):
         fields = self.readonly_fields
         if not request.user.has_perm('judge.totp'):
             fields += ('is_totp_enabled',)
+        if obj and obj.verified:
+            fields += ('name',)
         return fields
 
     def show_public(self, obj):
