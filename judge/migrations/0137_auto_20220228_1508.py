@@ -2,7 +2,7 @@
 
 import datetime
 from django.db import migrations, models
-from django.utils.timezone import utc
+
 
 
 class Migration(migrations.Migration):
@@ -20,6 +20,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='profile',
             name='last_change_name',
-            field=models.DateTimeField(default=datetime.datetime(2022, 1, 29, 15, 8, 45, 200559, tzinfo=utc), verbose_name='last change fullname'),
+            field=models.DateTimeField(default=datetime.datetime(2022, 1, 29, 15, 8, 45, 200559, tzinfo=datetime.timezone.utc), verbose_name='last change fullname'),
         ),
     ]

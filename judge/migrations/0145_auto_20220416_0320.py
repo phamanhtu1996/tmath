@@ -4,7 +4,7 @@ import datetime
 import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
-from django.utils.timezone import utc
+
 import jsonfield.fields
 import judge.models.contest
 
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='profile',
             name='last_change_name',
-            field=models.DateTimeField(default=datetime.datetime(2022, 3, 17, 3, 20, 47, 87097, tzinfo=utc), verbose_name='last change fullname'),
+            field=models.DateTimeField(default=datetime.datetime(2022, 3, 17, 3, 20, 47, 87097, tzinfo=datetime.timezone.utc), verbose_name='last change fullname'),
         ),
         migrations.CreateModel(
             name='SampleContestProblem',
