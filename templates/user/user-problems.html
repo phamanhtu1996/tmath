@@ -48,33 +48,35 @@
     {% endif %}
 
     {% if authored %}
-        <div class="user-problem-group">
-            <h3 class="unselectable toggle closed">
-                <span class="fa fa-chevron-right fa-fw"></span>{{ _('Authored problems') }} ({{ authored|length }})
-            </h3>
-            <table style="display: none" class="table toggled">
-                <thead>
-                <tr>
-                    <th>{{ _('Problem') }}</th>
-                    <th>{{ _('Category') }}</th>
-                    <th>{{ _('Points') }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for problem in authored %}
-                    <tr>
-                        <td class="problem-name">
-                            <a href="{{ url('problem_detail', problem.code) }}">{{ problem.name }}</a>
-                        </td>
-                        <td class="problem-category">{{ problem.group.full_name }}</td>
-                        <td class="problem-score"><a href="{{ url('ranked_submissions', problem.code) }}">
-                            {{ problem.points|floatformat }}{% if problem.partial %}p{% endif %}
-                        </a></td>
+        <details class="block px-2 my-5 transition-all ease-in-out border rounded-md bg-gray-50">
+            <summary class="border-none font-bold -mx-2 px-4 py-2 relative block min-h-[1rem] cursor-pointer rounded-t-md text-xl">
+                {{ _('Authored problems') }} ({{ authored|length }})
+            </summary>
+            <div class="p-4 font-bold">
+                <table class="w-full border border-collapse border-black">
+                    <thead>
+                    <tr class="[&>*]:text-center [&>*]:bg-black [&>*]:text-white [&>*]:py-3 divide-x divide-white">
+                        <th>{{ _('Problem') }}</th>
+                        <th>{{ _('Category') }}</th>
+                        <th>{{ _('Points') }}</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody class="divide-y divide-slate-300">
+                    {% for problem in authored %}
+                        <tr class="divide-x divide-slate-300">
+                            <td class="p-2 text-indigo-500 hover:text-indigo-700">
+                                <a href="{{ url('problem_detail', problem.code) }}">{{ problem.name }}</a>
+                            </td>
+                            <td class="p-2">{{ problem.group.full_name }}</td>
+                            <td class="p-2 text-center text-indigo-500 hover:text-indigo-700"><a href="{{ url('ranked_submissions', problem.code) }}">
+                                {{ problem.points|floatformat }}{% if problem.partial %}p{% endif %}
+                            </a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </details>
     {% endif %}
 
     {% if request.user.is_authenticated and request.user != user.user %}
@@ -90,32 +92,34 @@
     {% endif %}
 
     {% for group in best_submissions %}
-        <div class="user-problem-group">
-            <h3 class="unselectable toggle closed"><span class="fa fa-chevron-right fa-fw"></span>
+        <details class="block px-2 my-5 transition-all ease-in-out border rounded-md bg-gray-50">
+            <summary class="border-none font-bold -mx-2 px-4 py-2 relative block min-h-[1rem] cursor-pointer rounded-t-md text-xl">
                 {{ group.name }} ({{ _('%(points).1f points', points=group.points) }})
-            </h3>
-            <table style="display: none" class="table toggled">
-                <thead>
-                <tr>
-                    <th>{{ _('Problem') }}</th>
-                    <th>{{ _('Score') }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for entry in group.problems %}
-                    <tr>
-                        <td class="problem-name">
-                            <a href="{{ url('problem_detail', entry.code) }}">{{ entry.name }}</a>
-                        </td>
-                        <td class="problem-score">
-                            <a href="{{ url('user_submissions', entry.code, user.user.username) }}">
-                                {{ _('%(points)s / %(total)s', points=entry.points, total=entry.total) }}
-                            </a>
-                        </td>
+            </summary>
+            <div class="p-4 font-bold">
+                <table class="w-full border border-collapse border-black">
+                    <thead >
+                    <tr class="[&>*]:text-center [&>*]:bg-black [&>*]:text-white [&>*]:py-3 divide-x divide-white">
+                        <th>{{ _('Problem') }}</th>
+                        <th>{{ _('Score') }}</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody class="divide-y divide-slate-300">
+                    {% for entry in group.problems %}
+                        <tr class="divide-x divide-slate-300">
+                            <td class="p-2 text-indigo-500 hover:text-indigo-700">
+                                <a href="{{ url('problem_detail', entry.code) }}">{{ entry.name }}</a>
+                            </td>
+                            <td class="p-2 text-center text-indigo-500 hover:text-indigo-700">
+                                <a href="{{ url('user_submissions', entry.code, user.user.username) }}">
+                                    {{ _('%(points)s / %(total)s', points=entry.points, total=entry.total) }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </details>
     {% endfor %}
 {% endblock %}
