@@ -1,7 +1,7 @@
 import itertools
 import json
 
-from django.utils.http import urlquote
+from urllib.parse import quote as urlquote
 from jinja2.ext import Extension
 from mptt.utils import get_cached_trees
 from statici18n.templatetags.statici18n import inlinei18n
@@ -28,9 +28,9 @@ def counter(start=1):
     return itertools.count(start).__next__
 
 
-class DMOJExtension(Extension):
+class CustomExtension(Extension):
     def __init__(self, env):
-        super(DMOJExtension, self).__init__(env)
+        super(CustomExtension, self).__init__(env)
         env.globals.update(registry.globals)
         env.filters.update(registry.filters)
         env.tests.update(registry.tests)
