@@ -99,7 +99,7 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
         context = super(ContestList, self).get_context_data(**kwargs)
         present, active, future = [], [], []
         for contest in self._get_queryset().exclude(end_time__lt=self._now):
-            if contest.start_time > self._now:
+            if (contest.pre_time and contest.pre_time > self._now) or (not contest.pre_time and contest.start_time > self._now):
                 future.append(contest)
             else:
                 present.append(contest)
@@ -220,7 +220,8 @@ class ContestMixin(object):
         if (profile is not None and
                 ContestParticipation.objects.filter(id=profile.current_contest_id, contest_id=contest.id).exists()):
             return contest
-
+        if contest.is_accessible_by(self.request.user):
+            return contest
         try:
             contest.access_check(self.request.user)
         except Contest.PrivateContest:

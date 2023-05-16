@@ -116,9 +116,12 @@ class ProfileForm(ModelForm):
         if not self.fields['organizations'].queryset:
             self.fields.pop('organizations')
         self.fields['last_change_name'].disabled = True
-        if user.profile.last_change_name > timezone.now() - timezone.timedelta(days=30):
+        if user.profile.verified or user.profile.last_change_name > timezone.now() - timezone.timedelta(days=30):
             self.fields['name'].disabled = True
-        self.fields['name'].help_text = _('You can change the name every 30 days')
+        if user.profile.verified:
+            self.fields['name'].help_text = _('You cannot change the name')
+        else:
+            self.fields['name'].help_text = _('You can change the name every 30 days')
 
 
 class DownloadDataForm(Form):

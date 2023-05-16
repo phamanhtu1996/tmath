@@ -26,7 +26,7 @@ from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, FormView, ListView, TemplateView, View
+from django.views.generic import DetailView, FormView, ListView, UpdateView, View
 from reversion import revisions
 
 from judge.forms import CustomAuthenticationForm, DownloadDataForm, ProfileForm, newsletter_id, CreateManyUserForm
@@ -45,7 +45,7 @@ from judge.utils.views import DiggPaginatorMixin, QueryStringSortMixin, TitleMix
 from .contests import ContestRanking
 
 __all__ = ['UserPage', 'UserAboutPage', 'UserProblemsPage', 'UserDownloadData', 'UserPrepareData',
-           'users', 'edit_profile']
+           'users', 'edit_profile', 'EditProfile']
 
 
 def remap_keys(iterable, mapping):
@@ -352,6 +352,51 @@ class UserDownloadData(LoginRequiredMixin, UserDataMixin, View):
         return response
 
 
+class EditProfile(LoginRequiredMixin, TitleMixin, UpdateView):
+    template_name: str = 'user/edit-new.html'
+    form_class = ProfileForm
+    context_object_name: str = 'user'
+    slug_field: str = 'pk'
+    slug_url_kwarg: str = 'user'
+    model = Profile
+
+    def get_title(self):
+        return _('Edit %s profile') % self.object.username
+
+    def form_valid(self, form) -> HttpResponse:
+        with revisions.create_revision(atomic=True):
+            self.object = form.save()
+            revisions.set_user(self.request.user)
+            revisions.set_comment(_('Updated on site'))
+        
+        return HttpResponseRedirect(self.request.path)
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.object.user
+        return kwargs
+    
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get(self, request, *args, **kwargs) -> HttpResponse:
+        if request.profile.mute:
+            raise Http404()
+        if request.profile != self.object and not request.user.is_superuser:
+            raise Http404()
+        return super().get(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tzmap = settings.TIMEZONE_MAP
+        context['can_download_data'] = bool(settings.DMOJ_USER_DATA_DOWNLOAD)
+        context['TIMEZONE_MAP'] = tzmap or 'http://momentjs.com/static/img/world.png'
+        context['TIMEZONE_BG'] = settings.TIMEZONE_BG if tzmap else '#4E7CAD'
+        context['has_math_config'] = bool(settings.MATHOID_URL)
+        context['ignore_user_script'] = True
+        return context
+
 @login_required
 def edit_profile(request):
     if request.profile.mute:
@@ -552,3 +597,22 @@ class CreateManyUser(TitleMixin, FormView):
             writer.writerow([username, password])
 
         return response
+    
+
+def userCSV(request):
+    response = HttpResponse(content_type='text/csv',)
+    response['Content-Disposition'] = 'attachment; filename="VOI_info.csv"'
+    response.write(u'\ufeff'.encode('utf8'))
+    writer = csv.writer(response)
+    csv_path = settings.BASE_DIR / 'user.csv'
+    prefix = 'VOI'
+    language = Language.get_default_language()
+    with open(csv_path, 'r') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        writer.writerow(['ID', 'Fullname', 'Phone', 'School'])
+        for index, row in enumerate(csv_reader):
+            if index == 0:
+                continue
+            writer.writerow([index, row[1], "'" + row[2], row[4]])
+    
+    return response

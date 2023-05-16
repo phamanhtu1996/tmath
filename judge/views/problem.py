@@ -21,7 +21,7 @@ from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpRespon
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
-from django.utils import translation
+from django.utils import translation, timezone
 from django.utils.functional import cached_property
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
@@ -309,7 +309,7 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
     manual_sort = frozenset(('name', 'group', 'solved', 'type'))
     all_sorts = sql_sort | manual_sort
     default_desc = frozenset(('points', 'ac_rate', 'user_count'))
-    default_sort = '-pk'
+    default_sort = '-user_count'
 
     def get_paginator(self, queryset, per_page, orphans=0,
                       allow_empty_first_page=True, **kwargs):
@@ -379,14 +379,14 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
                                    'problem__group__full_name', 'points', 'partial', 'user_count')]
 
     def get_normal_queryset(self):
-        filter = Q(is_public=True)
+        filter = Q(is_public=True) | Q(public_description=True)
         if self.profile is not None:
             filter |= Q(authors=self.profile)
             filter |= Q(curators=self.profile)
             filter |= Q(testers=self.profile)
         queryset = Problem.objects.filter(filter).select_related('group').defer('description', 'summary')
         if not self.request.user.has_perm('see_organization_problem'):
-            filter = Q(is_organization_private=False)
+            filter = Q(is_organization_private=False) | Q(public_description=True)
             if self.profile is not None:
                 filter |= Q(organizations__in=self.profile.organizations.all())
             queryset = queryset.filter(filter)
@@ -407,11 +407,11 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
                     queryset = queryset.filter(
                         Q(code__icontains=query) | Q(name__icontains=query) |
                         Q(translations__name__icontains=query, translations__language=self.request.LANGUAGE_CODE))
-        self.prepoint_queryset = queryset
-        if self.point_start is not None:
-            queryset = queryset.filter(points__gte=self.point_start)
-        if self.point_end is not None:
-            queryset = queryset.filter(points__lte=self.point_end)
+        # self.prepoint_queryset = queryset
+        # if self.point_start is not None:
+        #     queryset = queryset.filter(points__gte=self.point_start)
+        # if self.point_end is not None:
+        #     queryset = queryset.filter(points__lte=self.point_end)
         return queryset.distinct()
 
     def get_queryset(self):
@@ -437,32 +437,32 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         if not self.in_contest:
             context.update(self.get_sort_context())
             context['hot_problems'] = hot_problems(timedelta(days=1), settings.DMOJ_PROBLEM_HOT_PROBLEM_COUNT)
-            context['point_start'], context['point_end'], context['point_values'] = self.get_noui_slider_points()
+            # context['point_start'], context['point_end'], context['point_values'] = self.get_noui_slider_points()
         else:
             context['hot_problems'] = None
-            context['point_start'], context['point_end'], context['point_values'] = 0, 0, {}
+            # context['point_start'], context['point_end'], context['point_values'] = 0, 0, {}
             context['hide_contest_scoreboard'] = self.contest.scoreboard_visibility in \
                 (self.contest.SCOREBOARD_AFTER_CONTEST, self.contest.SCOREBOARD_AFTER_PARTICIPATION)
         return context
 
-    def get_noui_slider_points(self):
-        points = sorted(self.prepoint_queryset.values_list('points', flat=True).distinct())
-        if not points:
-            return 0, 0, {}
-        if len(points) == 1:
-            return points[0], points[0], {
-                'min': points[0] - 1,
-                'max': points[0] + 1,
-            }
+    # def get_noui_slider_points(self):
+    #     points = sorted(self.prepoint_queryset.values_list('points', flat=True).distinct())
+    #     if not points:
+    #         return 0, 0, {}
+    #     if len(points) == 1:
+    #         return points[0], points[0], {
+    #             'min': points[0] - 1,
+    #             'max': points[0] + 1,
+    #         }
 
-        start, end = points[0], points[-1]
-        if self.point_start is not None:
-            start = self.point_start
-        if self.point_end is not None:
-            end = self.point_end
-        points_map = {0.0: 'min', 1.0: 'max'}
-        size = len(points) - 1
-        return start, end, {points_map.get(i / size, '%.2f%%' % (100 * i / size,)): j for i, j in enumerate(points)}
+    #     start, end = points[0], points[-1]
+    #     if self.point_start is not None:
+    #         start = self.point_start
+    #     if self.point_end is not None:
+    #         end = self.point_end
+    #     points_map = {0.0: 'min', 1.0: 'max'}
+    #     size = len(points) - 1
+    #     return start, end, {points_map.get(i / size, '%.2f%%' % (100 * i / size,)): j for i, j in enumerate(points)}
 
     def GET_with_session(self, request, key):
         if not request.GET:
@@ -488,8 +488,8 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
                     self.selected_types = None
             except ValueError:
                 pass
-        self.point_start = safe_float_or_none(request.GET.get('point_start'))
-        self.point_end = safe_float_or_none(request.GET.get('point_end'))
+        # self.point_start = safe_float_or_none(request.GET.get('point_start'))
+        # self.point_end = safe_float_or_none(request.GET.get('point_end'))
 
     def get(self, request, *args, **kwargs):
         self.setup_problem_list(request)
@@ -602,10 +602,17 @@ class ProblemSubmit(LoginRequiredMixin, ProblemMixin, TitleMixin, SingleObjectFo
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
 
-        form.fields['language'].queryset = (
-            self.object.usable_languages.order_by('name', 'key')
-            .prefetch_related(Prefetch('runtimeversion_set', RuntimeVersion.objects.order_by('priority')))
-        )
+        if self.request.in_contest and self.request.participation.contest.is_limit_language:
+            lang = self.request.participation.contest.limit_language
+            form.fields['language'].queryset = (
+                self.object.usable_languages.filter(pk=lang.pk).order_by('name', 'key')
+                .prefetch_related(Prefetch('runtimeversion_set', RuntimeVersion.objects.order_by('priority')))
+            )
+        else:
+            form.fields['language'].queryset = (
+                self.object.usable_languages.order_by('name', 'key')
+                .prefetch_related(Prefetch('runtimeversion_set', RuntimeVersion.objects.order_by('priority')))
+            )
 
         form_data = getattr(form, 'cleaned_data', form.initial)
         if 'language' in form_data:
@@ -716,6 +723,15 @@ class ProblemSubmit(LoginRequiredMixin, ProblemMixin, TitleMixin, SingleObjectFo
                 kwargs.get(self.slug_url_kwarg),
             )
             return HttpResponseForbidden('<h1>Do you want me to ban you?</h1>')
+        
+    def get(self, request, *args, **kwargs):
+        self.object: Problem = self.get_object()
+        if not self.object.can_submitted_by(request.user):
+            return generic_message(request,
+                        _('Can\'t submit to problem'), 
+                        _('You don\'t have the permission to submit this problem. Please contact admin for permission.'), 
+                        status=403)
+        return super().get(request, *args, **kwargs)
 
     def dispatch(self, request, *args, **kwargs):
         submission_id = kwargs.get('submission')
@@ -728,6 +744,10 @@ class ProblemSubmit(LoginRequiredMixin, ProblemMixin, TitleMixin, SingleObjectFo
                 raise PermissionDenied()
         else:
             self.old_submission = None
+        
+        if request.in_contest and request.participation.contest.start_time > timezone.now():
+            return generic_message(request, _('Contest not ongoing'),
+                                   _('You cannot submit now.'), status=403)
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -1061,14 +1081,15 @@ def downvote_solution(request):
     return vote_solution(request, -1)
 
 def getScratch(request):
-    problems = Problem.objects.filter(code__startswith='sb3')
+    problems = Problem.objects.filter(pk__gt=2799, pk__lt=3000)
     data = serializers.serialize('json', problems)
     struct = json.loads(data)
     cases_py = []
     test_py = []
-    for i, e in enumerate(struct, start=2):
+    for i, e in enumerate(struct, start=2476):
         del e['fields']['user_count']
         del e['fields']['ac_rate']
+        del e['fields']['public_description']
         test_data = ProblemData.objects.filter(problem_id=e['pk'])
         test_cases = ProblemTestCase.objects.filter(dataset_id=e['pk'])
         cases = serializers.serialize('json', test_cases)
@@ -1077,12 +1098,12 @@ def getScratch(request):
         tmp_case = json.loads(cases)
         e['fields']['is_organization_private'] = False
         e['fields']['organizations'] = []
-        e['fields']['allowed_languages'] = [1,2,3,4,5]
-        e['fields']['authors'] = [1]
-        e['fields']['points'] = 10
-        e['fields']['classes'] = 1
-        e['fields']['group'] = 1
-        e['fields']['types'] = [1]
+        e['fields']['allowed_languages'] = [1,2,3,4,5,6,7,8,9]
+        e['fields']['authors'] = [2]
+        e['fields']['points'] = 100
+        # e['fields']['classes'] = 4
+        # e['fields']['group'] = 7
+        # e['fields']['types'] = [23]
         e['fields']['is_public'] = True
         e['pk'] = i
         for test in tmp_test:
@@ -1091,7 +1112,7 @@ def getScratch(request):
             case['fields']['dataset'] = i
         cases_py += tmp_case
         test_py += tmp_test
-        e['fields']['time_limit'] = 2
+        e['fields']['time_limit'] = 1
         e['fields']['license'] = None
     struct += cases_py + test_py
     data = json.dumps(struct, ensure_ascii=False)

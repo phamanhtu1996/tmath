@@ -7,7 +7,7 @@
     <script src="{{ static('semantic/components/accordion.min.js') }}"></script>
     <script src="{{ static('semantic/components/dropdown.min.js') }}"></script>
     <script src="{{ static('semantic/components/transition.min.js') }}"></script>
-    {% if not submission.is_graded and EVENT_LAST_MSG %}
+    {% if not submission.is_graded %}
         <script type="text/javascript">
             $(function () {
                 var blocked = false, request = false;

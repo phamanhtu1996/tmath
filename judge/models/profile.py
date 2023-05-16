@@ -10,6 +10,7 @@ import pyotp
 import webauthn
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -32,6 +33,26 @@ from judge.utils.two_factor import webauthn_decode
 from typeracer.models import TypoResult
 
 __all__ = ['Organization', 'Profile', 'OrganizationRequest', 'WebAuthnCredential']
+
+class LoggedInUser(models.Model):
+
+    user = models.OneToOneField(User, related_name='logged_in_user', on_delete=models.CASCADE)
+    session_key = models.CharField(max_length=32, blank=True, null=True)
+
+    class Meta:
+        verbose_name = _("loggedinuser")
+        verbose_name_plural = _("loggedinusers")
+
+    def __str__(self):
+        return self.user.username
+
+
+# class CustomSession(Session):
+#     device_id = models.CharField(_("device ID"), max_length=255, null=True, blank=True)
+
+#     class Meta:
+#         db_table = 'custom_session'
+
 
 class LoggedInUser(models.Model):
 
@@ -193,6 +214,8 @@ class Profile(models.Model):
     
     verified = models.BooleanField(_("verified"), default=False)    
 
+    verified = models.BooleanField(_("verified"), default=False)
+
     @cached_property
     def organization(self):
         # We do this to take advantage of prefetch_related
@@ -261,7 +284,7 @@ class Profile(models.Model):
 
     def update_contest(self):
         contest = self.current_contest
-        if contest is not None and (contest.ended or not contest.contest.is_accessible_by(self.user)):
+        if contest is not None and (contest.ended or not contest.contest.is_joinable_by(self.user)):
             self.remove_contest()
 
     update_contest.alters_data = True
@@ -320,7 +343,7 @@ class Profile(models.Model):
         pass
 
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if self.name != self.last_name:
+        if not self.verified and self.name != self.last_name:
             self.last_change_name = timezone.now() - datetime.timedelta(days=30) * (self.last_name is None)
             self.last_name = self.name
         return super().save(force_insert, force_update, *args, **kwargs)

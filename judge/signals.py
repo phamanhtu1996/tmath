@@ -7,10 +7,11 @@ from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
+from django.contrib.auth import user_logged_in, user_logged_out
 
 from .caching import finished_submission
 from .models import BlogPost, Comment, Contest, ContestSubmission, EFFECTIVE_MATH_ENGINES, Judge, Language, License, \
-    MiscConfig, Organization, Problem, Profile, Submission, WebAuthnCredential
+    MiscConfig, Organization, Problem, Profile, Submission, WebAuthnCredential, LoggedInUser
 
 
 def get_pdf_path(basename):
@@ -167,3 +168,13 @@ def misc_config_delete(sender, instance, **kwargs):
 @receiver(post_save, sender=ContestSubmission)
 def contest_submission_update(sender, instance, **kwargs):
     Submission.objects.filter(id=instance.submission_id).update(contest_object_id=instance.participation.contest_id)
+
+
+@receiver(user_logged_in)
+def user_logged_in_signal(sender, **kwargs):
+    LoggedInUser.objects.get_or_create(user=kwargs.get('user'))
+
+
+@receiver(user_logged_out)
+def user_logged_out_signal(sender, **kwargs):
+    LoggedInUser.objects.filter(user=kwargs.get('user')).delete()

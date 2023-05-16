@@ -108,7 +108,7 @@
             </div>
             <div class="flex flex-col gap-6 mt-4">
                 {% for post in posts %}
-                    <div class="p-4 border rounded-lg">
+                    <div class="p-4 border rounded-lg bg-white">
                         <div class="flex flex-col text-3xl font-bold">
                             <a href="{{ url('blog_post', post.id, post.slug) }}">{{ post.title }}</a>
                             <div class="inline-flex items-center gap-1 text-base">
@@ -144,7 +144,7 @@
 
         <div id="blog-sidebar" class="lg:basis-1/4">
             {% if request.in_contest and request.participation.contest.use_clarifications %}
-                <div class="blog-sidebox sidebox">
+                <div class="blog-sidebox sidebox bg-white">
                     <div class="flex items-center p-4 text-white bg-black rounded-t-md">
                         <div class="flex-1 text-2xl font-bold">
                             {{ _('Clarifications') }}
@@ -179,7 +179,7 @@
                 </div>
             {% endif %}
             {% if current_contests %}
-                <div class="blog-sidebox sidebox">
+                <div class="blog-sidebox sidebox bg-white">
                     <div class="flex items-center p-4 text-white bg-black rounded-t-md">
                         <div class="flex-1 text-2xl font-bold">
                             {{ _('Ongoing contests') }}
@@ -210,7 +210,7 @@
             {% endif %}
 
             {% if future_contests %}
-                <div class="blog-sidebox sidebox">
+                <div class="blog-sidebox sidebox bg-white">
                     <div class="flex items-center p-4 text-white bg-black rounded-t-md">
                         <div class="flex-1 text-2xl font-bold">
                             {{ _('Upcomming contests') }}
@@ -240,7 +240,7 @@
                 </div>
             {% endif %}
 
-            <div class="blog-sidebox sidebox">
+            <div class="blog-sidebox sidebox bg-white">
                 <div class="flex items-center p-4 text-white bg-black rounded-t-md">
                     <div class="flex-1 text-2xl font-bold">
                         {{ _('Comment stream') }}
@@ -272,7 +272,7 @@
                     </span>
                 </div>
             </div>
-            <div class="blog-sidebox sidebox">
+            <div class="blog-sidebox sidebox bg-white">
                 <div class="flex items-center p-4 text-white bg-black rounded-t-md">
                     <div class="flex-1 text-2xl font-bold">
                         {{ _('New problems') }}
@@ -295,7 +295,7 @@
                 </div>
             </div>
             {% if perms.judge.test_site and own_open_tickets %}
-                <div class="blog-sidebox sidebox">
+                <div class="blog-sidebox sidebox bg-white">
                     <div class="flex items-center p-4 text-white bg-black rounded-t-md">
                         <div class="flex-1 text-2xl font-bold">
                             {{ _('My open tickets') }}
@@ -323,7 +323,7 @@
             {% endif %}
 
             {% if perms.judge.test_site and open_tickets %}
-                <div class="blog-sidebox sidebox">
+                <div class="blog-sidebox sidebox bg-white">
                     <div class="flex items-center p-4 text-white bg-black rounded-t-md">
                         <div class="flex-1 text-2xl font-bold">
                             {{ _('New tickets') }}

@@ -263,8 +263,8 @@ class Problem(models.Model):
 
         # Don't need to check for ProblemTestcaseAccess.AUTHOR_ONLY
         return False
-
-    def is_accessible_by(self, user, skip_contest_problem_check=False):
+    
+    def can_submitted_by(self, user, skip_contest_problem_check=False):
         # If we don't want to check if the user is in a contest containing that problem.
         if not skip_contest_problem_check and user.is_authenticated:
             # If user is currently in a contest containing that problem.
@@ -306,6 +306,12 @@ class Problem(models.Model):
             return True
 
         return False
+
+    def is_accessible_by(self, user, skip_contest_problem_check=False):
+        if self.public_description:
+            return True
+
+        return self.can_submitted_by(user, skip_contest_problem_check)
 
     def is_subs_manageable_by(self, user):
         return user.is_staff and user.has_perm('judge.rejudge_submission') and self.is_editable_by(user)

@@ -11,21 +11,21 @@
             }));
             var in_user_redirect = false;
             $('#search-handle').select2({
-                placeholder: '{{ _('Search by handle...') }}',
+                placeholder: "{{ _('Search by handle...') }}",
                 ajax: {
-                    url: '{{ url('user_search_select2_ajax') }}'
+                    url: "{{ url('user_search_select2_ajax') }}"
                 },
                 minimumInputLength: 1,
                 templateResult: function (data, container) {
-                    return $('<span>', {'class': 'flex justify-between'})
+                    return $('<span>', {'class': 'flex space-x-2'})
                         .append($('<img>', {
                             'loading': 'lazy',
                             'class': 'user-search-image', src: data.gravatar_url,
                             width: 24, height: 24
                         }))
-                        .append($('<span>', {'class': data.display_rank + ' user-search-name'}).text(data.text))
+                        .append($('<span>', {'class': data.display_rank + ' flex-1 user-search-name'}).text(data.text))
                         .append($('<a>', {href: '/user/' + data.text, 'class': 'user-redirect'})
-                            .append($('<i>', {'class': 'fa fa-mail-forward'}))
+                            .append($('<i>', {'class': 'fa-duotone fa-mail-forward'}))
                             .mouseover(function () {
                                 in_user_redirect = true;
                             }).mouseout(function () {

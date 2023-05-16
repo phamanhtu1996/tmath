@@ -1,5 +1,5 @@
 <thead>
-<tr class="[&>*]:p-3 [&>*]:whitespace-nowrap [&>*]:text-left [&>*]:text-lg [&>*]:align-middle">
+<tr class="[&>*]:p-3 [&>*]:whitespace-nowrap [&>*]:text-left [&>*]:text-lg [&>*]:align-middle [&>*]:text-black">
     <th class="w-20 whitespace-nowrap">{{ rank_header or _("Rank") }}</th>
     {% block after_rank_head %}{% endblock %}
     <th class="whitespace-nowrap !pl-16">{{ _('Username') }}</th>
@@ -33,7 +33,7 @@
         </td>
         {% block before_point scoped %}{% endblock %}
         {% block point scoped %}
-            <td class="text-lg font-semibold" title="{{ user.performance_points|floatformat(2) }}">
+            <td class="text-lg font-semibold text-center" title="{{ user.performance_points|floatformat(2) }}">
                 {{ user.performance_points|floatformat(0) }}
             </td>
         {% endblock %}

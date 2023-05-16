@@ -1,3 +1,11 @@
-<span class="{{ profile.css_class }}"><a href="{{ url('user_page', user.username) }}">
-    {% if profile.name and not noname %}{{ profile.name }} {% else %}{{ user.username }}{% endif %}</a></span>
+<span class="{{ profile.css_class }} inline-flex items-center space-x-2">
+    <a href="{{ url('user_page', user.username) }}">
+    {% if profile.name and not noname %}{{ profile.name }} {% else %}{{ user.username }}{% endif %}
+    </a>
+    {% if profile.verified %}
+    <div class="flex flex-col items-center justify-center h-full">
+        <i class="fa-solid fa-circle-check text-blue-500" title="{{ _('Verified') }}"></i>
+    </div>
+    {% endif %}
+</span>
     
