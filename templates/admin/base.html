@@ -10,7 +10,7 @@
     {% block stylesheets %}
         <link href="{% static "grappelli/jquery/ui/jquery-ui.min.css" %}" rel="stylesheet" type="text/css" media="screen" />
         <link href="{% static "grappelli/stylesheets/screen.css" %}" rel="stylesheet" type="text/css" media="all" />
-        <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+        <link rel="stylesheet" href="{% static 'fontawesome/css/all.css' %}">
         <link rel="stylesheet" href="{% static 'grappelli.css' %}?v=4314">
         {% if LANGUAGE_BIDI %}
             <link href="{% static "grappelli/stylesheets/mueller/grid/output-rtl.css" %}" rel="stylesheet" type="text/css" media="screen" />
@@ -56,9 +56,10 @@
             <!-- Grappelli Minified -->
             <script src="{% static "grappelli/js/grappelli.min.js" %}?v=3" type="text/javascript"></script>
         {% endif %}
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-        <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        <script type="text/javascript" src="{% static 'mathjax_config.js' %}"></script>
+        <script src="//polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script async src="//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        {% comment %} <script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js"></script> {% endcomment %}
+        <script type="text/javascript" src="{% static 'mathjax_config.js' %}?v=2"></script>
         <script type="text/javascript" charset="utf-8">
             (function($) {
                 $(document).ready(function() {
