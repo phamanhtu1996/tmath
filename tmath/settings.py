@@ -161,8 +161,9 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'judge',
     'chat',
-    'emath',
+    # 'emath',
     'typeracer',
+    'daphne',
     'django.contrib.flatpages',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -211,6 +212,7 @@ MIDDLEWARE = (
     'judge.social_auth.SocialAuthExceptionMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'judge.middleware.OneSessionPerUser',
 )
 
 IMPERSONATE_REQUIRE_SUPERUSER = True
@@ -237,10 +239,10 @@ SILENCED_SYSTEM_CHECKS = ['urls.W002', 'fields.W342']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-ROOT_URLCONF = 'dmoj.urls'
+ROOT_URLCONF = 'tmath.urls'
 LOGIN_REDIRECT_URL = '/user'
-WSGI_APPLICATION = 'dmoj.wsgi.application'
-# ASGI_APPLICATION = 'dmoj.asgi.application'
+WSGI_APPLICATION = 'tmath.wsgi.application'
+ASGI_APPLICATION = 'tmath.asgi.application'
 
 TEMPLATES = [
     {
@@ -273,7 +275,7 @@ TEMPLATES = [
             'lstrip_blocks': True,
             'extensions': DEFAULT_EXTENSIONS + [
                 'compressor.contrib.jinja2ext.CompressorExtension',
-                'judge.jinja2.DMOJExtension',
+                'judge.jinja2.CustomExtension',
                 'judge.jinja2.spaceless.SpacelessExtension',
             ],
         },
