@@ -9,14 +9,7 @@
     </div>
     <div class="p-2 shadow-md rounded-b-md">
         <form action="" method="get" class="" id="filter-form">
-            <input class="
-                block
-                w-full
-                rounded-md
-                border-gray-300
-                shadow-sm
-                focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                " id="search" type="text" name="search" value="{{ search_query or '' }}"
+            <input class="block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" id="search" type="text" name="search" value="{{ search_query or '' }}"
                     placeholder="{{ _('Search problems...') }}">
             {% if has_fts %}
             <div class="ui checkbox">
@@ -28,17 +21,7 @@
             {% if request.user.is_authenticated %}
             <div class="block mt-2">
                 <label class="inline-flex items-center" for="hide_solved">
-                    <input class="
-                          rounded
-                          border-gray-300
-                          text-indigo-600
-                          shadow-sm
-                          focus:border-indigo-300
-                          focus:ring
-                          focus:ring-offset-0
-                          focus:ring-indigo-200
-                          focus:ring-opacity-50
-                        " id="hide_solved" type="checkbox" name="hide_solved" value="1"
+                    <input class="text-indigo-600 border-gray-300 rounded shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50" id="hide_solved" type="checkbox" name="hide_solved" value="1"
                             {% if hide_solved %}checked{% endif %}>
                     <span class="ml-2" >{{ _('Hide solved problems') }}</span>
                 </label>
@@ -46,7 +29,7 @@
             {% endif %}
             <div class="block my-2">
                 <label for="category">
-                    <span class="text-gray-700 font-bold text-lg">{{ _('Category') }}</span>
+                    <span class="text-lg font-bold text-gray-700">{{ _('Category') }}</span>
                     <select class="w-full mt-1 rounded-lg shadow-md focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" id="category" name="category" onchange="this.form.submit()">
                         {% for group in categories %}
                         <option value=""></option>
@@ -57,13 +40,13 @@
                     </select>
                 </label>
             </div>
-            <fieldset class="border-2 rounded-lg p-2 my-2 bg-gray-100">
+            <fieldset class="p-2 my-2 bg-gray-100 border-2 rounded-lg">
                 <legend class="px-2 font-bold">{{ _('Groups') }}</legend>
                 <div class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-1">
                     {% for type in problem_types %}
                     <div class="block">
                         <label for="id_type_{{ loop.index }}" class="inline-flex items-center">
-                            <input class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50" 
+                            <input class="text-indigo-600 border-gray-300 rounded shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50" 
                                    type="checkbox" id="id_type_{{ loop.index }}" onchange="this.form.submit()" name="type" value="{{ type.id }}" {% if type.id in selected_types %}checked=checked{% endif %}>
                             <span class="ml-2 line-clamp-1 {% if type.id in selected_types %} font-semibold text-indigo-500 {% endif %}" title="{{ type.full_name }}">{{ type.full_name }}</span>
                         </label>

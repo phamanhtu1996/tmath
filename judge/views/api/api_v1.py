@@ -5,7 +5,7 @@ from django.db.models import F, OuterRef, Prefetch, Subquery
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 
-from dmoj import settings
+from tmath import settings
 from judge.models import Contest, ContestParticipation, ContestTag, Problem, Profile, Rating, Submission
 
 

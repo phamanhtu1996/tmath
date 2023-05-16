@@ -163,6 +163,7 @@ INSTALLED_APPS = (
     'chat',
     'emath',
     'typeracer',
+    # 'daphne',
     'django.contrib.flatpages',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -186,7 +187,6 @@ INSTALLED_APPS = (
     'martor',
     # "corsheaders",
     # 'channels',
-    'django_cleanup.apps.CleanupConfig',
 )
 
 MIDDLEWARE = (
@@ -239,10 +239,10 @@ SILENCED_SYSTEM_CHECKS = ['urls.W002', 'fields.W342']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-ROOT_URLCONF = 'dmoj.urls'
+ROOT_URLCONF = 'tmath.urls'
 LOGIN_REDIRECT_URL = '/user'
-WSGI_APPLICATION = 'dmoj.wsgi.application'
-ASGI_APPLICATION = 'dmoj.asgi.application'
+WSGI_APPLICATION = 'tmath.wsgi.application'
+ASGI_APPLICATION = 'tmath.asgi.application'
 
 TEMPLATES = [
     {
@@ -275,7 +275,7 @@ TEMPLATES = [
             'lstrip_blocks': True,
             'extensions': DEFAULT_EXTENSIONS + [
                 'compressor.contrib.jinja2ext.CompressorExtension',
-                'judge.jinja2.DMOJExtension',
+                'judge.jinja2.CustomExtension',
                 'judge.jinja2.spaceless.SpacelessExtension',
             ],
         },

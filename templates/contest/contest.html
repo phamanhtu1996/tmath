@@ -4,7 +4,11 @@
 
 {% block title_row %}
     {% set tab = 'detail' %}
-    {% set title = contest.name %}
+    {% if contest.is_joinable_by(request.user) %}
+        {% set title = contest.full_name %}
+    {% else %}
+        {% set title = contest.name %}
+    {% endif %}
     {% include "contest/contest-tabs.html" %}
 {% endblock %}
 

@@ -34,6 +34,18 @@ from typeracer.models import TypoResult
 
 __all__ = ['Organization', 'Profile', 'OrganizationRequest', 'WebAuthnCredential']
 
+class LoggedInUser(models.Model):
+
+    user = models.OneToOneField(User, related_name='logged_in_user', on_delete=models.CASCADE)
+    session_key = models.CharField(max_length=32, blank=True, null=True)
+
+    class Meta:
+        verbose_name = _("loggedinuser")
+        verbose_name_plural = _("loggedinusers")
+
+    def __str__(self):
+        return self.user.username
+
 
 # class CustomSession(Session):
 #     device_id = models.CharField(_("device ID"), max_length=255, null=True, blank=True)
@@ -199,6 +211,8 @@ class Profile(models.Model):
     last_change_name = models.DateTimeField(_("last change fullname"), default=get_default_time)
 
     last_name = models.CharField(_("prev name"), max_length=255, null=True, default=None)
+    
+    verified = models.BooleanField(_("verified"), default=False)    
 
     verified = models.BooleanField(_("verified"), default=False)
 

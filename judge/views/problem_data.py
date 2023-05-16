@@ -88,7 +88,7 @@ class ProblemCaseForm(ModelForm):
             # 'generator_args': HiddenInput,
             'type': Select,
             'checker': Select,
-            'points': NumberInput(attrs={'style': 'width: 4em; margin: 0 auto;'}),
+            'points': NumberInput(attrs={'style': 'width: 3em; margin: 0 auto;'}),
             'is_pretest': CheckboxInput(),
             # 'output_prefix': NumberInput(attrs={'style': 'width: 4.5em'}),
             # 'output_limit': NumberInput(attrs={'style': 'width: 6em'}),

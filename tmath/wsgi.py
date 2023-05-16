@@ -1,5 +1,5 @@
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dmoj.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tmath.settings')
 
 try:
     import MySQLdb  # noqa: F401, imported for side effect

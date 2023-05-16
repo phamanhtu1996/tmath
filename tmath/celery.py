@@ -1,10 +1,12 @@
 import logging
 import socket
+import os
 
 from celery import Celery
 from celery.signals import task_failure
 
-app = Celery('dmoj')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tmath.settings")
+app = Celery('tmath')
 
 from django.conf import settings  # noqa: E402, I202, django must be imported here
 # app.config_from_object(settings, namespace='CELERY')

@@ -70,7 +70,7 @@
             {% csrf_token %}
 
             <div class="block-header">{{ _('Scan this code with your authenticator app:') }}</div>
-            <div class="totp-qr-code"><img src="{{ qr_code }}" alt="{{ _('QR code') }}"></div>
+            <div class="totp-qr-code"><img loading="lazy" src="{{ qr_code }}" alt="{{ _('QR code') }}"></div>
             <div class="inline-header">{{ _('Or enter this code manually:') }}
                 <code class="totp-code">{{ totp_key }}</code>
             </div>

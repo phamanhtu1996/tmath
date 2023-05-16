@@ -44,12 +44,16 @@
     {% include "contest/contest-list-tabs.html" %}
 {% endblock %}
 
-{% macro contest_head(contest) %}
+{% macro contest_head(contest, request) %}
     {% spaceless %}
         <a href="{{ url('contest_view', contest.key) }}" class="text-xl font-semibold">
-            {{- contest.name -}}
+            {% if contest.is_joinable_by(request.user) %}
+                {{- contest.full_name -}}
+            {% else %}
+                {{- contest.name -}}
+            {% endif %}
         </a>
-        <span class="ml-4">
+        <span>
             {% if not contest.is_visible %}
                 <span class="p-1 text-white bg-black rounded-md mr-0.5">
                     <i class="fa fa-eye-slash"></i> {{ _('hidden') }}
@@ -93,7 +97,7 @@
 {% endmacro %}
 
 {% macro time_left(contest) %}
-    <div class="time pt-2 text-gray-600">
+    <div class="time time-left">
         {% if contest.time_limit %}
             {{ contest.start_time|date(_("M j, Y, G:i")) }} -
             {{ contest.end_time|date(_("M j, Y, G:i")) }}
@@ -118,7 +122,7 @@
 {% endmacro %}
 
 {% macro contest_join(contest, request) %}
-<div class="text-center flex flex-col items-center justify-center border-l p-4">
+<div class="flex flex-col items-center justify-center p-4 text-center border-l">
     {% if (not request.in_contest) and contest.is_joinable_by(request.user) %}
         {% if request.profile in contest.authors.all() or request.profile in contest.curators.all() or request.profile in contest.testers.all() %}
             <form class="w-full" action="{{ url('contest_join', contest.key) }}" method="post">
@@ -144,10 +148,10 @@
       <span class="inline-block w-full h-2 my-3 bg-gray-200 rounded-full"></span>
   </div>
 </div>
-<div class="grid bg-black rounded-xl [&>div:nth-child(1)]:rounded-l-xl [&>div:nth-last-child(1)]:rounded-r-xl {% if not canjoin %} grid-cols-12 {% else %} grid-cols-11 {% endif %}">
-  <div class="text-center text-white font-bold p-4 {% if hide_user %} col-span-12 {% else %} col-span-10 {% endif %}">{{ _('Contest') }}</div>
+<div class="grid bg-black rounded-xl [&>div:nth-child(1)]:rounded-l-xl [&>div:nth-last-child(1)]:rounded-r-xl grid-cols-5 {% if not canjoin %} lg:grid-cols-10 xl:grid-cols-12 {% else %} lg:grid-cols-9 xl:grid-cols-11 {% endif %}">
+  <div class="text-center text-white font-bold p-4 {% if hide_user %} col-span-5 lg:col-span-10 xl:col-span-12 {% else %} col-span-4 md:col-span-3 lg:col-span-8 xl:col-span-10 {% endif %}">{{ _('Contest') }}</div>
   {% if not hide_user %}
-  <div class="text-white text-center font-bold p-4 border-l">{{ _('Users') }}</div>
+  <div class="hidden p-4 font-bold text-center text-white border-l md:block">{{ _('Users') }}</div>
   {% endif %}
   {% if not canjoin %}
   <div class="border-l"></div>
@@ -162,23 +166,26 @@
       {% set contest=item %}
     {% endif %}
 
-    <div class="grid gap-y-2 rounded-2xl shadow-md [&>div:nth-child(1)]:rounded-l-2xl [&>div:nth-last-child(1)]:rounded-r-2xl {% if not canjoin %} grid-cols-12 {% else %} grid-cols-11 {% endif %}">
-        <div class="{% if hide_user %} col-span-12 {% else %} col-span-10 {% endif %} p-4">
-        {{ contest_head(contest) }}
-        {% if contest.start_time %}
-            <br>
-            {% if contest.time_before_start %}
-                <span class="time">{{ _('Starts in %(countdown)s', countdown=contest.time_before_start|as_countdown) }}</span>
-            {% elif not is_contest and contest.time_limit %}
-                <span class="time">{{ _('Window ends in %(countdown)s', countdown=item.time_remaining|as_countdown) }}</span>
-            {% elif contest.time_before_end %}
-                <span class="time">{{ _('Ends in %(countdown)s', countdown=contest.time_before_end|as_countdown) }}</span>
+    <div class="grid gap-y-2 rounded-2xl shadow-md [&>div:nth-child(1)]:rounded-l-2xl [&>div:nth-last-child(1)]:rounded-r-2xl grid-cols-5 {% if not canjoin %} lg:grid-cols-10 xl:grid-cols-12 {% else %} lg:grid-cols-9 xl:grid-cols-11 {% endif %}">
+        <div class="flex flex-col space-y-2 justify-between {% if hide_user %} col-span-5 lg:col-span-10 xl:col-span-12 {% else %} col-span-4 md:col-span-3 lg:col-span-8 xl:col-span-10 {% endif %} p-4">
+            <div class="flex flex-col gap-2 lg:flex-row">
+                {{ contest_head(contest, request) }}
+            </div>
+            {% if contest.start_time %}
+            <div class="">
+                {% if contest.time_before_start %}
+                    <span class="time">{{ _('Starts in %(countdown)s', countdown=contest.time_before_start|as_countdown) }}</span>
+                {% elif not is_contest and contest.time_limit %}
+                    <span class="time">{{ _('Window ends in %(countdown)s', countdown=item.time_remaining|as_countdown) }}</span>
+                {% elif contest.time_before_end %}
+                    <span class="time">{{ _('Ends in %(countdown)s', countdown=contest.time_before_end|as_countdown) }}</span>
+                {% endif %}
+                {{ time_left(contest) }}
+            </div>
             {% endif %}
-            {{ time_left(contest) }}
-        {% endif %}
         </div>
         {% if not hide_user %}
-        <div class="text-center border-l flex flex-col items-center justify-center">
+        <div class="flex-col items-center justify-center hidden text-center border-l md:flex">
             {{ user_count(contest, request.user) }}
         </div>
         {% endif %}
@@ -205,7 +212,7 @@
                 </select>
             </label>
             <div class="flex flex-col items-center justify-end w-1/6">
-                <button class="w-full p-2 text-white font-bold bg-blue-500 rounded-xl" type="submit">{{_('Search')}}</button>
+                <button class="w-full p-2 font-bold text-white bg-blue-500 rounded-xl" type="submit">{{_('Search')}}</button>
             </div>
         </form>
         {% if active_participations %}
@@ -240,40 +247,43 @@
             {% if page_obj and page_obj.has_other_pages() %}
                 <div class="top-pagination-bar">{% include "list-pages.html" %}</div>
             {% endif %}
-            <div class="grid gap-y-2 [&>*]:bg-white {% if not request.in_contest %} grid-cols-12 {% else %} grid-cols-11 {% endif %}">
-              <div class="!bg-black text-center text-white font-bold p-4 col-span-10 rounded-l-xl">
-                <a href="{{ sort_links.name }}">{{ _('Contest') }}{{ sort_order.name }}</a>
-              </div>
-              <div class="!bg-black text-white text-center font-bold p-4 border-l {% if request.in_contest %} rounded-r-xl {% endif %}">
-                <a href="{{ sort_links.user_count }}" class="contest-sort-link">{{ _('Users') }}{{ sort_order.user_count }}</a>
-              </div>
-              {% if not request.in_contest %}
-              <div class="!bg-black border-l rounded-r-xl"></div>
-              {% endif %}
-            </div>
-            <div class="grid grid-cols-1 gap-y-2 mt-2 auto-rows-fr [&>*]:bg-white">
-              {% for contest in past_contests %}
-                <div class="grid rounded-2xl shadow-md [&>div:nth-child(1)]:rounded-l-2xl [&>div:nth-last-child(1)]:rounded-r-2xl {% if not request.in_contest %} grid-cols-12 {% else %} grid-cols-11 {% endif %}">
-                    <div class="col-span-10 p-4">
-                    {{ contest_head(contest) }}
-                    {{ time_left(contest) }}
-                    </div>
-                    <div class="text-center border-l flex flex-col items-center justify-center">
-                        {{ user_count(contest, request.user) }}
-                    </div>
+            <table class="w-full border border-black">
+                <thead class="text-white bg-black whitespace-nowrap">
+                <tr class="[&>*]:p-2 divide-x">
+                    <th class="w-5/6">
+                        <a href="{{ sort_links.name }}" class="contest-sort-link">{{ _('Contest') }}{{ sort_order.name }}</a>
+                    </th>
+                    <th>
+                        <a href="{{ sort_links.user_count }}" class="contest-sort-link">{{ _('Users') }}{{ sort_order.user_count }}</a>
+                    </th>
                     {% if not request.in_contest %}
-                    <div class="flex flex-col items-center justify-center border-l p-2">
-                        <form action="{{ url('contest_join', contest.key) }}" method="post" class="w-full">
-                            {% csrf_token %}
-                            <input type="submit" class="py-3 rounded-full btn-purple-red transition-all ease-in-out duration-500 hover:bg-[100%_0%] text-center w-full font-bold text-white cursor-pointer"
-                                value="{{ _('Virtual join') }}">
-                        </form>
-                    </div>
+                        <th style="width:15%"></th>
                     {% endif %}
-                </div>
-              {% endfor %}
-            
-            </div>
+                </tr>
+                </thead>
+                <tbody class="divide-y">
+                {% for contest in past_contests %}
+                    <tr class="divide-x">
+                        <td class="p-4">
+                            <div class="contest-block">
+                                {{ contest_head(contest) }}
+                                {{ time_left(contest) }}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            {{ user_count(contest, request.user) }}
+                        </td>
+                        {% if not request.in_contest %}
+                            <td  class="text-center"><form action="{{ url('contest_join', contest.key) }}" method="post" class="">
+                                    {% csrf_token %}
+                                    <input type="submit" class="p-2 font-semibold text-white bg-blue-500 rounded-md cursor-pointer hover:bg-blue-600"
+                                           value="{{ _('Virtual join') }}">
+                            </form></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
             {% if page_obj and page_obj.has_other_pages() %}
                 <div class="bottom-pagination-bar">{% include "list-pages.html" %}</div>
             {% endif %}

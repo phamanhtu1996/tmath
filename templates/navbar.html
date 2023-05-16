@@ -66,19 +66,19 @@
         <ul class="flex items-center space-x-6">
             <li>
                 <a href="javascript:void(0)" onclick="submit_language('vi')" class="">
-                    <img src="{{ static('icons/vn_flag.svg') }}" alt="vn" class="object-cover w-6 h-4">
+                    <img loading="lazy" src="{{ static('icons/vn_flag.svg') }}" alt="vn" class="object-cover w-6 h-4">
                 </a>
             </li>
             <li>
                 <a href="javascript:void(0)" onclick="submit_language('en')" class="">
-                    <img src="{{ static('icons/us_flag.svg') }}" alt="vn" class="object-cover w-6 h-4">
+                    <img loading="lazy" src="{{ static('icons/us_flag.svg') }}" alt="vn" class="object-cover w-6 h-4">
                 </a>
             </li>
             {% if request.user.is_authenticated %}
             <li class="relative group">
                 <a href="{{ url('user_page') }}" class="flex flex-col justify-center h-full">
                     <span class="flex items-center space-x-1 text-white">
-                        <img src="{{ gravatar(request.user, 80) }}" alt="{{ request.user.username }}" class="rounded-full w-11 h-11">
+                        <img loading="lazy" src="{{ gravatar(request.user, 80) }}" alt="{{ request.user.username }}" class="rounded-full w-11 h-11">
                         <span>
                             {%- trans username=request.user.username -%}
                                 Hello, <b>{{ username }}</b>

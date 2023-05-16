@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
-from django.db.models import CASCADE, F, Q, QuerySet, SET_NULL
+from django.db.models import CASCADE, F, Q, QuerySet, SET_NULL, FilteredRelation
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import Coalesce
 from django.urls import reverse
@@ -22,7 +22,7 @@ from judge.user_translations import gettext as user_gettext
 from judge.utils.raw_sql import RawSQLColumn, unique_together_left_join
 
 __all__ = ['ProblemGroup', 'ProblemType', 'Problem', 'ProblemTranslation', 'ProblemClarification', 'License',
-           'Solution', 'SubmissionSourceAccess', 'TranslatedProblemQuerySet', 'TranslatedProblemForeignKeyQuerySet']
+           'Solution', 'SubmissionSourceAccess', 'TranslatedProblemQuerySet']
 
 
 def disallowed_characters_validator(text):
@@ -112,21 +112,9 @@ class TranslatedProblemQuerySet(SearchQuerySet):
         super(TranslatedProblemQuerySet, self).__init__(('code', 'name', 'description'), **kwargs)
 
     def add_i18n_name(self, language):
-        queryset = self._clone()
-        alias = unique_together_left_join(queryset, ProblemTranslation, 'problem', 'language', language)
-        return queryset.annotate(i18n_name=RawSQL('%s.name' % alias, ()))
-
-
-class TranslatedProblemForeignKeyQuerySet(QuerySet):
-    def add_problem_i18n_name(self, key, language, name_field=None):
-        queryset = self._clone() if name_field is None else self.annotate(_name=F(name_field))
-        alias = unique_together_left_join(queryset, ProblemTranslation, 'problem', 'language', language,
-                                          parent_model=Problem)
-        # You must specify name_field if Problem is not yet joined into the QuerySet.
-        kwargs = {key: Coalesce(RawSQL('%s.name' % alias, ()),
-                                F(name_field) if name_field else RawSQLColumn(Problem, 'name'),
-                                output_field=models.CharField())}
-        return queryset.annotate(**kwargs)
+        return self.annotate(i18n_translation=FilteredRelation(
+            'translations', condition=Q(translations__language=language),
+        )).annotate(i18n_name=Coalesce(F('i18n_translation__name'), F('name'), output_field=models.CharField()))
 
 
 class SubmissionSourceAccess:

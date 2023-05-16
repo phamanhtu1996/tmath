@@ -120,7 +120,7 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
     change_form_template = 'admin/judge/contest/change_form.html'
     change_list_template = 'admin/judge/contest/change_list.html'
     fieldsets = (
-        (None, {'fields': ('key', 'name', 'authors', 'curators', 'testers')}),
+        (None, {'fields': ('key', 'name', 'topic', 'authors', 'curators', 'testers')}),
         (_('Settings'), {'fields': ('is_visible', 'is_public_contest', 'use_clarifications', 'hide_problem_tags', 'hide_problem_authors',
                                     'run_pretests_only', 'locked_after', 'scoreboard_visibility',
                                     'points_precision', 'add_solution', 'limit_solution')}),
@@ -132,9 +132,9 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
                                   'organizations', 'view_contest_scoreboard')}),
         (_('Justice'), {'fields': ('banned_users',)}),
     )
-    list_display = ('key', 'name', 'is_visible', 'is_rated', 'locked_after', 'start_time', 'end_time', 'time_limit',
+    list_display = ('key', 'name', 'topic', 'is_visible', 'is_rated', 'locked_after', 'start_time', 'end_time', 'time_limit',
                     'user_count', 'show_word')
-    search_fields = ('key', 'name')
+    search_fields = ('key', 'name', 'topic')
     inlines = [ContestProblemInline]
     autocomplete_fields = [
         'authors', 

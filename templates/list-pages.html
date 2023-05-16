@@ -1,7 +1,7 @@
 <div class="inline-flex items-stretch border bg-white max-w-fit [&>*]:p-1 lg:[&>*]:p-2 [&>*]:font-semibold [&>*]:-my-px [&>*]:min-w-[2rem] lg:[&>*]:min-w-[2.75rem] rounded-md divide-x divide-slate-400 border-black">
     {% if page_obj.has_previous() %}
         {% if page_obj.previous_page_number() == 1 and first_page_href != None %}
-            <a class="flex flex-col items-center justify-center" href="{{ first_page_href }}">
+            <a class="flex flex-col items-center justify-center h-full" href="{{ first_page_href }}">
                 <i class="fa-duotone fa-circle-chevron-left"></i>
             </a>
         {% else %}
@@ -37,6 +37,6 @@
             <i class="fa-duotone fa-circle-chevron-right"></i>    
         </a>
     {% else %}
-        <a class="flex flex-col items-center justify-center" disabled><i class="fa-duotone fa-circle-chevron-right"></i></a>
+        <a class="flex flex-col items-center justify-center " disabled><i class="fa-duotone fa-circle-chevron-right"></i></a>
     {% endif %}
 </div>

@@ -29,7 +29,7 @@
         </div>
         <div class="p-4 -mt-10 bg-transparent">
             <div class="text-center">
-                <img src="{{ gravatar(silver.user, 200) }}" class="inline-block w-16 h-16 border-4 border-white rounded-full" alt="">
+                <img loading="lazy" src="{{ gravatar(silver.user, 200) }}" class="inline-block w-16 h-16 border-4 border-white rounded-full" alt="">
                 <div class="text-xl font-semibold">
                     {% if silver.name %}{{silver.name}}{% else %}{{ silver.username}}{% endif %}
                 </div>
@@ -52,7 +52,7 @@
         </div>
         <div class="p-4 -mt-10 bg-transparent">
             <div class="text-center">
-                <img src="{{ gravatar(gold.user, 200) }}" class="inline-block w-16 h-16 border-4 border-white rounded-full" alt="">
+                <img loading="lazy" src="{{ gravatar(gold.user, 200) }}" class="inline-block w-16 h-16 border-4 border-white rounded-full" alt="">
                 <div class="text-xl font-semibold">
                     {% if gold.name %}{{gold.name}}{% else %}{{ gold.username }}{% endif %}
                 </div>
@@ -76,7 +76,7 @@
         </div>
         <div class="p-4 -mt-10 bg-transparent">
             <div class="text-center">
-                <img src="{{ gravatar(bronze.user, 200) }}" class="inline-block w-16 h-16 border-4 border-white rounded-full" alt="">
+                <img loading="lazy" src="{{ gravatar(bronze.user, 200) }}" class="inline-block w-16 h-16 border-4 border-white rounded-full" alt="">
                 <div class="text-xl font-semibold">
                     {% if bronze.name %}{{bronze.name}}{% else %}{{ bronze.username}}{% endif %}
                 </div>

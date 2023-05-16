@@ -1,5 +1,4 @@
-Django>3,<4
-django-cleanup
+Django>4,<4.2
 django_compressor
 django-mptt
 django-pagedown<2
@@ -32,11 +31,12 @@ packaging
 celery
 ansi2html @ git+https://github.com/DMOJ/ansi2html.git
 sqlparse
-lupa
+# lupa
 martor @ git+https://github.com/patpro28/martor
 netaddr
 webauthn
 bleach==4.1.0
+# django-admin-sortable2
 pandoc
 pymdown-extensions
 FeedParser

@@ -12,9 +12,6 @@
             $(function () {
                 var blocked = false, request = false;
                 var list = $('#test-cases');
-                var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-                var ws_path = ws_scheme + '://' + window.location.host + '/ws/submission/{{ submission.id_secret }}/';
-                var ws = new ReconnectingWebSocket(ws_path);
                 
                 function update() {
                     if (blocked) {
@@ -41,9 +38,8 @@
                         $("html, body").animate({scrollTop: $(document).height()}, 0);
                 }
 
-                ws.onmessage = function (event) {
-                    var data = JSON.parse(event.data);
-                    switch (data['type']) {
+                event_dispatcher.on('sub_{{ submission.id_secret }}', function (message) {
+                    switch (message.type) {
                         case 'internal-error':
                         case 'grading-end':
                         case 'compile-error':
@@ -54,7 +50,7 @@
                         case 'processing':
                             update();
                     }
-                };
+                });
             });
         </script>
     {% endif %}

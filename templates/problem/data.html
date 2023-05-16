@@ -512,7 +512,7 @@
                     <td>
                         <div class="w-full pr-10">
                             <input type="text" name="io_input_file" id="{{ data_form.io_input_file.id_for_label }}" 
-                            class="w-1/2 rounded-lg border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            class="w-1/2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                         </div>
                     </td>
                 </tr>
@@ -521,7 +521,7 @@
                     <td>
                         <div class="w-full pr-10">
                             <input type="text" name="io_output_file" id="{{ data_form.io_output_file.id_for_label }}" 
-                            class="w-1/2 rounded-lg border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            class="w-1/2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                         </div>
                     </td>
                 </tr>
@@ -546,12 +546,14 @@
                     <td class="border">{{ _('Type') }}</td>
                     <td class="border">{{ _('Input file') }}</td>
                     <td class="border">{{ _('Output file') }}</td>
-                    <td class="border">{{ _('Points') }}</td>
-                    <td class="border">{{ _('Pretest?') }}</td>
+                    <td class="w-1/12 border">{{ _('Points') }}</td>
+                    <td class="w-1/12 border">{{ _('Pretest?') }}</td>
                     <td class="hidden border checker">{{ _('Checker')}}</td>
-                    <td class="flex items-center justify-center gap-3 p-2 border">
-                        {{ _('Delete?') }}
-                        <input type="checkbox" name="delete_all" id="delete_all" />
+                    <td class="w-1/6 border">
+                        <div class="flex items-center justify-center gap-3">
+                            <span>{{ _('Delete?') }}</span>
+                            <input class="rounded-md ring" type="checkbox" name="delete_all" id="delete_all" />
+                        </div>
                     </td>
                 </tr>
             </thead>
@@ -583,8 +585,10 @@
                             {{ form.output_file.errors }}{{ form.output_file }}
                         </td>
                         <td>
-                            {{ form.points.errors }}
-                            {{ form.points }}
+                            <div class="">
+                                {{ form.points.errors }}
+                                {{ form.points }}
+                            </div>
                         </td>
                         <td>{{ form.is_pretest.errors }}{{ form.is_pretest }}</td>
                         <td class="checker">

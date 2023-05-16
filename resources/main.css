@@ -335,40 +335,68 @@ input.incorrect {
   @apply bg-red-500 text-white
 }
 
+.prose details.note {
+  @apply block rounded-xl border-2 border-blue-600 px-3 [&>*:last-child]:mb-4 [&>*:nth-child(2)]:mt-3
+}
+
+.prose details.note summary {
+  @apply -mx-3 rounded-lg bg-blue-300 p-3 text-lg font-bold text-black marker:content-none focus:outline-none cursor-pointer
+}
+
+.prose details[open].note summary {
+  @apply rounded-b-none bg-blue-600 text-white
+} 
+
+.prose details.success {
+  @apply block rounded-xl border-2 border-green-600 px-3 [&>*:last-child]:mb-4 [&>*:nth-child(2)]:mt-3;
+}
+
+.prose details.success summary {
+  @apply p-3 -mx-3 text-lg font-bold text-black rounded-lg cursor-pointer bg-lime-300 marker:content-none focus:outline-none;
+}
+
+.prose details[open].success summary {
+  @apply text-white bg-green-600 rounded-b-none;
+}
+
 details summary:focus {
-  @apply outline-none
+  @apply outline-none;
+}
+
+details summary {
+  @apply flex justify-between;
 }
 
 details summary::-webkit-details-marker {
-  @apply hidden
+  @apply hidden;
 }
 
 /* Attach the "no-details" class to details tags
    in browsers that do not support them to get
    open/show functionality. */
 details.no-details:not([open]) > * {
-  @apply hidden
+  @apply hidden;
 }
 
 details.no-details:not([open]) summary {
-  @apply block
+  @apply block;
 }
 
 details.success>summary {
   border-color: #52fa7c;
   color: #52fa7c;
-  @apply bg-[#111217] 
+  @apply bg-[#111217] ;
 }
 
 details>summary::after {
   content: '\f054';
-  @apply right-4 font-awesome absolute
+  @apply transition-all duration-300 ease-in-out font-awesome;
 }
 
 details[open]>summary::after {
-  @apply rotate-90
+  @apply rotate-90;
 }
 
 details[open]>summary {
-  @apply bg-black text-white
+  @apply text-white bg-black;
 }

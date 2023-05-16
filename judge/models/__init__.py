@@ -6,7 +6,7 @@ from judge.models.contest import Contest, ContestMoss, ContestParticipation, Con
     ContestTag, Rating, SampleContest, SampleContestProblem, ContestLevel
 from judge.models.interface import BlogPost, MiscConfig, NavigationBar, validate_regex, CourseModel, Log
 from judge.models.problem import LanguageLimit, License, Problem, ProblemClarification, ProblemGroup, \
-    ProblemTranslation, ProblemType, Solution, SubmissionSourceAccess, TranslatedProblemForeignKeyQuerySet, \
+    ProblemTranslation, ProblemType, Solution, SubmissionSourceAccess, \
     TranslatedProblemQuerySet, ProblemClass
 from judge.models.problem_data import CHECKERS, ProblemData, ProblemTestCase, problem_data_storage, \
     problem_directory_file, PublicSolution

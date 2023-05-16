@@ -2,13 +2,13 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models, transaction
 from django.db.models import CASCADE, Q
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext, gettext_lazy as _
 from jsonfield import JSONField
-from lupa import LuaRuntime
+# from lupa import LuaRuntime
 from moss import MOSS_LANG_C, MOSS_LANG_CC, MOSS_LANG_JAVA, MOSS_LANG_PYTHON
 
 from judge import contest_format
@@ -80,7 +80,8 @@ class Contest(models.Model):
     )
     key = models.CharField(max_length=20, verbose_name=_('contest id'), unique=True,
                            validators=[RegexValidator('^[a-z0-9]+$', _('Contest id must be ^[a-z0-9]+$'))])
-    name = models.CharField(max_length=100, verbose_name=_('contest name'), db_index=True)
+    name = models.CharField(max_length=20, verbose_name=_('contest name'), db_index=True)
+    topic = models.CharField(max_length=100, verbose_name=_('contest topic'), blank=True)
     authors = models.ManyToManyField(Profile, help_text=_('These users will be able to edit the contest.'),
                                      related_name='authors+')
     curators = models.ManyToManyField(Profile, help_text=_('These users will be able to edit the contest, '
@@ -188,13 +189,13 @@ class Contest(models.Model):
 
     @cached_property
     def get_label_for_problem(self):
-        if not self.problem_label_script:
-            return self.format.get_label_for_problem
+        # if not self.problem_label_script:
+        return self.format.get_label_for_problem
 
-        def DENY_ALL(obj, attr_name, is_setting):
-            raise AttributeError()
-        lua = LuaRuntime(attribute_filter=DENY_ALL, register_eval=False, register_builtins=False)
-        return lua.eval(self.problem_label_script)
+        # def DENY_ALL(obj, attr_name, is_setting):
+        #     raise AttributeError()
+        # lua = LuaRuntime(attribute_filter=DENY_ALL, register_eval=False, register_builtins=False)
+        # return lua.eval(self.problem_label_script)
 
     def clean(self):
         # Django will complain if you didn't fill in start_time or end_time, so we don't have to.
@@ -324,6 +325,12 @@ class Contest(models.Model):
         return Contest.testers.through.objects.filter(contest=self).values_list('profile_id', flat=True)
 
     def __str__(self):
+        return self.full_name
+
+    @property
+    def full_name(self):
+        if self.topic:
+            return f'{self.name} - {self.topic}'
         return self.name
 
     def get_absolute_url(self):

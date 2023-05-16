@@ -12,7 +12,7 @@
                 data-revision-ajax="{{ url('comment_revision_ajax', node.id) }}" class="comment {% if node.score <= vote_hide_threshold %} bad-comment{% endif %}">
                 {% with author=node.author, user=node.author.user %}
                 <a href="{{ url('user_page', user.username) }}" class="avatar">
-                    <img src="{{ gravatar(author, 135) }}">
+                    <img loading="lazy" src="{{ gravatar(author, 135) }}">
                 </a>
                 {% endwith %}
                 <div class="content">

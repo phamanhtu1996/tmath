@@ -14,7 +14,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core import serializers
 from django.db import transaction
-from django.db.models import Count, F, Prefetch, Q
+from django.db.models import Count, F, Prefetch, Q, FilteredRelation, CharField
+from django.db.models.functions import Coalesce
 from django.db.utils import ProgrammingError
 from django.http import Http404, HttpResponse, HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404
@@ -35,7 +36,7 @@ from judge.forms import LanguageInlineFormset, ProblemCloneForm, ProblemCreateFo
     ProblemSubmitForm, ProblemUpdateForm, CreatePublicSolutionForm
 from judge.models import ContestSubmission, Judge, Language, Problem, ProblemGroup, \
     ProblemTranslation, ProblemType, RuntimeVersion, Solution, Submission, SubmissionSource, \
-    TranslatedProblemForeignKeyQuerySet, Profile
+    Profile
 from judge.models.contest import Contest
 from judge.models.problem import ProblemClass
 from judge.models.problem_data import ProblemData, ProblemTestCase, PublicSolution, SolutionVote
@@ -359,10 +360,12 @@ class ProblemList(QueryStringSortMixin, TitleMixin, SolvedProblemMixin, ListView
         queryset = self.profile.current_contest.contest.contest_problems.select_related('problem__group') \
             .defer('problem__description').order_by('problem__code') \
             .annotate(user_count=Count('submission__participation', distinct=True)) \
-            .order_by('order')
-        queryset = TranslatedProblemForeignKeyQuerySet.add_problem_i18n_name(queryset, 'i18n_name',
-                                                                             self.request.LANGUAGE_CODE,
-                                                                             'problem__name')
+            .annotate(i18n_translation=FilteredRelation(
+                'problem__translations', condition=Q(problem__translations__language=self.request.LANGUAGE_CODE),
+            )).annotate(i18n_name=Coalesce(
+                F('i18n_translation__name'), F('problem__name'), output_field=CharField(),
+            )).order_by('order')
+        
         return [{
             'id': p['problem_id'],
             'code': p['problem__code'],
