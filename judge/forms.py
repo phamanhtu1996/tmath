@@ -154,8 +154,16 @@ class DownloadDataForm(Form):
         return self.cleaned_data['submission_result']
 
 
+def validate_source_length(value):
+    if len(value) > settings.MAX_LEN_SOURCE:
+        raise ValidationError(f'Source code is too long (maximum is {settings.MAX_LEN_SOURCE} characters)')
+
 class ProblemSubmitForm(ModelForm):
-    source = CharField(max_length=65536, required=False, widget=AceWidget(theme='twilight', no_ace_media=True))
+    source = CharField(
+        required=False, 
+        widget=AceWidget(theme='twilight', no_ace_media=True),
+        validators=[validate_source_length]
+    )
     submission_file = forms.FileField(
         label=_('Source file'),
         required=False,
@@ -217,6 +225,8 @@ class EditOrganizationForm(ModelForm):
 
 
 class CustomAuthenticationForm(AuthenticationForm):
+    remember_me = BooleanField(required=False, label=_('Remember me'))
+    
     def __init__(self, *args, **kwargs):
         super(CustomAuthenticationForm, self).__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({'placeholder': _('Username')})

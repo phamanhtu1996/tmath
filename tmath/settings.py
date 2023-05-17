@@ -54,6 +54,7 @@ ACE_URL = '//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3'
 SELECT2_JS_URL = '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js'
 DEFAULT_SELECT2_CSS = '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css'
 
+MAX_LEN_SOURCE = 50000
 DMOJ_CAMO_URL = None
 DMOJ_CAMO_KEY = None
 DMOJ_CAMO_HTTPS = False
@@ -121,7 +122,7 @@ TIMEZONE_MAP = None
 TIMEZONE_DETECT_BACKEND = None
 
 TERMS_OF_SERVICE_URL = None
-DEFAULT_USER_LANGUAGE = 'PY3'
+DEFAULT_USER_LANGUAGE = 'CPP17'
 
 PHANTOMJS = ''
 PHANTOMJS_PDF_ZOOM = 0.75
@@ -493,7 +494,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-DMOJ_RESOURCES = BASE_DIR / 'resources'
+RESOURCES = BASE_DIR / 'resources'
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',

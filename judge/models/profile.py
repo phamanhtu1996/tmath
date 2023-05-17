@@ -54,19 +54,6 @@ class LoggedInUser(models.Model):
 #         db_table = 'custom_session'
 
 
-class LoggedInUser(models.Model):
-
-    user = models.OneToOneField(User, related_name='logged_in_user', on_delete=models.CASCADE)
-    session_key = models.CharField(max_length=32, blank=True, null=True)
-
-    class Meta:
-        verbose_name = _("loggedinuser")
-        verbose_name_plural = _("loggedinusers")
-
-    def __str__(self):
-        return self.user.username
-
-
 class EncryptedNullCharField(EncryptedCharField):
     def get_prep_value(self, value):
         if not value:

@@ -143,8 +143,8 @@
                 {% endif %}
             </div>
         {% endif %}
-        <div id="content-left" class="flex-1 overflow-x-auto lg:pr-10">
-            <table class="w-full border border-collapse border-black">
+        <div id="content-left" class="flex-1 overflow-x-auto lg:pr-10 ">
+            <table class="w-full bg-white border border-collapse border-black">
                 <thead>
                 <tr class="[&>*]:text-center [&>*]:bg-black [&>*]:text-white [&>*]:py-3 divide-x divide-white">
                     {% if request.in_contest %}
@@ -213,23 +213,14 @@
                                 </td>
                             {% endif %}
                         {% endif %}
-                        <td class="">
-                            <div class="flex items-center px-2">
-                                <div class="flex-1 py-2 font-bold">
-                                    <a href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
-                                </div>
-                                {% if not request.in_contest %}
-                                <div class="hidden text-sm text-gray-400 lg:block">
-                                    {% for type in problem.types.all() %}
-                                        <a href="{{ url('problem_list') }}?type={{ type.id }}" class="cursor-pointer hover:underline">{{ type }}</a>{% if not loop.last %}, {% endif %}
-                                    {% endfor %}
-                                </div> 
-                                {% endif %}
-                            </div>
+                        <td class="p-2 font-bold">
+                            <a href="{{ url('problem_detail', problem.code) }}">{{ problem.i18n_name or problem.name }}</a>
                         </td>
                         {% if not request.in_contest %}
                         <td class="hidden lg:table-cell">
+                            {% if problem.group %}
                             <div class="p-1 line-clamp-1" title="{{ problem.group.full_name }}"> {{ problem.group.full_name }}</div> 
+                            {% endif %}
                         </td>
                         {% endif %}
                         <td class="text-center">{{ problem.points|floatformat }}{% if problem.partial %}p{% endif %}</td>

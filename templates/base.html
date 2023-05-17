@@ -95,8 +95,13 @@
     {% endif %}
     {% block media %}{% endblock %}
     <link rel="stylesheet" href="{{ static('full_style.css') }}">
+    {% if not INLINE_JQUERY %}
+        <script src="{{ JQUERY_JS }}"></script>
+    {% endif %}
     <script>{{ inlinei18n(LANGUAGE_CODE)|safe }}</script>
-    <script src="{{ static('libs/jquery-3.6.0.min.js') }}"></script>
+    {% if INLINE_JQUERY %}
+        <script src="{{ static('libs/jquery-3.6.0.min.js') }}"></script>
+    {% endif %}
     <script src="{{ static('libs/jquery-cookie.js') }}"></script>
     <script src="{{ static('libs/jquery-taphold.js') }}"></script>
     <script src="{{ static('libs/jquery.unveil.js') }}"></script>
@@ -111,13 +116,6 @@
                 $('img.unveil').unveil(200);
             });
             $(function() {
-                if (typeof window.orientation !== 'undefined') {
-                    $(window).resize(function() {
-                        var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-                        $('#viewport').attr('content', width > 480 ? 'initial-scale=1' : 'width=480');
-                    });
-                }
-            
                 $.ajaxSetup({
                     beforeSend: function(xhr, settings) {
                         if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain)
@@ -307,7 +305,7 @@
         </style>
     </noscript>
 </head>
-<body class="min-w-full">
+<body class="min-w-full bg-gray-100 tmath">
 <svg width="0" height="0" style="display: block">
     <defs>
         <clipPath id="rating-clip"><circle cx="8" cy="8" r="7"/></clipPath>

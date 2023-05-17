@@ -29,8 +29,8 @@ class VersionRelation(GenericRelation):
     def __init__(self):
         super(VersionRelation, self).__init__(Version, object_id_field='object_id')
 
-    def get_extra_restriction(self, where_class, alias, remote_alias):
-        cond = super(VersionRelation, self).get_extra_restriction(where_class, alias, remote_alias)
+    def get_extra_restriction(self, alias, remote_alias):
+        cond = super(VersionRelation, self).get_extra_restriction(alias, remote_alias)
         field = self.remote_field.model._meta.get_field('db')
         lookup = field.get_lookup('exact')(field.get_col(remote_alias), 'default')
         cond.add(lookup, 'AND')
