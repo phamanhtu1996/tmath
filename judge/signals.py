@@ -15,10 +15,10 @@ from .models import BlogPost, Comment, Contest, ContestSubmission, EFFECTIVE_MAT
 
 
 def get_pdf_path(basename):
-    return os.path.join(settings.DMOJ_PDF_PROBLEM_CACHE, basename)
+    return os.path.join(settings.PDF_PROBLEM_CACHE, basename)
 
 def get_pdf_contest_path(basename):
-    return os.path.join(settings.DMOJ_PDF_CONTEST_CACHE, basename)
+    return os.path.join(settings.PDF_CONTEST_CACHE, basename)
 
 def unlink_if_exists(file):
     try:
