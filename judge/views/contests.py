@@ -69,7 +69,12 @@ def _find_contest(request, key, private_check=True):
 
 class ContestListMixin(object):
     def get_queryset(self):
-        return Contest.get_visible_contests(self.request.user)
+        if not self.request.user.is_authenticated:
+            return Contest.objects.filter(is_private=False)
+        if not self.request.user.is_superuser:
+            return Contest.objects.filter(Q(is_private=False) | Q(is_private=True, private_contestants=self.request.user.profile))
+        return Contest.objects.all()
+        # return Contest.get_visible_contests(self.request.user)
 
 
 class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestListMixin, ListView):
@@ -256,6 +261,8 @@ class ContestDetail(ContestMixin, TitleMixin, CommentedDetailView):
         return 'c:%s' % self.object.key
 
     def get_title(self):
+        if self.object.is_joinable_by(self.request.user):
+            return self.object.full_name
         return self.object.name
 
     def get_context_data(self, **kwargs):
@@ -679,7 +686,7 @@ def contest_ranking_ajax(request, contest, participation=None):
     })
 
 
-class ContestRankingBase(ContestMixin, TitleMixin, DetailView):
+class ContestRankingBase(LoginRequiredMixin, ContestMixin, TitleMixin, DetailView):
     template_name = 'contest/ranking.html'
     tab = None
 
@@ -729,7 +736,7 @@ class ContestRanking(ContestRankingBase):
         return context
 
 
-class ContestParticipationList(LoginRequiredMixin, ContestRankingBase):
+class ContestParticipationList(ContestRankingBase):
     tab = 'participation'
 
     def get_title(self):
@@ -892,7 +899,7 @@ class ContestRawView(ContestMixin, DetailView):
         return context
 
 
-class ContestPdfView(ContestMixin, SingleObjectMixin, View):
+class ContestPdfView(LoginRequiredMixin, ContestMixin, SingleObjectMixin, View):
     logger = logging.getLogger('judge.problem.pdf')
     languages = set(map(itemgetter(0), settings.LANGUAGES))
 
@@ -920,7 +927,7 @@ class ContestPdfView(ContestMixin, SingleObjectMixin, View):
                 trans = None
             list_trans += ((problem, trans),)
 
-        cache = os.path.join(settings.DMOJ_PDF_CONTEST_CACHE, '%s.%s.pdf' % (contest.key, language))
+        cache = os.path.join(settings.PDF_CONTEST_CACHE, '%s.%s.pdf' % (contest.key, language))
 
         if not os.path.exists(cache):
             self.logger.info('Rendering: %s.%s.pdf', contest.key, language)
@@ -933,11 +940,14 @@ class ContestPdfView(ContestMixin, SingleObjectMixin, View):
                 }).replace('"//', '"https://').replace("'//", "'https://")
                 maker.title = contest.name
 
-                assets = ['style.css', 'pygment-github.css']
+                assets = ['full_style.css', 'pygment-github.css']
+                icons = ['logo.svg']
                 if maker.math_engine == 'jax':
                     assets.append('mathjax_config.js')
                 for file in assets:
-                    maker.load(file, os.path.join(settings.DMOJ_RESOURCES, file))
+                    maker.load(file, settings.RESOURCES / file)
+                for file in icons:
+                    maker.load(file, settings.RESOURCES / 'icons' / file)
                 maker.make()
                 if not maker.success:
                     self.logger.error('Failed to render PDF for %s', contest.key)
@@ -989,7 +999,7 @@ class SampleContestPDF(SingleObjectMixin, View):
                 trans = None
             list_trans += ((problem, trans),)
 
-        cache = os.path.join(settings.DMOJ_PDF_CONTEST_CACHE, '%s.%s.pdf' % (contest.key, language))
+        cache = os.path.join(settings.PDF_CONTEST_CACHE, '%s.%s.pdf' % (contest.key, language))
 
         from judge.signals import unlink_if_exists
         if os.path.exists(cache):
@@ -1010,7 +1020,7 @@ class SampleContestPDF(SingleObjectMixin, View):
                 if maker.math_engine == 'jax':
                     assets.append('mathjax_config.js')
                 for file in assets:
-                    maker.load(file, os.path.join(settings.DMOJ_RESOURCES, file))
+                    maker.load(file, os.path.join(settings.RESOURCES, file))
                 maker.make()
                 if not maker.success:
                     self.logger.error('Failed to render PDF for %s', contest.key)
