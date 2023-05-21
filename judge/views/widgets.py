@@ -91,7 +91,8 @@ def django_uploader(image):
 
 @login_required
 def martor_image_uploader(request):
-    if request.method != 'POST' or not request.is_ajax() or 'markdown-image-upload' not in request.FILES:
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+    if request.method != 'POST' or not is_ajax or 'markdown-image-upload' not in request.FILES:
         return HttpResponseBadRequest('Invalid request')
 
     image = request.FILES['markdown-image-upload']

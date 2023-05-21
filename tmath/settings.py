@@ -334,6 +334,7 @@ BLEACH_USER_SAFE_TAGS = [
     'img', 'audio', 'video', 'source',
     'a',
     'style', 'noscript', 'center',
+    'details', 'summary',
 ]
     
 BLEACH_USER_SAFE_ATTRS = {
@@ -431,6 +432,7 @@ MARKDOWN_EXTENSIONS = [
     'pymdownx.superfences',
     'pymdownx.emoji',
     'pymdownx.extra',
+    'pymdownx.details',
     'markdown.extensions.footnotes',
     'markdown.extensions.attr_list',
     'markdown.extensions.def_list',

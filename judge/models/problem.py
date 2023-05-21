@@ -19,7 +19,6 @@ from judge.fulltext import SearchQuerySet
 from judge.models.profile import Organization, Profile
 from judge.models.runtime import Language
 from judge.user_translations import gettext as user_gettext
-from judge.utils.raw_sql import RawSQLColumn, unique_together_left_join
 
 __all__ = ['ProblemGroup', 'ProblemType', 'Problem', 'ProblemTranslation', 'ProblemClarification', 'License',
            'Solution', 'SubmissionSourceAccess', 'TranslatedProblemQuerySet']
