@@ -6,7 +6,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('judge', '0130_auto_20220212_0944'),
+    ]
+    
+    replaces = [
         ('judge', '0131_profile_current_exam'),
+        ('judge', '0132_profile_emath')
     ]
 
     operations = [

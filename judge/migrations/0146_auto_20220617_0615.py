@@ -14,10 +14,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RemoveField(
             model_name='profile',
-            name='current_exam',
-        ),
-        migrations.RemoveField(
-            model_name='profile',
             name='emath',
         ),
         migrations.AlterField(
