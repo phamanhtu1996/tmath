@@ -14,6 +14,7 @@
                 var list = $('#test-cases');
                 var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
                 var ws_path = ws_scheme + '://' + window.location.host + '/ws/submission/{{ submission.id_secret }}/';
+                var ws = new WebSocket(ws_path);
                 
                 function update() {
                     if (blocked) {

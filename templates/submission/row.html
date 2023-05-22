@@ -10,10 +10,12 @@
             {%- endif -%}
         </div>
         {%- else -%}
-        <i class="fa-duotone fa-spinner-third fa-spin fa-lg"></i>
+        <div class="">
+            <i class="fa-duotone fa-spinner fa-spin fa-lg"></i>
+        </div>
         {%- endif -%}
         <div class="text-xs">
-            <span title="{{ submission.long_status }}" class="{{ submission.result_class }}"><b>{{ submission.short_status }} | {{ submission.language.short_display_name }}</b></span>
+            <span title="{{ submission.long_status }}"><b>{{ submission.short_status }} | {{ submission.language.short_display_name }}</b></span>
         </div>
     </div>
 </td>
