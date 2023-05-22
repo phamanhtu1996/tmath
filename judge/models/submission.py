@@ -47,17 +47,17 @@ SUBMISSION_RESULT_COLOR = {
 }
 
 SUBMISSION_RESULT_BACKGROUND = {
-    'AC': 'bg-green-500',
-    'WA': 'bg-gray-500',
-    'TLE': 'bg-gray-500',
-    'MLE': 'bg-gray-500',
-    'OLE': 'bg-orange-500',
-    'IR': 'bg-orange-500',
-    'RTE': 'bg-orange-500',
-    'CE': 'bg-gray-500',
-    'IE': 'bg-red-500',
-    'SC': 'bg-gray-500',
-    'AB': 'bg-gray-500',
+    'AC': 'accepted-result',
+    'WA': 'wrong-result',
+    'TLE': 'time-limit-exceeded-result',
+    'MLE': 'memory-limit-exceeded-result',
+    'OLE': 'output-limit-exceeded-result',
+    'IR': 'invalid-return-result',
+    'RTE': 'runtime-error-result',
+    'CE': 'compile-error-result',
+    'IE': 'internal-error-result',
+    'SC': 'bg-gray-300',
+    'AB': 'bg-gray-300',
 }
 
 class Submission(models.Model):
@@ -132,8 +132,8 @@ class Submission(models.Model):
     @property
     def result_background(self):
         if not self.status in ('D', 'IE', 'CE', 'AB'):
-            return 'bg-black'
-        return SUBMISSION_RESULT_BACKGROUND.get(self.result, 'bg-black')
+            return 'grading-result'
+        return SUBMISSION_RESULT_BACKGROUND.get(self.result, 'default-result')
 
     @property
     def memory_bytes(self):

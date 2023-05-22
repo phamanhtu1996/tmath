@@ -34,6 +34,45 @@
   }
 }
 
+.default-result {
+  @apply bg-gray-500 text-black
+}
+
+.grade-result {
+  @apply bg-black text-white
+}
+
+.accepted-result {
+  @apply bg-green-500 text-green-800/75
+}
+
+.wrong-result {
+  @apply bg-gray-400 text-red-500
+}
+
+.runtime-error-result {
+  @apply bg-orange-500 text-black
+}
+
+.time-limit-exceeded-result {
+  @apply bg-gray-400 text-black
+}
+
+.memory-limit-exceeded-result {
+  @apply bg-gray-400 text-black
+}
+
+.output-limit-exceeded-result {
+  @apply bg-orange-500 text-black
+}
+
+.compile-error-result {
+  @apply bg-gray-400 text-black
+}
+
+.internal-error-result {
+  @apply bg-red-500 text-black
+}
 
 .bg-gray-500 {
   --tw-bg-opacity: 1;
