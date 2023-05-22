@@ -164,7 +164,6 @@ INSTALLED_APPS = (
     'chat',
     # 'emath',
     'typeracer',
-    # 'daphne',
     'django.contrib.flatpages',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -187,7 +186,7 @@ INSTALLED_APPS = (
     'django_jinja',
     'martor',
     # "corsheaders",
-    # 'channels',
+    'channels',
 )
 
 MIDDLEWARE = (
@@ -261,7 +260,7 @@ TEMPLATES = [
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
-                'judge.template_context.comet_location',
+                # 'judge.template_context.comet_location',
                 'judge.template_context.get_resource',
                 'judge.template_context.general_info',
                 'judge.template_context.site',
@@ -323,6 +322,15 @@ LANGUAGES = [
     ('zh-hans', _('Simplified Chinese')),
     ('zh-hant', _('Traditional Chinese')),
 ]
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 BLEACH_USER_SAFE_TAGS = [
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',

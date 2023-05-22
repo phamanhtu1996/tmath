@@ -32,7 +32,6 @@
                 }
             })
         }
-        {% if EVENT_LAST_MSG %}
         $(function () {
             var blocked = false, request = false;
 
@@ -63,7 +62,6 @@
                 update(message.id)
             })
         });
-        {% endif %}
     {% endif %}
     </script>
 {% endblock %}
@@ -81,19 +79,19 @@
 {% block body %}
 <div class="flex flex-col lg:flex-row-reverse">
     <div class="lg:basis-1/4">
-        <div class="w-full flex p-4 flex-col">
-            <div class="font-bold text-white bg-black flex p-2 rounded-t-md text-2xl">
+        <div class="flex flex-col w-full p-4">
+            <div class="flex p-2 text-2xl font-bold text-white bg-black rounded-t-md">
                 <div class="flex-1 ">{{ _('Manage') }}</div>
                 <div class=""><i class="fa-duotone fa-pen-to-square"></i></div>
             </div>
-            <ul class="flex flex-col divide-y border rounded-b-md font-semibold">
+            <ul class="flex flex-col font-semibold border divide-y rounded-b-md">
                 {% if request.user.is_authenticated %}
                     {% if request.profile in organization %}
                     <li class="p-2">
                         <form method="post" class="ui form" action="{{ url('leave_organization', organization.id, organization.slug) }}">
                             {% csrf_token %}
                             <div class="ui field">
-                                <button type="submit" class="ui fluid text-red-500 button leave-organization">
+                                <button type="submit" class="text-red-500 ui fluid button leave-organization">
                                     {{ _('Leave organization') }}
                                 </button>
                             </div>

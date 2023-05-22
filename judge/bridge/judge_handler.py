@@ -13,10 +13,10 @@ from django import db
 from django.conf import settings
 from django.utils import timezone
 
-# from channels.layers import get_channel_layer
-# from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
-from judge import event_poster as event
+# from judge import event_poster as event
 from judge.bridge.base_handler import ZlibPacketHandler, proxy_list
 from judge.caching import finished_submission
 from judge.models import Judge, Language, LanguageLimit, Problem, RuntimeVersion, Submission, SubmissionTestCase
@@ -31,6 +31,8 @@ SubmissionData = namedtuple(
     'SubmissionData', 
     'time memory short_circuit pretests_only contest_no attempt_no user_id file_only file_size_limit'
 )
+
+channel_layer = get_channel_layer()
 
 
 def get_submission_file_url(source):
@@ -280,14 +282,14 @@ class JudgeHandler(ZlibPacketHandler):
 
         id = packet['submission-id']
         if Submission.objects.filter(id=id).update(status='P', judged_on=self.judge):
-            # async_to_sync(get_channel_layer().group_send)(
-            #     'sub_%s' % Submission.get_id_secret(id),
-            #     {
-            #         'type': 'processing',
-            #         'message': 'Processing'
-            #     }
-            # )
-            event.post('sub_%s' % Submission.get_id_secret(id), {'type': 'processing'})
+            async_to_sync(channel_layer.group_send)(
+                'sub_%s' % Submission.get_id_secret(id),
+                {
+                    'type': 'processing',
+                    'message': 'Processing'
+                }
+            )
+            # event.post('sub_%s' % Submission.get_id_secret(id), {'type': 'processing'})
             self._post_update_submission(id, 'processing')
             json_log.info(self._make_json_log(packet, action='processing'))
         else:
@@ -362,14 +364,14 @@ class JudgeHandler(ZlibPacketHandler):
                 status='G', is_pretested=packet['pretested'], current_testcase=1,
                 batch=False, judged_date=timezone.now()):
             SubmissionTestCase.objects.filter(submission_id=packet['submission-id']).delete()
-            # async_to_sync(get_channel_layer().group_send)(
-            #     'sub_%s' % Submission.get_id_secret(packet['submission-id']),
-            #     {
-            #         'type': 'grading-begin',
-            #         'message': 'Grading has begun'
-            #     }
-            # )
-            event.post('sub_%s' % Submission.get_id_secret(packet['submission-id']), {'type': 'grading-begin'})
+            async_to_sync(channel_layer.group_send)(
+                'sub_%s' % Submission.get_id_secret(packet['submission-id']),
+                {
+                    'type': 'grading.begin',
+                    'message': 'Grading has begun'
+                }
+            )
+            # event.post('sub_%s' % Submission.get_id_secret(packet['submission-id']), {'type': 'grading-begin'})
             self._post_update_submission(packet['submission-id'], 'grading-begin')
             json_log.info(self._make_json_log(packet, action='grading-begin'))
         else:
@@ -450,31 +452,37 @@ class JudgeHandler(ZlibPacketHandler):
 
         finished_submission(submission)
 
-        # async_to_sync(get_channel_layer().group_send)(
-        #     'sub_%s' % submission.id_secret,
-        #     {
-        #         'type': 'grading-end',
-        #         'message': {
-        #             'time': time,
-        #             'memory': memory,
-        #             'points': float(points),
-        #             'total': float(problem.points),
-        #             'result': submission.result,
-        #         }
-        #     },
-        # )
+        async_to_sync(channel_layer.group_send)(
+            'sub_%s' % submission.id_secret,
+            {
+                'type': 'grading.end',
+                'message': {
+                    'time': time,
+                    'memory': memory,
+                    'points': float(points),
+                    'total': float(problem.points),
+                    'result': submission.result,
+                }
+            },
+        )
 
-        event.post('sub_%s' % submission.id_secret, {
-            'type': 'grading-end',
-            'time': time,
-            'memory': memory,
-            'points': float(points),
-            'total': float(problem.points),
-            'result': submission.result,
-        })
+        # event.post('sub_%s' % submission.id_secret, {
+        #     'type': 'grading-end',
+        #     'time': time,
+        #     'memory': memory,
+        #     'points': float(points),
+        #     'total': float(problem.points),
+        #     'result': submission.result,
+        # })
         if hasattr(submission, 'contest'):
             participation = submission.contest.participation
-            event.post('contest_%d' % participation.contest_id, {'type': 'update'})
+            # event.post('contest_%d' % participation.contest_id, {'type': 'update'})
+            async_to_sync(channel_layer.group_send)(
+                'contest_%d' % participation.contest_id,
+                {
+                    'type': 'update',
+                }
+            )
         self._post_update_submission(submission.id, 'grading-end', done=True)
 
     def on_compile_error(self, packet):
@@ -482,19 +490,19 @@ class JudgeHandler(ZlibPacketHandler):
         self._free_self(packet)
 
         if Submission.objects.filter(id=packet['submission-id']).update(status='CE', result='CE', error=packet['log']):
-            # async_to_sync(get_channel_layer().group_send)(
-            #     'sub_%s' % Submission.get_id_secret(packet['submission-id']),
-            #     {
-            #         'type': 'compile-error',
-            #         'message': {
-            #             'log': packet['log'],
-            #         }
-            #     }
-            # )
-            event.post('sub_%s' % Submission.get_id_secret(packet['submission-id']), {
-                'type': 'compile-error',
-                'log': packet['log'],
-            })
+            async_to_sync(channel_layer.group_send)(
+                'sub_%s' % Submission.get_id_secret(packet['submission-id']),
+                {
+                    'type': 'compile.error',
+                    'message': {
+                        'log': packet['log'],
+                    }
+                }
+            )
+            # event.post('sub_%s' % Submission.get_id_secret(packet['submission-id']), {
+            #     'type': 'compile-error',
+            #     'log': packet['log'],
+            # })
             self._post_update_submission(packet['submission-id'], 'compile-error', done=True)
             json_log.info(self._make_json_log(packet, action='compile-error', log=packet['log'],
                                               finish=True, result='CE'))
@@ -507,14 +515,14 @@ class JudgeHandler(ZlibPacketHandler):
         logger.info('%s: Submission generated compiler messages: %s', self.name, packet['submission-id'])
 
         if Submission.objects.filter(id=packet['submission-id']).update(error=packet['log']):
-            # async_to_sync(get_channel_layer().group_send)(
-            #     'sub_%s' % Submission.get_id_secret(packet['submission-id']),
-            #     {
-            #         'type': 'compile-message',
-            #         'message': ''
-            #     }
-            # )
-            event.post('sub_%s' % Submission.get_id_secret(packet['submission-id']), {'type': 'compile-message'})
+            async_to_sync(channel_layer.group_send)(
+                'sub_%s' % Submission.get_id_secret(packet['submission-id']),
+                {
+                    'type': 'compile.message',
+                    'message': ''
+                }
+            )
+            # event.post('sub_%s' % Submission.get_id_secret(packet['submission-id']), {'type': 'compile-message'})
             json_log.info(self._make_json_log(packet, action='compile-message', log=packet['log']))
         else:
             logger.warning('Unknown submission: %s', packet['submission-id'])
@@ -530,14 +538,14 @@ class JudgeHandler(ZlibPacketHandler):
 
         id = packet['submission-id']
         if Submission.objects.filter(id=id).update(status='IE', result='IE', error=packet['message']):
-            # async_to_sync(get_channel_layer().group_send)(
-            #     'sub_%s' % Submission.get_id_secret(id),
-            #     {
-            #         'type': 'internal-error',
-            #         'message': ''
-            #     }
-            # )
-            event.post('sub_%s' % Submission.get_id_secret(id), {'type': 'internal-error'})
+            async_to_sync(channel_layer.group_send)(
+                'sub_%s' % Submission.get_id_secret(id),
+                {
+                    'type': 'internal.error',
+                    'message': ''
+                }
+            )
+            # event.post('sub_%s' % Submission.get_id_secret(id), {'type': 'internal-error'})
             self._post_update_submission(id, 'internal-error', done=True)
             json_log.info(self._make_json_log(packet, action='internal-error', message=packet['message'],
                                               finish=True, result='IE'))
@@ -551,14 +559,14 @@ class JudgeHandler(ZlibPacketHandler):
         self._free_self(packet)
 
         if Submission.objects.filter(id=packet['submission-id']).update(status='AB', result='AB', points=0):
-            # async_to_sync(get_channel_layer().group_send)(
-            #     'sub_%s' % Submission.get_id_secret(packet['submission-id']),
-            #     {
-            #         'type': 'aborted-submission',
-            #         'message': 'Aborted'
-            #     }
-            # )
-            event.post('sub_%s' % Submission.get_id_secret(packet['submission-id']), {'type': 'aborted-submission'})
+            async_to_sync(channel_layer.group_send)(
+                'sub_%s' % Submission.get_id_secret(packet['submission-id']),
+                {
+                    'type': 'aborted.submission',
+                    'message': 'Aborted'
+                }
+            )
+            # event.post('sub_%s' % Submission.get_id_secret(packet['submission-id']), {'type': 'aborted-submission'})
             self._post_update_submission(packet['submission-id'], 'terminated', done=True)
             json_log.info(self._make_json_log(packet, action='aborted', finish=True, result='AB'))
         else:
@@ -645,19 +653,19 @@ class JudgeHandler(ZlibPacketHandler):
             self.update_counter[id] = (1, time.monotonic())
 
         if do_post:
-            # async_to_sync(get_channel_layer().group_send)(
-            #     'sub_%s' % Submission.get_id_secret(id),
-            #     {
-            #         'type': 'test-case',
-            #         'message': {
-            #             'id': max_position,
-            #         }
-            #     }
-            # )
-            event.post('sub_%s' % Submission.get_id_secret(id), {
-                'type': 'test-case',
-                'id': max_position,
-            })
+            async_to_sync(channel_layer.group_send)(
+                'sub_%s' % Submission.get_id_secret(id),
+                {
+                    'type': 'test.case',
+                    'message': {
+                        'id': max_position,
+                    }
+                }
+            )
+            # event.post('sub_%s' % Submission.get_id_secret(id), {
+            #     'type': 'test-case',
+            #     'id': max_position,
+            # })
             self._post_update_submission(id, state='test-case')
 
         SubmissionTestCase.objects.bulk_create(bulk_test_case_updates)
@@ -712,22 +720,22 @@ class JudgeHandler(ZlibPacketHandler):
             self._submission_cache_id = id
 
         if data['problem__is_public']:
-            # async_to_sync(get_channel_layer().group_send)('submissions', {
-            #     'type': 'done-submission' if done else 'update-submission',
-            #     'message': {
-            #         'state': state, 
-            #         'id': id,
-            #         'contest': data['contest_object_id'],
-            #         'user': data['user_id'], 
-            #         'problem': data['problem_id'],
-            #         'status': data['status'], 
-            #         'language': data['language__key'],
-            #     }
-            # })
-            event.post('submissions', {
-                'type': 'done-submission' if done else 'update-submission',
-                'state': state, 'id': id,
-                'contest': data['contest_object_id'],
-                'user': data['user_id'], 'problem': data['problem_id'],
-                'status': data['status'], 'language': data['language__key'],
+            async_to_sync(channel_layer.group_send)('submissions', {
+                'type': 'done.submission' if done else 'update.submission',
+                'message': {
+                    'state': state, 
+                    'id': id,
+                    'contest': data['contest_object_id'],
+                    'user': data['user_id'], 
+                    'problem': data['problem_id'],
+                    'status': data['status'], 
+                    'language': data['language__key'],
+                }
             })
+            # event.post('submissions', {
+            #     'type': 'done-submission' if done else 'update-submission',
+            #     'state': state, 'id': id,
+            #     'contest': data['contest_object_id'],
+            #     'user': data['user_id'], 'problem': data['problem_id'],
+            #     'status': data['status'], 'language': data['language__key'],
+            # })

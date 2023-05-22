@@ -263,15 +263,6 @@
         });
         </script>
     {% endif %}
-    {% if EVENT_LAST_MSG %}
-        <script>
-            window.event_dispatcher = new WSEventDispatcher(
-                '{{ EVENT_DAEMON_LOCATION }}',
-                '{{ EVENT_DAEMON_POLL_LOCATION }}',
-                {{ EVENT_LAST_MSG }}
-            );
-        </script>
-    {% endif %}
     {% if request.user.is_authenticated %}
         <script>
             window.user = {

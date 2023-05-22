@@ -20,13 +20,13 @@ from django.utils.translation import gettext as _, gettext_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 
-from judge import event_poster as event
+# from judge import event_poster as event
 from judge.highlight_code import highlight_code
 from judge.models import Contest, Language, Problem, ProblemTranslation, Profile, Submission, Log
 from judge.utils.infinite_paginator import InfinitePaginationMixin
 from judge.utils.problem_data import get_problem_testcases_data
 from judge.utils.problems import get_result_data, user_completed_ids, user_editable_ids, user_tester_ids
-from judge.utils.raw_sql import join_sql_subquery, use_straight_join
+from judge.utils.raw_sql import use_straight_join
 from judge.utils.views import DiggPaginatorMixin, TitleMixin
 
 
@@ -156,7 +156,6 @@ class SubmissionStatus(SubmissionDetailBase):
     def get_context_data(self, **kwargs):
         context = super(SubmissionStatus, self).get_context_data(**kwargs)
         submission = self.object
-        # context['last_msg'] = event.last()
 
         context['batches'], statuses, context['max_execution_time'] = group_test_cases(submission.test_cases.all())
         context['statuses'] = combine_statuses(statuses, submission)
@@ -329,7 +328,7 @@ class SubmissionsListBase(DiggPaginatorMixin, TitleMixin, ListView):
         if check is not None:
             return check
         
-        self.selected_languages = set(request.GET.getlist('language'))
+        self.selected_languages = set(request.GET.getlist('language_code'))
         self.selected_statuses = set(request.GET.getlist('status'))
 
         if 'results' in request.GET:
@@ -385,7 +384,6 @@ class AllUserSubmissions(ConditionalUserTabMixin, UserMixin, SubmissionsListBase
         context = super(AllUserSubmissions, self).get_context_data(**kwargs)
         context['dynamic_update'] = context['page_obj'].number == 1
         context['dynamic_user_id'] = self.profile.id
-        # context['last_msg'] = event.last()
         return context
 
 
@@ -436,7 +434,6 @@ class ProblemSubmissionsBase(SubmissionsListBase):
         if self.dynamic_update:
             context['dynamic_update'] = context['page_obj'].number == 1
             context['dynamic_problem_id'] = self.problem.id
-            # context['last_msg'] = event.last()
         context['best_submissions_link'] = reverse('ranked_submissions', kwargs={'problem': self.problem.code})
         return context
 
@@ -519,7 +516,6 @@ class AllSubmissions(InfinitePaginationMixin, SubmissionsListBase):
     def get_context_data(self, **kwargs):
         context = super(AllSubmissions, self).get_context_data(**kwargs)
         context['dynamic_update'] = context['page_obj'].number == 1
-        # context['last_msg'] = event.last()
         context['stats_update_interval'] = self.stats_update_interval
         return context
 

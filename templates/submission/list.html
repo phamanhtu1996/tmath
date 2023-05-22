@@ -1,7 +1,7 @@
 {% extends "common-content.html" %}
 {% block js_media %}
     <script type="text/javascript">
-        {% if dynamic_update and EVENT_LAST_MSG %}
+        {% if dynamic_update %}
             {% if dynamic_contest_id %}
                 window.dynamic_contest_id = {{ dynamic_contest_id }};
             {% else %}
@@ -27,7 +27,6 @@
     </script>
 
     {% compress js %}
-        <script type="text/javascript" src="{{ static('event.js') }}"></script>
         {% if request.user.is_authenticated and perms.judge.rejudge_submission %}
             <script type="text/javascript">
                 window.rejudge_submission = function (id, e) {
@@ -118,7 +117,12 @@
         $(function () {
             stats_graph(window.results_json);
         });
+        {% if dynamic_update %}
 
+        var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+        var ws_path = ws_scheme + '://' + window.location.host + '/ws/submissions/';
+        var ws = new WebSocket(ws_path);
+        
         function load_dynamic_update() {
             var _collect = function (e) {
                 return e.value;
@@ -198,38 +202,30 @@
             });
 
             var $body = $(document.body);
-            event_dispatcher.on('submissions', function (message) {
-                    if (dynamic_user_id && message.user != dynamic_user_id ||
-                        dynamic_problem_id && message.problem != dynamic_problem_id ||
-                        dynamic_contest_id && message.contest != dynamic_contest_id)
-                        return;
-                    if (message.type == 'update-submission') {
-                        if (message.state == 'test-case' && $body.hasClass('window-hidden'))
-                            return;
-                        update_submission(message);
-                    } else if (message.type == 'done-submission') {
-                        update_submission(message, true);
-
-                        if (!statistics.length) return;
-                        if ($('body').hasClass('window-hidden'))
-                            return stats_outdated = true;
-                        update_stats();
-                    }
-                }
-            );
-            event_dispatcher.onwsclose = function (event) {
-                if (event.code == 1001) {
-                    console.log('Navigated away');
+            ws.onmessage = function (event) {
+                var data = JSON.parse(event.data);
+                var message = data.message
+                if (dynamic_user_id && message.user != dynamic_user_id ||
+                    dynamic_problem_id && message.problem != dynamic_problem_id ||
+                    dynamic_contest_id && message.contest != dynamic_contest_id)
                     return;
+                if (data.type == 'update-submission') {
+                    if (message.state == 'test-case' && $body.hasClass('window-hidden'))
+                        return;
+                    update_submission(message);
+                } else if (data.type == 'done-submission') {
+                    update_submission(message, true);
+
+                    if (!statistics.length) return;
+                    if ($('body').hasClass('window-hidden'))
+                        return stats_outdated = true;
+                    update_stats();
                 }
-                console.log('You probably should refresh?');
-                $('.ws-closed').show().find('a').click(function () {
-                    window.location.reload();
-                });
             };
         }
+        {% endif %}
     </script>
-    {% if dynamic_update and EVENT_LAST_MSG %}
+    {% if dynamic_update %}
         <script type="text/javascript">
             $(function () {
                 load_dynamic_update();
