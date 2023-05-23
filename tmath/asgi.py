@@ -15,15 +15,15 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator
 
-from judge.consumers import SubmissionConsumer, DetailSubmission, TicketConsumer, DetailTicketConsumer
+from judge.consumers import SubmissionConsumer, DetailSubmission #, TicketConsumer, DetailTicketConsumer
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tmath.settings')
 
 ws_patterns = [
     path('ws/submissions/', SubmissionConsumer.as_asgi()),
     path('ws/submission/<str:key>/', DetailSubmission.as_asgi()),
-    path('ws/tickets/', TicketConsumer.as_asgi()),
-    path('ws/ticket/<int:id>/', DetailTicketConsumer.as_asgi()),
+    # path('ws/tickets/', TicketConsumer.as_asgi()),
+    # path('ws/ticket/<int:id>/', DetailTicketConsumer.as_asgi()),
 ]
 
 application = ProtocolTypeRouter({

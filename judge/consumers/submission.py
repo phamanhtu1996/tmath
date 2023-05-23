@@ -80,16 +80,19 @@ class DetailSubmission(AsyncJsonWebsocketConsumer):
             "type": "compile-error",
             "message": event['message'],
         })
+        await self.close()
 
     async def internal_error(self, event):
         await self.send_json({
             "type": "internal-error",
         })
+        await self.close()
     
     async def aborted_submission(self, event):
         await self.send_json({
             "type": "aborted-submission",
         })
+        await self.close()
     
     async def test_case(self, event):
         await self.send_json({
@@ -107,6 +110,7 @@ class DetailSubmission(AsyncJsonWebsocketConsumer):
             "type": "grading-end",
             "message": event['message'],
         })
+        await self.close()
 
     async def processing(self, event):
         await self.send_json({

@@ -3,7 +3,6 @@
     <link rel="stylesheet" href="{{ static('semantic/components/accordion.min.css') }}">
 {% endblock media %}
 {% block js_media %}
-    <script type="text/javascript" src="{{ static('event.js') }}?1"></script>
     <script src="{{ static('semantic/components/accordion.min.js') }}"></script>
     <script src="{{ static('semantic/components/dropdown.min.js') }}"></script>
     <script src="{{ static('semantic/components/transition.min.js') }}"></script>
@@ -49,6 +48,7 @@
                         case 'compile-error':
                             $('#abort-button').remove();
                             $('#grading-label').remove();
+                            ws.close();
                         case 'test-case':
                         case 'grading-begin':
                         case 'processing':
