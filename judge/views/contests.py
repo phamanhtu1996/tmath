@@ -69,10 +69,11 @@ def _find_contest(request, key, private_check=True):
 
 class ContestListMixin(object):
     def get_queryset(self):
+        queryset = Contest.objects.filter(is_visible=True)
         if not self.request.user.is_authenticated:
-            return Contest.objects.filter(is_private=False)
+            return queryset.filter(is_private=False)
         if not self.request.user.is_superuser:
-            return Contest.objects.filter(Q(is_private=False) | Q(is_private=True, private_contestants=self.request.user.profile))
+            return queryset.filter(Q(is_private=False) | Q(is_private=True, private_contestants=self.request.user.profile))
         return Contest.objects.all()
         # return Contest.get_visible_contests(self.request.user)
 
