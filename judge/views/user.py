@@ -4,6 +4,10 @@ import os
 import datetime as dt
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
+from typing import Any, Optional
+from django.db import models
+from unidecode import unidecode
+from django import forms
 
 from django.conf import settings
 from django.contrib.auth import logout as auth_logout
@@ -599,20 +603,58 @@ class CreateManyUser(TitleMixin, FormView):
         return response
     
 
-def userCSV(request):
-    response = HttpResponse(content_type='text/csv',)
-    response['Content-Disposition'] = 'attachment; filename="VOI_info.csv"'
-    response.write(u'\ufeff'.encode('utf8'))
-    writer = csv.writer(response)
-    csv_path = settings.BASE_DIR / 'user.csv'
-    prefix = 'VOI'
-    language = Language.get_default_language()
-    with open(csv_path, 'r') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        writer.writerow(['ID', 'Fullname', 'Phone', 'School'])
-        for index, row in enumerate(csv_reader):
-            if index == 0:
-                continue
-            writer.writerow([index, row[1], "'" + row[2], row[4]])
+class CreateCSVUserForm(forms.Form):
+    organization = forms.ChoiceField(choices=(), label='Organization')
+    csv_file = forms.FileField(label='CSV file')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['organization'].choices = Organization.objects.all().values_list('id', 'name')
+
+
+class CreateCSVUser(TitleMixin, FormView):
+    form_class = CreateCSVUserForm
+    template_name: str = 'user/csvuserform.html'
+    title = 'Create many user from csv'
+    success_url = reverse_lazy('process_csv_user')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['all_organization'] = Organization.objects.all().values_list('id', 'name')
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            raise Http404()
+        return super().dispatch(request, *args, **kwargs)
     
-    return response
+    def get_username(self, fullname, index):
+        names = unidecode(fullname).lower().split()
+        n = len(names)
+        name = ''.join(names[i][0] for i in range(n - 1))
+        name = names[-1] + name
+        return name + index
+
+    def form_valid(self, form: CreateCSVUserForm) -> HttpResponse:
+        org_id = form.cleaned_data['organization']
+        org: Organization = Organization.objects.get(id=org_id)
+        csv_file = form.cleaned_data['csv_file']
+        decode_data = csv_file.read().decode('utf-8')
+        csv_data = csv.reader(decode_data.splitlines(), delimiter=',')
+        context = {
+            'data': list(csv_data),
+            'organization': org,
+        }
+        self.request.session['create_csv_user'] = context
+        return super().form_valid(form)
+    
+
+class ProcessCSVUser(TitleMixin, DetailView):
+    template_name: str = 'user/confirm_csv_user.html'
+    model = None
+    context_object_name = 'users'
+    title = 'Confirm create many user from csv'
+
+    def get_object(self):
+        data = self.request.session.get('create_csv_user')
+        return data
