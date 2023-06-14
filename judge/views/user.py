@@ -4,8 +4,9 @@ import os
 import datetime as dt
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
-from typing import Any, Optional
+from typing import Any, Dict, Mapping, Optional, Type, Union
 from django.db import models
+from django.forms.utils import ErrorList
 from unidecode import unidecode
 from django import forms
 
@@ -622,11 +623,6 @@ class CreateCSVUser(TitleMixin, FormView):
         context = super().get_context_data(**kwargs)
         context['all_organization'] = Organization.objects.all().values_list('id', 'name')
         return context
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            raise Http404()
-        return super().dispatch(request, *args, **kwargs)
     
     def get_username(self, fullname, index):
         names = unidecode(fullname).lower().split()
@@ -635,12 +631,19 @@ class CreateCSVUser(TitleMixin, FormView):
         name = names[-1] + name
         return name + index
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            raise Http404()
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form: CreateCSVUserForm) -> HttpResponse:
         org_id = form.cleaned_data['organization']
         org: Organization = Organization.objects.get(id=org_id)
         csv_file = form.cleaned_data['csv_file']
         decode_data = csv_file.read().decode('utf-8')
         csv_data = csv.reader(decode_data.splitlines(), delimiter=',')
+        for row in csv_data:
+            row.insert(1, self.get_username(row[0], row[1]))
         context = {
             'data': list(csv_data),
             'organization': org,
@@ -649,12 +652,37 @@ class CreateCSVUser(TitleMixin, FormView):
         return super().form_valid(form)
     
 
-class ProcessCSVUser(TitleMixin, DetailView):
-    template_name: str = 'user/confirm_csv_user.html'
-    model = None
-    context_object_name = 'users'
-    title = 'Confirm create many user from csv'
+class ConfirmCSVUserForm(forms.Form):
+    def __init__(self, *args, **kwargs) -> None:
+        csv_data = kwargs.pop('csv_data')
+        super().__init__(*args, **kwargs)
+        for i, row in enumerate(csv_data):
+            for j, cell in enumerate(row):
+                self.fields[f'row_{i}_col_{j}'] = forms.CharField(initial=cell)
 
-    def get_object(self):
-        data = self.request.session.get('create_csv_user')
-        return data
+
+class ConfirmCSVUser(TitleMixin, FormView):
+    template_name: str = 'user/confirm_csv_user.html'
+    # model = None
+    title = 'Confirm create many user from csv'
+    form_class = ConfirmCSVUserForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        csv_data = self.request.session.get('create_csv_user', {}).get('data', [])
+        kwargs['csv_data'] = csv_data
+        return kwargs
+
+    def form_valid(self, form: ConfirmCSVUserForm) -> HttpResponse:
+        csv_data = self.request.session.get('create_csv_user', {}).get('data', [])
+        update_data = []
+        for i, row in enumerate(csv_data):
+            update_row = []
+            for j, cell in enumerate(row):
+                update_row.append(form.cleaned_data[f'row_{i}_col_{j}'])
+            update_data.append(update_row)
+        
+        # org = self.request.session.get('create_csv_user', {}).get('organization', None)
+        # language = Language.get_default_language()
+        # for row in update_data:
+        return super().form_valid(form)
