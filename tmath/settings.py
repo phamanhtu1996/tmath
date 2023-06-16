@@ -187,7 +187,7 @@ INSTALLED_APPS = (
     'django_jinja',
     'martor',
     # "corsheaders",
-    'channels',
+    # 'channels',
 )
 
 MIDDLEWARE = (

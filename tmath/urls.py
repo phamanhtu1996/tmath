@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import RedirectView
 from django.views.decorators.cache import cache_page
 from martor.views import markdown_search_user
+from django.conf.urls.static import static
 
 from judge.feed import AtomBlogFeed, AtomCommentFeed, AtomProblemFeed, BlogFeed, CommentFeed, ProblemFeed
 from judge.sitemap import BlogPostSitemap, ContestSitemap, HomePageSitemap, OrganizationSitemap, ProblemSitemap, \
@@ -412,7 +413,10 @@ urlpatterns = [
         path('comment/', CommentSelect2View.as_view(), name='comment_select2'),
     ])),
 
-    path('custom_checker_sample/', about.custom_checker_sample, name='custom_checker_sample'),
+    path('createuser/', include([
+        path('csv/', user.CreateCSVUser.as_view(), name='create_user_csv'),
+        path('confirm/', user.ConfirmCSVUser.as_view(), name='create_user_confirm'),
+    ])),
 
     path('tasks/', include([
         path('status/<slug:task_id>', tasks.task_status, name='task_status'),
@@ -447,3 +451,5 @@ if 'newsletter' in settings.INSTALLED_APPS:
     urlpatterns.append(path('newsletter/', include('newsletter.urls')))
 if 'impersonate' in settings.INSTALLED_APPS:
     urlpatterns.append(path('impersonate/', include('impersonate.urls')))
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

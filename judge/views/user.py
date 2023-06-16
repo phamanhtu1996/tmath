@@ -5,7 +5,7 @@ import datetime as dt
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
 from typing import Any, Dict, Mapping, Optional, Type, Union
-from django.db import models
+from django.db import models, transaction
 from django.forms.utils import ErrorList
 from unidecode import unidecode
 from django import forms
@@ -50,7 +50,7 @@ from judge.utils.views import DiggPaginatorMixin, QueryStringSortMixin, TitleMix
 from .contests import ContestRanking
 
 __all__ = ['UserPage', 'UserAboutPage', 'UserProblemsPage', 'UserDownloadData', 'UserPrepareData',
-           'users', 'edit_profile', 'EditProfile']
+           'users', 'edit_profile', 'EditProfile', 'CreateCSVUser', 'ConfirmCSVUser']
 
 
 def remap_keys(iterable, mapping):
@@ -612,12 +612,18 @@ class CreateCSVUserForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['organization'].choices = Organization.objects.all().values_list('id', 'name')
 
+    def clean_csv_file(self):
+        csv_file = self.cleaned_data['csv_file']
+        if not csv_file.name.endswith('.csv'):
+            raise forms.ValidationError('File is not CSV type')
+        return csv_file
+
 
 class CreateCSVUser(TitleMixin, FormView):
     form_class = CreateCSVUserForm
     template_name: str = 'user/csvuserform.html'
     title = 'Create many user from csv'
-    success_url = reverse_lazy('process_csv_user')
+    success_url = reverse_lazy('create_user_confirm')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -638,27 +644,29 @@ class CreateCSVUser(TitleMixin, FormView):
 
     def form_valid(self, form: CreateCSVUserForm) -> HttpResponse:
         org_id = form.cleaned_data['organization']
-        org: Organization = Organization.objects.get(id=org_id)
         csv_file = form.cleaned_data['csv_file']
-        decode_data = csv_file.read().decode('utf-8')
-        csv_data = csv.reader(decode_data.splitlines(), delimiter=',')
+        decoded_file = csv_file.read().decode('utf-8')
+        csv_data = csv.DictReader(decoded_file.splitlines(), delimiter=',')
         for row in csv_data:
-            row.insert(1, self.get_username(row[0], row[1]))
+            username = self.get_username(row['fullname'], row['MSHV'])
+            row['username'] = username
         context = {
             'data': list(csv_data),
-            'organization': org,
+            'organization': org_id,
         }
         self.request.session['create_csv_user'] = context
         return super().form_valid(form)
     
 
 class ConfirmCSVUserForm(forms.Form):
+    fullname = forms.CharField(label='Name', required=True)
+    username = forms.CharField(label='Username', required=True)
+    password = forms.CharField(label='Password', required=False)
+    email = forms.EmailField(label='Email', required=False)
+    organization = forms.ChoiceField(choices=(), label='Organization', required=False)
+    
     def __init__(self, *args, **kwargs) -> None:
-        csv_data = kwargs.pop('csv_data')
-        super().__init__(*args, **kwargs)
-        for i, row in enumerate(csv_data):
-            for j, cell in enumerate(row):
-                self.fields[f'row_{i}_col_{j}'] = forms.CharField(initial=cell)
+        self.fields['organization'].choices = Organization.objects.all().values_list('id', 'name')
 
 
 class ConfirmCSVUser(TitleMixin, FormView):
@@ -667,22 +675,48 @@ class ConfirmCSVUser(TitleMixin, FormView):
     title = 'Confirm create many user from csv'
     form_class = ConfirmCSVUserForm
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
+    def get_formset(self):
+        formset_class = forms.formset_factory(self.form_class, extra=0)
         csv_data = self.request.session.get('create_csv_user', {}).get('data', [])
-        kwargs['csv_data'] = csv_data
-        return kwargs
+        org_id = self.request.session.get('create_csv_user', {}).get('organization', None)
+        formset_data = [
+            {
+                'fullname': row['fullname'],
+                'username': row['username'],
+                'password': '',
+                'email': row['email'],
+                'organization': org_id,
+            } for row in csv_data
+        ]
 
+        return formset_class(initial=formset_data)
+    
+    def get(self, request, *args, **kwargs):
+        formset = self.get_formset()
+        return self.render_to_response(self.get_context_data(formset=formset))
+    
+    def post(self, request, *args, **kwargs):
+        formset = self.get_formset()
+        if formset.is_valid():
+            return self.form_valid(formset)
+        return self.form_invalid(formset)
+    
     def form_valid(self, form: ConfirmCSVUserForm) -> HttpResponse:
         csv_data = self.request.session.get('create_csv_user', {}).get('data', [])
-        update_data = []
-        for i, row in enumerate(csv_data):
-            update_row = []
-            for j, cell in enumerate(row):
-                update_row.append(form.cleaned_data[f'row_{i}_col_{j}'])
-            update_data.append(update_row)
-        
-        # org = self.request.session.get('create_csv_user', {}).get('organization', None)
-        # language = Language.get_default_language()
+        org_id = self.request.session.get('create_csv_user', {}).get('organization', None)
+        org: Organization = Organization.objects.get(id=org_id)
+        language = Language.get_default_language()
+        with transaction.atomic():
+            for i, row in enumerate(csv_data):
+                username = form.cleaned_data[i]['username']
+                password = User.objects.make_random_password()
+                email = form.cleaned_data[i]['email']
+                if User.objects.filter(username=username).exists():
+                    User.objects.filter(username=username).delete()
+                new_user = User.objects.create_user(username=username, email=email, password=password)
+                new_profile = Profile(user=new_user, language=language)
+                new_profile.save()
+                if org:
+                    org.members.add(new_profile)
         # for row in update_data:
         return super().form_valid(form)
