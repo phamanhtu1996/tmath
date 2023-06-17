@@ -169,6 +169,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.redirects',
+    # 'daphne',
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.sitemaps',
@@ -520,6 +521,7 @@ CACHES = {}
 
 # Authentication
 AUTHENTICATION_BACKENDS = (
+    'judge.backend.CustomAuthBackend',
     'social_core.backends.google.GoogleOAuth2',
     'social_core.backends.facebook.FacebookOAuth2',
     'judge.social_auth.GitHubSecureEmailOAuth2',

@@ -160,7 +160,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='profile',
             name='scratch_codes',
-            field=judge.models.profile.EncryptedNullCharField(blank=True, help_text='JSON array of 16 character base32-encoded codes                                                         for scratch codes', max_length=255, null=True, validators=[django.core.validators.RegexValidator('^(\\[\\])?$|^\\[("[A-Z0-9]{16}", *)*"[A-Z0-9]{16}"\\]$', 'Scratch codes must be empty or a JSON array of                                                                  16-character base32 codes')], verbose_name='scratch codes'),
+            field=models.CharField(blank=True, help_text='JSON array of 16 character base32-encoded codes                                                         for scratch codes', max_length=255, null=True, validators=[django.core.validators.RegexValidator('^(\\[\\])?$|^\\[("[A-Z0-9]{16}", *)*"[A-Z0-9]{16}"\\]$', 'Scratch codes must be empty or a JSON array of                                                                  16-character base32 codes')], verbose_name='scratch codes'),
         ),
         migrations.AlterField(
             model_name='profile',
