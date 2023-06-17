@@ -21,7 +21,7 @@ from django.utils.encoding import force_bytes
 from django.utils.functional import cached_property
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
-from fernet_fields import EncryptedCharField
+# from fernet_fields import EncryptedCharField
 from pyotp.utils import strings_equal
 # from sortedm2m.fields import SortedManyToManyField
 
@@ -54,11 +54,11 @@ class LoggedInUser(models.Model):
 #         db_table = 'custom_session'
 
 
-class EncryptedNullCharField(EncryptedCharField):
-    def get_prep_value(self, value):
-        if not value:
-            return None
-        return super(EncryptedNullCharField, self).get_prep_value(value)
+# class EncryptedNullCharField(EncryptedCharField):
+#     def get_prep_value(self, value):
+#         if not value:
+#             return None
+#         return super(EncryptedNullCharField, self).get_prep_value(value)
 
 
 class SchoolYear(models.Model):
@@ -171,22 +171,22 @@ class Profile(models.Model):
     math_engine = models.CharField(verbose_name=_('math engine'), choices=MATH_ENGINES_CHOICES, max_length=4,
                                    default=settings.MATHOID_DEFAULT_TYPE,
                                    help_text=_('the rendering engine used to render math'))
-    is_totp_enabled = models.BooleanField(verbose_name=_('TOTP 2FA enabled'), default=False,
-                                          help_text=_('check to enable TOTP-based two-factor authentication'))
+    # is_totp_enabled = models.BooleanField(verbose_name=_('TOTP 2FA enabled'), default=False,
+    #                                       help_text=_('check to enable TOTP-based two-factor authentication'))
     is_webauthn_enabled = models.BooleanField(verbose_name=_('WebAuthn 2FA enabled'), default=False,
                                               help_text=_('check to enable WebAuthn-based two-factor authentication'))
-    totp_key = EncryptedNullCharField(max_length=32, null=True, blank=True, verbose_name=_('TOTP key'),
-                                      help_text=_('32 character base32-encoded key for TOTP'),
-                                      validators=[RegexValidator('^$|^[A-Z2-7]{32}$',
-                                                                 _('TOTP key must be empty or base32'))])
-    scratch_codes = EncryptedNullCharField(max_length=255, null=True, blank=True, verbose_name=_('scratch codes'),
-                                           help_text=_('JSON array of 16 character base32-encoded codes \
-                                                        for scratch codes'),
-                                           validators=[
-                                               RegexValidator(r'^(\[\])?$|^\[("[A-Z0-9]{16}", *)*"[A-Z0-9]{16}"\]$',
-                                                              _('Scratch codes must be empty or a JSON array of \
-                                                                 16-character base32 codes'))])
-    last_totp_timecode = models.IntegerField(verbose_name=_('last TOTP timecode'), default=0)
+    # totp_key = EncryptedNullCharField(max_length=32, null=True, blank=True, verbose_name=_('TOTP key'),
+    #                                   help_text=_('32 character base32-encoded key for TOTP'),
+    #                                   validators=[RegexValidator('^$|^[A-Z2-7]{32}$',
+    #                                                              _('TOTP key must be empty or base32'))])
+    # scratch_codes = EncryptedNullCharField(max_length=255, null=True, blank=True, verbose_name=_('scratch codes'),
+    #                                        help_text=_('JSON array of 16 character base32-encoded codes \
+    #                                                     for scratch codes'),
+    #                                        validators=[
+    #                                            RegexValidator(r'^(\[\])?$|^\[("[A-Z0-9]{16}", *)*"[A-Z0-9]{16}"\]$',
+    #                                                           _('Scratch codes must be empty or a JSON array of \
+    #                                                              16-character base32 codes'))])
+    # last_totp_timecode = models.IntegerField(verbose_name=_('last TOTP timecode'), default=0)
     api_token = models.CharField(max_length=64, null=True, verbose_name=_('API token'),
                                  help_text=_('64 character hex-encoded API access token'),
                                  validators=[RegexValidator('^[a-f0-9]{64}$',
@@ -201,7 +201,7 @@ class Profile(models.Model):
     
     verified = models.BooleanField(_("verified"), default=False)    
 
-    verified = models.BooleanField(_("verified"), default=False)
+    expiration_date = models.DateTimeField(null=True, blank=True)
 
     @cached_property
     def organization(self):

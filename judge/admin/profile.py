@@ -80,8 +80,9 @@ class ProfileAdmin(NoBatchDeleteMixin, VersionAdmin):
         (_('Authorized'), {
             "fields" : (
                 'notes',
-                'is_totp_enabled', 
-                'user_script',
+                'expiration_date',
+                # 'is_totp_enabled', 
+                # 'user_script',
             ),
         }),
     )
@@ -92,10 +93,19 @@ class ProfileAdmin(NoBatchDeleteMixin, VersionAdmin):
         'about', 
         'last_access', 
         'ip', 
-        'current_contest'
+        'current_contest',
+        'expiration_date',
     )
-    list_display = ('admin_user_admin', 'email', 'is_totp_enabled', 'timezone_full',
-                    'date_joined', 'last_access', 'ip', 'show_public')
+    list_display = (
+        'admin_user_admin', 
+        'email', 
+        # 'is_totp_enabled', 
+        'timezone_full',
+        'date_joined', 
+        'last_access', 
+        'ip', 
+        'show_public',
+    )
     ordering = ('user__username',)
     search_fields = ('user__username', 'ip', 'user__email')
     list_filter = ('language', TimezoneFilter)

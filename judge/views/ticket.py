@@ -23,14 +23,14 @@ from judge.utils.views import SingleObjectFormView, TitleMixin, paginate_query_c
 from judge.views.problem import ProblemMixin
 from judge.widgets import HeavyPreviewPageDownWidget
 
-from channels.layers import get_channel_layer
+# from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 ticket_widget = (forms.Textarea() if HeavyPreviewPageDownWidget is None else
                  HeavyPreviewPageDownWidget(preview=reverse_lazy('ticket_preview'),
                                             preview_timeout=1000, hide_preview_button=True))
 
-channel_layer = get_channel_layer()
+# channel_layer = get_channel_layer()
 
 class TicketForm(forms.Form):
     title = forms.CharField(max_length=100, label=gettext_lazy('Ticket title'))
@@ -71,18 +71,18 @@ class NewTicketView(LoginRequiredMixin, SingleObjectFormView):
         message = TicketMessage(ticket=ticket, user=ticket.user, body=form.cleaned_data['body'])
         message.save()
         ticket.assignees.set(self.get_assignees())
-        async_to_sync(channel_layer.group_send)(
-            'tickets',
-            {
-                'type': 'new.ticket',
-                'message': {
-                    'id': ticket.id,
-                    'message': message.id, 
-                    'user': ticket.user_id,
-                    'assignees': list(ticket.assignees.values_list('id', flat=True)),
-                }
-            }
-        )
+        # async_to_sync(channel_layer.group_send)(
+        #     'tickets',
+        #     {
+        #         'type': 'new.ticket',
+        #         'message': {
+        #             'id': ticket.id,
+        #             'message': message.id, 
+        #             'user': ticket.user_id,
+        #             'assignees': list(ticket.assignees.values_list('id', flat=True)),
+        #         }
+        #     }
+        # )
             # event.post('tickets', {
             #     'type': 'new-ticket', 'id': ticket.id,
             #     'message': message.id, 'user': ticket.user_id,
@@ -147,25 +147,25 @@ class TicketView(TitleMixin, TicketMixin, SingleObjectFormView):
                                 body=form.cleaned_data['body'],
                                 ticket=self.object)
         message.save()
-        async_to_sync(channel_layer.group_send)(
-            'tickets',
-            {
-                'type': 'ticket.message',
-                'message': {
-                    'id': self.object.id,
-                    'message': message.id, 
-                    'user': self.object.user_id,
-                    'assignees': list(self.object.assignees.values_list('id', flat=True)),
-                }
-            }
-        )
-        async_to_sync(channel_layer.group_send)(
-            'ticket-%d' % self.object.id,
-            {
-                'type': 'ticket.message', 
-                'message': message.id,
-            }
-        )
+        # async_to_sync(channel_layer.group_send)(
+        #     'tickets',
+        #     {
+        #         'type': 'ticket.message',
+        #         'message': {
+        #             'id': self.object.id,
+        #             'message': message.id, 
+        #             'user': self.object.user_id,
+        #             'assignees': list(self.object.assignees.values_list('id', flat=True)),
+        #         }
+        #     }
+        # )
+        # async_to_sync(channel_layer.group_send)(
+        #     'ticket-%d' % self.object.id,
+        #     {
+        #         'type': 'ticket.message', 
+        #         'message': message.id,
+        #     }
+        # )
         # if event.real:
 
         #     event.post('tickets', {
@@ -199,28 +199,28 @@ class TicketStatusChangeView(TicketMixin, SingleObjectMixin, View):
         if ticket.is_open != self.open:
             ticket.is_open = self.open
             ticket.save()
-            async_to_sync(channel_layer.group_send)(
-                'tickets',
-                {
-                    'type': 'ticket.status',
-                    'message': {
-                        'id': ticket.id,
-                        'open': self.open, 
-                        'user': ticket.user_id,
-                        'assignees': list(ticket.assignees.values_list('id', flat=True)),
-                        'title': ticket.title,
-                    }
-                }
-            )
-            async_to_sync(channel_layer.group_send)(
-                'ticket-%d' % ticket.id,
-                {
-                    'type': 'ticket.status', 
-                    'message': {
-                        'open': self.open,
-                    },
-                }
-            )
+            # async_to_sync(channel_layer.group_send)(
+            #     'tickets',
+            #     {
+            #         'type': 'ticket.status',
+            #         'message': {
+            #             'id': ticket.id,
+            #             'open': self.open, 
+            #             'user': ticket.user_id,
+            #             'assignees': list(ticket.assignees.values_list('id', flat=True)),
+            #             'title': ticket.title,
+            #         }
+            #     }
+            # )
+            # async_to_sync(channel_layer.group_send)(
+            #     'ticket-%d' % ticket.id,
+            #     {
+            #         'type': 'ticket.status', 
+            #         'message': {
+            #             'open': self.open,
+            #         },
+            #     }
+            # )
             # if event.real:
             #     event.post('tickets', {
             #         'type': 'ticket-status', 'id': ticket.id,
