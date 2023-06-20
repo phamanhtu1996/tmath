@@ -1,7 +1,44 @@
 {% extends 'common-content.html' %}
 
 {% block body %}
-  <form action="" method="post">
-    {{ form }}
+  <form class="mx-auto p-10" action="" method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <table class="w-full">
+      <thead class="bg-black text-white">
+        <tr>
+          <th class="p-2">{{ _('Fullname') }}</th>
+          <th class="p-2">{{ _('Username') }}</th>
+          <th class="p-2">{{ _('Password') }}</th>
+          <th class="p-2">{{ _('Email') }}</th>
+          <th class="p-2">{{ _('Organization') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for form in formset %}
+        <tr class="">
+          {{ form.mshv }}
+          <td class="text-center p-2">
+            {{ form.fullname }}
+          </td>
+          <td class="text-center p-2">
+            {{ form.username }}
+          </td>
+          <td class="text-center p-2">
+            <input type="text" placeholder="Auto generate!" autocomplete=off>
+          </td>
+          <td class="text-center p-2">
+            {{ form.email }}
+          </td>
+          <td class="text-center p-2">
+            {{ form.organization }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="mt-4">
+      <button type="submit" class="text-xl min-w-[20rem] cursor-pointer focus:ring focus:ring-blue-500 shadow-lg btn-default transition-all ease-in-out duration-500 hover:bg-[100%_0%] py-2 font-bold text-center text-white rounded-2xl">Save</button>
+    </div>
   </form>
 {% endblock body %} 

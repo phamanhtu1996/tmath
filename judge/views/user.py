@@ -8,7 +8,7 @@ from typing import Any, Dict, Mapping, Optional, Type, Union
 from django.db import models, transaction
 from django.forms.utils import ErrorList
 from unidecode import unidecode
-from django import forms
+from django import forms, http
 
 from django.conf import settings
 from django.contrib.auth import logout as auth_logout
@@ -31,7 +31,7 @@ from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, FormView, ListView, UpdateView, View
+from django.views.generic import DetailView, FormView, ListView, UpdateView, View, TemplateView
 from reversion import revisions
 
 from judge.forms import CustomAuthenticationForm, DownloadDataForm, ProfileForm, newsletter_id, CreateManyUserForm
@@ -48,9 +48,13 @@ from judge.utils.subscription import Subscription
 from judge.utils.unicode import utf8text
 from judge.utils.views import DiggPaginatorMixin, QueryStringSortMixin, TitleMixin, add_file_response, generic_message
 from .contests import ContestRanking
+from judge.widgets.fields import FileInput
 
 __all__ = ['UserPage', 'UserAboutPage', 'UserProblemsPage', 'UserDownloadData', 'UserPrepareData',
-           'users', 'edit_profile', 'EditProfile', 'CreateCSVUser', 'ConfirmCSVUser']
+           'users', 'edit_profile', 'EditProfile', 
+           'CreateCSVUser', 'ConfirmCSVUser', 'SuccessCSVUser',
+           'ListModule',
+]
 
 
 def remap_keys(iterable, mapping):
@@ -611,6 +615,16 @@ class CreateCSVUserForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['organization'].choices = Organization.objects.all().values_list('id', 'name')
+        self.fields['organization'].widget.attrs['class'] = '''
+                    block
+                    w-full
+                    mt-1
+                    rounded-md
+                    border-gray-300
+                    shadow-sm
+                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
+                  '''
+        # self.fields['csv_file'].widget = FileInput()
 
     def clean_csv_file(self):
         csv_file = self.cleaned_data['csv_file']
@@ -647,11 +661,12 @@ class CreateCSVUser(TitleMixin, FormView):
         csv_file = form.cleaned_data['csv_file']
         decoded_file = csv_file.read().decode('utf-8')
         csv_data = csv.DictReader(decoded_file.splitlines(), delimiter=',')
-        for row in csv_data:
+        data_list = list(csv_data)
+        for row in data_list:
             username = self.get_username(row['fullname'], row['MSHV'])
             row['username'] = username
         context = {
-            'data': list(csv_data),
+            'data': data_list,
             'organization': org_id,
         }
         self.request.session['create_csv_user'] = context
@@ -659,13 +674,16 @@ class CreateCSVUser(TitleMixin, FormView):
     
 
 class ConfirmCSVUserForm(forms.Form):
+    mshv = forms.CharField(widget=forms.HiddenInput(), required=True)
     fullname = forms.CharField(label='Name', required=True)
     username = forms.CharField(label='Username', required=True)
     password = forms.CharField(label='Password', required=False)
     email = forms.EmailField(label='Email', required=False)
+    day_expire = forms.IntegerField(label='Day expire', required=False)
     organization = forms.ChoiceField(choices=(), label='Organization', required=False)
     
     def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.fields['organization'].choices = Organization.objects.all().values_list('id', 'name')
 
 
@@ -674,6 +692,7 @@ class ConfirmCSVUser(TitleMixin, FormView):
     # model = None
     title = 'Confirm create many user from csv'
     form_class = ConfirmCSVUserForm
+    success_url = reverse_lazy('success_csv_user')
 
     def get_formset(self):
         formset_class = forms.formset_factory(self.form_class, extra=0)
@@ -681,6 +700,7 @@ class ConfirmCSVUser(TitleMixin, FormView):
         org_id = self.request.session.get('create_csv_user', {}).get('organization', None)
         formset_data = [
             {
+                'mshv': row['MSHV'],
                 'fullname': row['fullname'],
                 'username': row['username'],
                 'password': '',
@@ -688,10 +708,13 @@ class ConfirmCSVUser(TitleMixin, FormView):
                 'organization': org_id,
             } for row in csv_data
         ]
-
+        if self.request.method == 'POST':
+            return formset_class(self.request.POST)
         return formset_class(initial=formset_data)
     
     def get(self, request, *args, **kwargs):
+        if not request.session.get('create_csv_user', None):
+            return HttpResponseRedirect(reverse_lazy('create_csv_user'))
         formset = self.get_formset()
         return self.render_to_response(self.get_context_data(formset=formset))
     
@@ -701,22 +724,84 @@ class ConfirmCSVUser(TitleMixin, FormView):
             return self.form_valid(formset)
         return self.form_invalid(formset)
     
-    def form_valid(self, form: ConfirmCSVUserForm) -> HttpResponse:
-        csv_data = self.request.session.get('create_csv_user', {}).get('data', [])
-        org_id = self.request.session.get('create_csv_user', {}).get('organization', None)
-        org: Organization = Organization.objects.get(id=org_id)
+    def form_valid(self, formset) -> HttpResponse:
         language = Language.get_default_language()
+        update_list = []
+        now = timezone.now()
         with transaction.atomic():
-            for i, row in enumerate(csv_data):
-                username = form.cleaned_data[i]['username']
-                password = User.objects.make_random_password()
-                email = form.cleaned_data[i]['email']
+            for form in formset:
+                index = form.cleaned_data['mshv']
+                username = form.cleaned_data['username']
+                password = form.cleaned_data['password']
+                fullname = form.cleaned_data['fullname']
+                day_expire = form.cleaned_data['day_expire']
+                if not day_expire:
+                    day_expire = 365
+                if not password:
+                    password = User.objects.make_random_password()
+                email = form.cleaned_data['email']
                 if User.objects.filter(username=username).exists():
                     User.objects.filter(username=username).delete()
                 new_user = User.objects.create_user(username=username, email=email, password=password)
-                new_profile = Profile(user=new_user, language=language)
+                new_profile = Profile(user=new_user, name=fullname, language=language, verified=True, expiration_date=now + timedelta(days=day_expire))
                 new_profile.save()
-                if org:
+                org_id = form.cleaned_data['organization']
+                data = [
+                    index,
+                    fullname, 
+                    username, 
+                    password,
+                    (now + timedelta(days=day_expire)).strftime("%Y-%m-%d %H:%M:%S"),
+                ]
+                if org_id:
+                    org: Organization = Organization.objects.get(id=org_id)
                     org.members.add(new_profile)
-        # for row in update_data:
-        return super().form_valid(form)
+                    data.append(org.name)
+                update_list.append(data)
+        del self.request.session['create_csv_user']
+        self.request.session['update_list'] = update_list
+        return super().form_valid(formset)
+    
+
+class SuccessCSVUser(TitleMixin, TemplateView):
+    template_name: str = 'user/success_csv_user.html'
+    title = 'Success create many user from csv'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['update_list'] = self.request.session.get('update_list', [])
+        return context
+    
+    def get(self, request, *args, **kwargs) -> HttpResponse:
+        if request.GET.get('download', '') == 'true':
+            return self.download_data()
+        return super().get(request, *args, **kwargs)
+    
+    def download_data(self):
+        list = self.request.session.get('update_list', [])
+        if not list:
+            return Http404()
+        response = HttpResponse(content_type='text/csv',)
+        response['Content-Disposition'] = 'attachment; filename="list_user.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['MSHV', 'Fullname', 'Username', 'Password', 'Expire', 'Organization'])
+        for data in list:
+            writer.writerow(data)
+        return response
+    
+
+class ListModule(TitleMixin, ListView):
+    template_name: str = 'user/list_module.html'
+    title = 'Advanced modules'
+    context_object_name = 'modules'
+    model = None
+    paginate_by = 50
+
+    MODULES = [
+        { 'link': reverse_lazy('many_user'), 'name': 'Create many user' },
+        { 'link': reverse_lazy('create_user_csv'), 'name': 'Create many user from csv' },
+    ]
+
+    def get_queryset(self):
+        return self.MODULES
+    

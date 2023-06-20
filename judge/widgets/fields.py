@@ -14,3 +14,6 @@ class HiddenInput(forms.HiddenInput):
 
 class CheckboxInput(forms.CheckboxInput):
     template_name: str = "forms/widgets/checkbox.html"
+
+class FileInput(forms.FileInput):
+    template_name: str = "forms/widgets/file.html"
