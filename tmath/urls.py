@@ -416,6 +416,7 @@ urlpatterns = [
     path('createuser/', include([
         path('csv/', user.CreateCSVUser.as_view(), name='create_user_csv'),
         path('confirm/', user.ConfirmCSVUser.as_view(), name='create_user_confirm'),
+        path('success/', user.SuccessCSVUser.as_view(), name='success_csv_user'),
     ])),
 
     path('tasks/', include([
@@ -425,6 +426,8 @@ urlpatterns = [
         path('failure', tasks.demo_failure),
         path('progress', tasks.demo_progress),
     ])),
+
+    path('modules/', user.ListModule.as_view(), name='list_module'),
 ]
 
 favicon_paths = ['apple-touch-icon-180x180.png', 'apple-touch-icon-114x114.png', 'android-chrome-72x72.png',
@@ -452,4 +455,5 @@ if 'newsletter' in settings.INSTALLED_APPS:
 if 'impersonate' in settings.INSTALLED_APPS:
     urlpatterns.append(path('impersonate/', include('impersonate.urls')))
 
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# if settings.DEBUG:
+#     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

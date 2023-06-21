@@ -93,6 +93,11 @@
                         <a href="{{ url('admin:index') }}" class="flex flex-col h-full font-semibold text-white ">{{ _('Admin') }}</a>
                     </li>
                     {% endif %}
+                    {% if request.user.is_superuser %}
+                    <li class="hover:bg-gray-700">
+                        <a href="{{ url('list_module') }}" class="flex flex-col h-full font-semibold text-white ">{{ _('Modules') }}</a>
+                    </li>
+                    {% endif %}
                     <li class="hover:bg-gray-700">
                         <a href="{{ url('user_edit_profile') }}" class="flex flex-col h-full font-semibold text-white ">{{ _('Edit profile') }}</a>
                     </li>
