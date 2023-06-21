@@ -705,6 +705,7 @@ class ConfirmCSVUser(TitleMixin, FormView):
                 'username': row['username'],
                 'password': '',
                 'email': row['email'],
+                'day_expire': row['day_expire'] if 'day_expire' in row else 365,
                 'organization': org_id,
             } for row in csv_data
         ]

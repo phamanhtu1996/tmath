@@ -1,16 +1,17 @@
 {% extends 'common-content.html' %}
 
 {% block body %}
-  <form class="mx-auto p-10" action="" method="post">
+  <form class="p-10 mx-auto" action="" method="post">
     {% csrf_token %}
     {{ formset.management_form }}
     <table class="w-full">
-      <thead class="bg-black text-white">
+      <thead class="text-white bg-black">
         <tr>
           <th class="p-2">{{ _('Fullname') }}</th>
           <th class="p-2">{{ _('Username') }}</th>
           <th class="p-2">{{ _('Password') }}</th>
           <th class="p-2">{{ _('Email') }}</th>
+          <th class="p-2">{{ _('Day expired') }}</th>
           <th class="p-2">{{ _('Organization') }}</th>
         </tr>
       </thead>
@@ -18,19 +19,22 @@
         {% for form in formset %}
         <tr class="">
           {{ form.mshv }}
-          <td class="text-center p-2">
+          <td class="p-2 text-center">
             {{ form.fullname }}
           </td>
-          <td class="text-center p-2">
+          <td class="p-2 text-center">
             {{ form.username }}
           </td>
-          <td class="text-center p-2">
+          <td class="p-2 text-center">
             <input type="text" placeholder="Auto generate!" autocomplete=off>
           </td>
-          <td class="text-center p-2">
+          <td class="p-2 text-center">
             {{ form.email }}
           </td>
-          <td class="text-center p-2">
+          <td class="p-2 text-center">
+            {{ form.day_expire }}
+          </td>
+          <td class="p-2 text-center">
             {{ form.organization }}
           </td>
         </tr>
