@@ -677,7 +677,7 @@ class ConfirmCSVUserForm(forms.Form):
     mshv = forms.CharField(widget=forms.HiddenInput(), required=True)
     fullname = forms.CharField(label='Name', required=True)
     username = forms.CharField(label='Username', required=True)
-    password = forms.CharField(label='Password', required=False)
+    # password = forms.CharField(label='Password', required=False)
     email = forms.EmailField(label='Email', required=False)
     day_expire = forms.IntegerField(label='Day expire', required=False)
     organization = forms.ChoiceField(choices=(), label='Organization', required=False)
@@ -703,7 +703,7 @@ class ConfirmCSVUser(TitleMixin, FormView):
                 'mshv': row['MSHV'],
                 'fullname': row['fullname'],
                 'username': row['username'],
-                'password': '',
+                # 'password': '',
                 'email': row['email'],
                 'day_expire': row['day_expire'] if 'day_expire' in row else 365,
                 'organization': org_id,
@@ -733,7 +733,7 @@ class ConfirmCSVUser(TitleMixin, FormView):
             for form in formset:
                 index = form.cleaned_data['mshv']
                 username = form.cleaned_data['username']
-                password = form.cleaned_data['password']
+                password = None # form.cleaned_data['password']
                 fullname = form.cleaned_data['fullname']
                 day_expire = form.cleaned_data['day_expire']
                 if not day_expire:
